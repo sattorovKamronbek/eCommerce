@@ -1,0 +1,143 @@
+// Uzbek interface dictionary; product copy stays with catalog records.
+export const copy = {
+  dokonEloni: "Do‘kon e’loni",
+  checkoutHaqida: "Checkout haqida",
+  ishlabChiqishRejimi: "Ishlab chiqish rejimi",
+  buyurtmaBerishTezOrada: "Buyurtma berish tez orada.",
+  buDokonningDizaynVaKatalogBosqichi:
+    "Bu do‘konning dizayn va katalog bosqichi. Hozir buyurtmalar qabul qilinmaydi va to‘lov olinmaydi.",
+  haqiqiyCheckoutServerNarxlariPostgresqlBuyurtmalari:
+    "Buyurtma berish xizmati tayyorlanmoqda. Ishga tushgach, yetkazib berish ma’lumotlari va yakuniy narxni tasdiqlashingiz mumkin bo‘ladi.",
+  savatgaQaytish: "Savatga qaytish →",
+  sahifaniYuklabBolmadi: "Sahifani yuklab bo‘lmadi",
+  iltimosYanaUrinibKoring: "Iltimos, yana urinib ko‘ring.",
+  qaytaUrinish: "Qayta urinish",
+  shaxsiyHisob: "Shaxsiy hisob",
+  sizUchunAjratilganJoy: "Siz uchun ajratilgan joy.",
+  hisobYaratishTizimgaKirishVaBuyurtmalar:
+    "Hisob yaratish, tizimga kirish va buyurtmalar tarixi keyingi bosqichda mavjud bo‘ladi.",
+  hozirchaMalumotlaringizYigilmaydiSevimlilarVaSavat:
+    "Hozircha ma’lumotlaringiz yig‘ilmaydi. Sevimlilar va savat shu brauzerda saqlanadi.",
+  katalogniKorish: "Katalogni ko‘rish →",
+  katalog: "Katalog",
+  boshSahifa: "Bosh sahifa",
+  didBilanTanlangan: "Did bilan tanlangan",
+  harKuniQadrlanadiganBuyumlar: "Har kuni qadrlanadigan buyumlar.",
+  mahsulotQidirish: "Mahsulot qidirish",
+  nimaniIzlayapsiz: "Nimani izlayapsiz?",
+  kategoriya: "Kategoriya",
+  barchaKategoriyalar: "Barcha kategoriyalar",
+  engYuqoriNarxSom: "Eng yuqori narx (so‘m)",
+  cheklanmagan: "Cheklanmagan",
+  saralash: "Saralash",
+  tavsiyaEtilgan: "Tavsiya etilgan",
+  avvalArzonroq: "Avval arzonroq",
+  avvalQimmatroq: "Avval qimmatroq",
+  faqatMavjud: "Faqat mavjud",
+  qollash: "Qo‘llash",
+  tozalash: "Tozalash",
+  taMahsulotNamunaviyKatalog: "ta mahsulot · Namunaviy katalog",
+  hechNarsaTopilmadi: "Hech narsa topilmadi",
+  qidiruvSoziniYokiFiltrlarniOzgartiribKoring:
+    "Qidiruv so‘zini yoki filtrlarni o‘zgartirib ko‘ring.",
+  filtrlarniTozalash: "Filtrlarni tozalash →",
+  uyingizVaKundalikHayotingizUchunDid:
+    "Uyingiz va kundalik hayotingiz uchun did bilan tanlangan buyumlar. Ishlab chiqishdagi namunaviy do‘kon.",
+  asosiyMazmungaOtish: "Asosiy mazmunga o‘tish",
+  yuklanmoqda: "Yuklanmoqda",
+  buyumlarTayyorlanmoqda: "Buyumlar tayyorlanmoqda…",
+  mahsulotTopilmadi: "Mahsulot topilmadi",
+  artikul: "Artikul",
+  oro: "ORO-",
+  yetkazibBerishVaQaytarish: "Yetkazib berish va qaytarish",
+  dokonIshlabChiqilmoqdaYetkazibBerishHududlari:
+    "Do‘kon ishlab chiqilmoqda. Yetkazib berish hududlari, tariflar va qaytarish siyosati sotuv boshlanishidan oldin e’lon qilinadi.",
+  katalog2: "Katalog →",
+  kamroqAmmoYaxshiroq: "Kamroq, ammo yaxshiroq.",
+  oroKundalikHayotdagiOddiyBuyumlargaYangicha:
+    "ORO — kundalik hayotdagi oddiy buyumlarga yangicha qarash. Biz tabiiy ranglar, aniq shakllar va o‘ylangan detallarni qadrlaymiz. Hozirgi brend vaqtinchalik, katalog esa ishlab chiqish uchun namunaviy ma’lumotlardan iborat.",
+  yetkazibBerish: "Yetkazib berish",
+  sotuvHaliBoshlanmaganYetkazibBerishHududlari:
+    "Sotuv hali boshlanmagan. Yetkazib berish hududlari, usullari, muddatlari va narxlari haqiqiy checkout ishga tushishidan oldin shu sahifada ko‘rsatiladi. Hozir bepul yetkazib berish yoki aniq muddat va’da qilinmaydi.",
+  qaytarishVaAlmashtirish: "Qaytarish va almashtirish",
+  buyurtmalarHozirchaQabulQilinmaydiQaytarishShartlari:
+    "Buyurtmalar hozircha qabul qilinmaydi. Qaytarish shartlari va murojaat tartibi sotuv boshlanishidan oldin tasdiqlanib e’lon qilinadi.",
+  aloqadaBolamiz: "Aloqada bo‘lamiz.",
+  dokonIshlabChiqilmoqdaTasdiqlanganTelefonEmail:
+    "Do‘kon ishlab chiqilmoqda. Tasdiqlangan telefon, email va manzil ishga tushirishdan oldin shu yerga qo‘shiladi. Hozir murojaat yoki email yig‘ish xizmati ulanmagan.",
+  malumotlaringizHaqida: "Ma’lumotlaringiz haqida",
+  ushbuVersiyaHisobYokiBuyurtmaMalumotlarini:
+    "Ushbu versiya hisob yoki buyurtma ma’lumotlarini yig‘maydi. Savat, sevimlilar va rang mavzusi brauzeringizda saqlanadi. Analitika va newsletter xizmatlari ulanmagan. Haqiqiy xizmatlar ulanishidan oldin to‘liq maxfiylik siyosati e’lon qilinadi.",
+  sahifaTopilmadi: "Sahifa topilmadi",
+  oroMalumot: "ORO · Ma’lumot",
+  manzilOzgarganYokiBundayMahsulotMavjud:
+    "Manzil o‘zgargan yoki bunday mahsulot mavjud emas.",
+  kataloggaQaytish: "Katalogga qaytish →",
+  oro01: "ORO / 01",
+  tabiiylikSoddalikMuvozanat: "Tabiiylik. Soddalik. Muvozanat.",
+  quyoshNuriTushganXonadaYumshoqKreslo:
+    "Quyosh nuri tushgan xonada yumshoq kreslo, yog‘och stol va keramik vaza",
+  ozingizniUydagidekHisEting: "O‘zingizni uydagidek his eting.",
+  yaxshiDizaynKundalikHayotningBirQismi:
+    "Yaxshi dizayn — kundalik hayotning bir qismi.",
+  shoshilmasdanTanlangUzoqVaqtSeving:
+    "Shoshilmasdan tanlang. Uzoq vaqt seving.",
+  tanlanganBuyumlar: "Tanlangan buyumlar",
+  harBirBurchakUchun: "Har bir burchak uchun",
+  sizniAksEttiradiganDetallar: "Sizni aks ettiradigan detallar.",
+  tabiiyRanglardagiShinamUyInteryeri: "Tabiiy ranglardagi shinam uy interyeri",
+  text01Kolleksiya: "01 — Kolleksiya",
+  uyVaInteryer: "Uy va interyer",
+  stolYoritgichi: "Stol yoritgichi",
+  text02Kolleksiya: "02 — Kolleksiya",
+  yoruglikSanati: "Yorug‘lik san’ati",
+  kundalikAksessuar: "Kundalik aksessuar",
+  text03Kolleksiya: "03 — Kolleksiya",
+  sizBilanHarKuni: "Siz bilan har kuni",
+  yashashXonasidagiTabiiyMateriallarVaSokin:
+    "Yashash xonasidagi tabiiy materiallar va sokin ranglar",
+  oroFalsafasi: "ORO falsafasi",
+  bizningHikoyamiz: "Bizning hikoyamiz",
+  yangiKelganlar: "Yangi kelganlar",
+  xaridHaqidaMalumot: "Xarid haqida ma’lumot",
+  shartlarIshgaTushirishdanOldinElonQilinadi:
+    "Shartlar ishga tushirishdan oldin e’lon qilinadi",
+  qaytarishShartlari: "Qaytarish shartlari",
+  xariddanOldinBatafsilMalumot: "Xariddan oldin batafsil ma’lumot",
+  sizBilanAloqada: "Siz bilan aloqada",
+  savollaringizUchunYordamBolimi: "Savollaringiz uchun yordam bo‘limi",
+  ochiqVaTushunarli: "Ochiq va tushunarli",
+  malumotlaringizgaMasuliyatliYondashuv:
+    "Ma’lumotlaringizga mas’uliyatli yondashuv",
+  savatingiz: "Savatingiz",
+  sevimliBuyumlaringiz: "Sevimli buyumlaringiz",
+  haliHechNarsaSaqlanmagan: "Hali hech narsa saqlanmagan",
+  yoqtirganMahsulotingizdagiYurakBelgisiniBosing:
+    "Yoqtirgan mahsulotingizdagi yurak belgisini bosing.",
+  yoqtirganBuyumlaringizniShuYerdaJamlang:
+    "Yoqtirgan buyumlaringizni shu yerda jamlang.",
+  miqdorniKamaytirish: "Miqdorni kamaytirish",
+  miqdorniOshirish: "Miqdorni oshirish",
+  savatniOchish: "Savatni ochish →",
+  oroOlami: "ORO olami",
+  bizBilanTanishing: "Biz bilan tanishing",
+  maxfiylik: "Maxfiylik",
+  ozbekistonUzs: "O‘zbekiston · UZS",
+  kundalikHayotUchunDidBilanTanlangan:
+    "Kundalik hayot uchun did bilan tanlangan buyumlar",
+  ozbekistondaYaratilayotganDokon: "O‘zbekistonda yaratilayotgan do‘kon",
+  dokonBoylabSayohat: "Do‘kon bo‘ylab sayohat",
+  hayotgaDidBilan: "Hayotga did bilan.",
+  asosiyNavigatsiya: "Asosiy navigatsiya",
+  namunaviyMahalliySavat: "Namunaviy mahalliy savat",
+  yangi: "Yangi",
+  mavjudEmas: " · Mavjud emas",
+  mavjudMiqdorSavatda: "Mavjud miqdor savatda",
+  savatgaQoshildiSavatBelgisidanOchishingizMumkin:
+    "Savatga qo‘shildi. Savat belgisidan ochishingiz mumkin.",
+  namunaviyMahsulotSotuvHaliBoshlanmagan:
+    "Namunaviy mahsulot · Sotuv hali boshlanmagan",
+  rangMavzusiniAlmashtirish: "Rang mavzusini almashtirish",
+  sevimlilardanOlibTashlash: "Sevimlilardan olib tashlash",
+  sevimlilargaQoshish: "Sevimlilarga qo‘shish",
+} as const;

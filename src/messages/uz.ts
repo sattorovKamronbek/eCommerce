@@ -1,0 +1,67 @@
+export const uz = {
+  nav: {
+    catalog: "Katalog",
+    arrivals: "Yangi kelganlar",
+    collections: "Kolleksiyalar",
+    about: "Biz haqimizda",
+    search: "Qidirish",
+    account: "Hisob",
+    wishlist: "Sevimlilar",
+    cart: "Savat",
+    menu: "Menyu",
+  },
+  common: {
+    all: "Barchasini ko‘rish",
+    add: "Savatga qo‘shish",
+    empty: "Hozircha mahsulot yo‘q",
+    explore: "Katalogni ko‘rish",
+    demo: "Ishlab chiqish rejimi · Namunaviy katalog. Buyurtmalar qabul qilinmaydi.",
+  },
+  home: {
+    title: "Oddiy kunlar.\nAlohida buyumlar.",
+    description:
+      "Uyingiz va kundalik hayotingiz uchun did bilan tanlangan buyumlar. Kamroq, ammo yaxshiroq.",
+    cta: "Kolleksiyani kashf eting",
+    favorites: "E’tiboringizga loyiq",
+    categories: "O‘z uslubingizni toping",
+    arrivals: "Yangi hikoyalar, yangi buyumlar",
+    story: "Uy — o‘zingizga\nqaytish joyi.",
+    storyBody:
+      "Tabiiy ranglar, yoqimli fakturalar va vaqtga bo‘ysunmaydigan shakllar. Har bir detalda xotirjamlik.",
+  },
+  categories: {
+    home: "Uy va interyer",
+    accessories: "Aksessuarlar",
+    lighting: "Yoritish",
+    textiles: "To‘qimachilik",
+  },
+  product: {
+    material: "Material",
+    details: "Mahsulot haqida",
+    available: "Mavjud",
+    unavailable: "Hozircha mavjud emas",
+    quantity: "Miqdor",
+    color: "Rang",
+    related: "Bir-biriga mos buyumlar",
+  },
+  cart: {
+    title: "Savatingiz",
+    subtotal: "Mahsulotlar jami",
+    note: "Namunaviy savat. Yetkazib berish va yakuniy narx haqiqiy checkout joriy etilganda serverda hisoblanadi.",
+    remove: "Olib tashlash",
+    empty: "Savatingiz hali bo‘sh",
+    checkout: "Checkout haqida",
+  },
+  footer: {
+    tagline: "Kundalik hayotga, alohida e’tibor.",
+    newsletter: "Yaxshi narsalardan xabardor bo‘ling.",
+    newsletterNote:
+      "Yangiliklar xizmati tayyorlanmoqda. Hozircha email manzilingiz yig‘ilmaydi.",
+    shop: "Do‘kon",
+    help: "Yordam",
+    shipping: "Yetkazib berish",
+    returns: "Qaytarish",
+    contact: "Bog‘lanish",
+    rights: "Barcha huquqlar himoyalangan.",
+  },
+} as const;
