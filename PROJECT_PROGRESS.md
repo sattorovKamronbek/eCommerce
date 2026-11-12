@@ -1,5 +1,393 @@
 # Project progress
 
+## Account/workspace completion and visual refinement — 2026-11-12
+
+The owner requested a functional users/admin experience and a polished interface
+without oversized text. Continued the already-approved accounts/read-only-admin
+slice and the existing ORO design system. The owner confirmed the known Gmail
+SMTP credential rejection is still uncorrected and identified the intended admin
+account. No administrator role was assigned, remote credential changed or mail
+sent during this refinement. Seller/catalog/payment operations remain outside the
+approved identity slice.
+
+Implemented a split desktop login/register screen using the existing illustrative
+assets, compact recovery/confirmation screens, shared profile/admin navigation,
+profile identity/settings/access sections and a read-only user table with native
+GET name/language filters. Search is server-side, case-insensitive and literal:
+regex metacharacters are escaped to avoid PostgREST's asterisk LIKE alias. Stable
+20-row pagination uses one extra lookahead row and preserves both filters. Direct
+admin access still checks current database roles before querying profiles.
+
+Added real provider-backed confirmation retry at
+`/{locale}/account/resend-confirmation`, accessible password visibility buttons,
+translated pending/validation/request guidance and a retry path. Resend responses
+are deliberately identical for unknown/already-confirmed addresses, pending-user
+SMTP failures, cooldowns and transport failures; guidance never promises mail
+delivery. Provider Auth logs remain the operator diagnostic. No address, password,
+token or provider payload is logged or persisted by these controls. Existing
+signup/recovery/confirmation authorization semantics remain intact.
+
+Typography is restrained across the marketplace: home 36–56px, catalogs 32–44px,
+details 28–38px, account/workspace 26–28px and form input text 16px. Existing
+cool-white/navy/lime colors, local fonts, original assets and legacy storefront
+behavior are retained. All copy is localized in `src/messages/account.ts`; no
+package, migration or brand configuration change was needed.
+
+Independently reviewed code against the 164-file start-of-turn checkpoint. One
+material issue was found in the initial resend error handling: provider-dependent
+responses could distinguish pending accounts. Confirmed using Supabase's primary
+source, added a failing regression and normalized the outcome to neutral guidance.
+All 19 targeted action/form tests then passed; a further component case checks
+that retry remains available. Literal wildcard regression also failed before its
+fix; all 12 query/embedded-PostgreSQL cases passed after correction. No deferred
+review finding remains. This was a bounded code review, not a full security audit.
+
+Fresh final checks after the privacy fix:
+
+| Check | Observed result |
+| --- | --- |
+| Strict TypeScript | Passed `next typegen` and `tsc --noEmit` |
+| ESLint | Passed, no warnings/errors |
+| Unit/component/database | 65 passed in 11 files, including 8 embedded-PostgreSQL checks |
+| Production build | Passed; 73 generated pages; private pages remain dynamic |
+| Full Playwright | All 60 passed in 5.2 minutes, zero retries; desktop/tablet/mobile Chromium, exit 0 |
+| First-pass visual/accessibility QA | Nine desktop/tablet/mobile captures passed axe; no overflow, broken visible image, console/page error or framework overlay |
+| Public live-provider boundary | Dedicated project only; Auth settings 200, email enabled, autoconfirm false; anonymous private-table reads 401/42501, zero rows exposed |
+| Preservation | 42 critical original routes/cart/data/assets/config/dependency/migration files byte-identical to start-of-turn checkpoint; no baseline file removed |
+| Repository | `git diff --check` passed; no commit, push, deployment or database write |
+
+The first full browser run exposed a test-environment origin mismatch:
+127.0.0.1 requests redirected to the owner's localhost origin, so the staged
+confirmation cookie belonged to a different host. Preserved the failure trace,
+aligned only the Playwright server's APP_ORIGIN with its base URL, and passed all
+three targeted confirmation cases afterward. No authentication guard or token
+check was weakened, no timeout increased, and `.env.local` was not changed.
+Typecheck and lint were rerun after this test configuration change.
+
+Browser plugin is unavailable; repository Playwright Chromium is the fallback.
+Native 1487×1058 account/admin concepts and rendered screenshots were inspected
+with view_image, together with 390px Uzbek mobile, 320px Russian registration and
+public home. Compared composition, palette, typography, asset treatment, control
+geometry, admin table/navigation, translated copy and responsive behavior. See
+[design and intentional adaptations](docs/design/accounts/DESIGN.md). No material
+layout defect was observed in those states. Final post-suite captures again passed
+page/console/overflow checks; the 390px Uzbek dark registration also passed axe.
+Latest desktop login/admin and dark mobile captures were visually inspected.
+`final-capture-results.json` and `final-captures.log` record that final pass.
+Admin screenshots are clearly marked
+isolated component QA fixtures with no live account data; they do not establish
+live authenticated access. No test route, role bypass or sample users exist in
+application runtime.
+
+Evidence directory: `/home/kamron/.codex/artifacts/ecommerce-polish-20261112/`.
+`source-before.tar.gz`/`source-before.json` preserve the credential-free dirty
+baseline; `check-final.log`, `playwright-final.log`, `origin-check.log`, `visual-results.json`,
+`public-provider-check.json` and `preservation.json` record verification. The
+owner-specific `bootstrap-owner-admin.sql` is prepared there, outside Git, and has
+NOT been executed. It checks for the selected, email-confirmed identity and
+existing application profile before assigning the role by UUID.
+
+Local final preview: http://localhost:3000, with `/uz/account/login` for the new
+account entry and `/uz/admin/users` for the protected workspace. The preview uses
+the owner's existing local configuration. No deployment was performed.
+
+Remaining external setup: correct the dedicated project's Gmail SMTP credentials,
+verify an actual confirmation email, then use the owner's privileged project
+connection to assign the intended administrator. The Supabase plugin is not
+connected; no management credential or confirmed test/admin session is available.
+The owner must enter SMTP secrets directly in Supabase, never chat. Setup and
+confirmation retry are documented in [ACCOUNTS_SETUP.md](docs/ACCOUNTS_SETUP.md).
+Live signup/email confirmation/login/recovery, authenticated customer isolation,
+admin list integration and immediate live role revocation remain unverified.
+SDK fixtures and simulated JWT database tests are not counted as those results.
+No real-device/Safari/Firefox/load or live-commerce readiness is claimed.
+
+
+## Registration submission debugging — 2026-11-12
+
+Owner reported that signup briefly displayed pending and appeared to refresh
+without registration. Reproduced a returned server-validation error in production:
+HTTP 200 RSC response, unchanged URL, pending false, error present, but all
+uncontrolled inputs had been reset. Error feedback was below the inputs and did
+not receive focus. A new browser regression failed against the old production
+build on absent feedback focus; the diagnostic also confirmed lost email input.
+
+A single confirmation-resend request to the owner-provided address, without any
+password change, returned live HTTP 429. A non-mutating Auth settings check still
+returned 200. The owner confirmed Custom SMTP is off. This is an independently
+observed email/request limit, not evidence that registration or mail delivery
+succeeded. No new test account, password replacement or provider-limit bypass.
+
+Implemented transient controlled form values, feedback at the start of the form
+with automatic focus, explicit registration rate-limit/delivery errors in all
+three languages and password clearing on successful actions. Password values stay
+only in browser form memory, never action-result state, logs or persistence.
+Added component/action and real server-action browser regressions. A focused
+read-only review found no material issue. One intermediate full-suite test needed
+an async React `act` boundary to flush its mocked action before asserting focus;
+no timeout was extended. Final `npm run check` passed strict types, warning-free
+lint, all 53 tests in 9 files and the production build (70 pages).
+
+Final relevant Playwright run passed all 12 cases across desktop, tablet and mobile
+in 1.3 minutes with zero retries. The new regression posts to the real server
+action with mismatched test passwords, confirms visible/focused feedback, retains
+all inputs, allows retry and observes zero document-navigation requests. It stops
+before any provider signup call. Existing localized forms, confirmation-token
+transport, private-route boundaries and legacy account access also passed.
+Desktop/mobile error screenshots were inspected. This is a targeted post-fix run,
+not a new run of the entire 57-case suite. The prior full 54-case result below
+describes the preceding accounts implementation.
+
+The local production preview at http://localhost:3000 was restarted with the
+verified build; refresh an already-open page to load the new client code. The
+standalone opt-in live-auth command also now enables Node 20's native WebSocket,
+after its SDK constructor was observed failing outside Next.js; the constructor
+was retested successfully without provider requests. This does not count as an
+authenticated live-provider workflow pass. `git diff --check` passed.
+
+Owner has no known domain or SMTP provider and asked for a free setup. Provided
+the existing-Gmail/App-Password path for this local test; secrets are entered
+directly in Supabase, never chat or Git. SMTP setup and real confirmation delivery
+remain pending; the owner's latest report is that SMTP has not yet been set up.
+No SMTP credentials were requested in chat. Setup details are in
+[account setup](docs/ACCOUNTS_SETUP.md).
+Evidence: `/home/kamron/.codex/artifacts/ecommerce-register-debug-20261112/`.
+
+Follow-up: owner initially reported that Google App Passwords are unavailable. Google's
+official requirements/restrictions were checked; 2-Step Verification status has
+been requested and is not yet known. Gmail SMTP is still a conditional proposed
+test setup, not a configured or verified service. No account-protection settings
+or application runtime were changed for this support follow-up.
+
+Subsequently the owner confirmed 2-Step Verification was off, received activation,
+App Password and exact SMTP field instructions, then reported setup complete.
+A single confirmation-resend check after that report returned HTTP 500,
+`unexpected_failure`, with an email-delivery error; it no longer returned 429.
+This is not successful SMTP authentication or mail delivery. The specific Auth
+log error has been requested to distinguish SMTP authentication/TLS, provider or
+template failures. Public application credentials cannot read privileged Auth
+logs. No account password was changed, no mail delivery was claimed, and no
+runtime code was changed for this configuration check. Sanitized evidence:
+`/home/kamron/.codex/artifacts/ecommerce-smtp-check-20261112/result.json`.
+
+Owner supplied the matching 500 edge-access entry for `/auth/v1/resend`; its
+`log_type` is `edge` and it contains no underlying SMTP error. Prepared the
+read-only [Auth service log query](docs/diagnostics/auth-error-logs.sql) using the
+documented SQL Editor Logs source and `source = 'auth_logs'`, rather than the
+default edge-access logs. The actual SMTP/Auth service error remains pending;
+no credential, TLS, template or database cause has been assumed.
+
+The owner then supplied the actual Auth log. It identifies Gmail SMTP rejection
+`535 5.7.8 Username and Password not accepted` for the same resend request. The
+configuration reload also records the email limit changing from 2/hour to 30,
+confirming that the custom-mail configuration update took effect. This establishes
+SMTP credential/account rejection, not which entered field is wrong. Requested
+verification that the App Password belongs to the same Google account as the full
+SMTP username/sender address, followed by saving a new 16-character App Password
+directly in Supabase. No password was requested in chat, no additional resend was
+made before correction, and no runtime/schema or Google security setting changed.
+Earlier log entries also show the owner's account awaiting email confirmation;
+successful new mail delivery/confirmation is still required.
+
+## Accounts and initial admin implementation — started 2026-11-11, continued 2026-11-12
+
+The owner approved the detailed design and coding, confirmed dedicated Supabase
+project `xevzbtivteugbqbmmtyz`, configured its publishable key in ignored local
+environment and reported applying `supabase/migrations/202611110001_accounts.sql`.
+The other live application's project remains untouched. Scope is real accounts,
+personal profiles and a read-only admin users workspace; seller/catalog/commerce
+work is still a subsequent phase requiring its dependent decisions.
+
+Implemented localized registration, login, confirmation, password recovery/reset,
+profile editing and signout; independent server checks for admin entry/users;
+database-confirmed profiles, protected admin assignments, grants/RLS and stable
+20-row pagination. Public sample pages retain static rendering and do not fetch
+user identity for the header. Legacy `/hisob` remains reachable with a real account
+link; browser cart/favorites are not silently imported. Customer text is complete
+in en/uz/ru under `src/messages/account.ts`.
+
+Confirmation GETs stage a 10-minute HttpOnly flow cookie and remove the token from
+the URL; only explicit POST consumes the provider token. Recovery always verifies
+a recovery token, never merely an ordinary login session. Auth/private responses
+use no-store/no-referrer headers; return paths are allowlisted. No service-role
+key or secret is in application runtime or tracked files. Supabase JS 2.109.0 and
+SSR 0.12.0 are pinned to the existing Node 20 runtime; the newest SDK required
+Node 22. Embedded PostgreSQL is a development test dependency only.
+
+Independent read-only whole-change review found returned transport/rate-limit
+errors misclassified as success/invalid credentials, premature token clearing on
+temporary verification failure and ignored password-reset signout failures. The
+missing-config confirmation response was also blank. Added failing regressions,
+fixed all four behaviors and passed 23 targeted auth/form tests. Password-update
+partial success now has truthful feedback and a separate signout retry. No
+declined-to-judge items or deferred findings remain from that review.
+
+Observed integration evidence: public Auth settings returned HTTP 200 with email
+enabled and automatic confirmation disabled. Live anonymous requests to both
+private tables returned HTTP 401 / PostgreSQL 42501, exposing no rows after the
+owner's migration application. This does not establish authenticated isolation,
+mail delivery, admin bootstrap or live role revocation. Local database tests run
+the real migration/RLS in embedded PostgreSQL with simulated JWT identity settings;
+SDK unit mocks are not represented as real Supabase authentication evidence.
+
+Final verification on 2026-11-12, after all code fixes:
+
+| Check | Fresh observed result |
+| --- | --- |
+| Strict TypeScript | Passed `next typegen` and `tsc --noEmit` |
+| ESLint | Passed with no warnings |
+| Unit/component/database tests | 50 passed in 9 files, including 7 real embedded-PostgreSQL RLS tests |
+| Production build | Passed; 70 generated pages; private account/admin routes dynamic, public sample entries static |
+| Playwright | All 54 passed in 4.6 minutes, zero retries, desktop/tablet/mobile Chromium |
+| New browser workflows | Localized registration/login/recovery pages, private-route redirects, invalid links, HttpOnly staged tokens, no-store/no-referrer responses and register accessibility |
+| Existing regression suite | All 48 former marketplace/storefront cases included and passed |
+| Visual QA | English desktop registration, Russian 320px registration, Uzbek dark mobile login; correct page/language, rendered forms, no overflow or console/page errors; all captures visually inspected |
+| Runtime dependencies | `npm audit --omit=dev`: zero vulnerabilities; compatible pinned Supabase versions verified with `npm ls` |
+| Preservation | 125-file dirty baseline compared; only 12 intended existing files changed; earlier uncommitted editorial work and all other source/data/cart files preserved |
+| Repository | `git diff --check` passed; `.env.local` ignored; `.env.example` has no credential value |
+
+Final commands: `npm run check`, followed by `npm run test:e2e -- --config
+/home/kamron/.codex/artifacts/ecommerce-accounts-admin-20261111/playwright.config.ts
+--max-failures=1`. Production browser server used isolated port 3110 and matching
+trusted origin. Two context refreshes interrupted earlier managed runs; their
+partial logs are not counted as passes. The successful final browser run used a
+detached runner with recorded exit code 0. Three subsequent visual captures used
+the local preview at 127.0.0.1:3000 without changing application code.
+
+Local handoff: http://localhost:3000/uz/account/register and
+http://localhost:3000/uz/account/login. Both return 200; anonymous
+`/uz/admin/users` returns 307 to the localized login with allowlisted return path.
+The preview is a detached production Next process; its PID/log are in the evidence
+directory. No deployment is implied by this local preview.
+
+Setup and first-admin UUID procedure: [account setup](docs/ACCOUNTS_SETUP.md).
+Actual local key values remain ignored. An opt-in live test script is available
+via `RUN_SUPABASE_LIVE_TESTS=1 npm run test:auth:live`; it requires two confirmed
+non-admin test accounts in the dedicated project and is not run with fabricated
+or real-customer credentials. Email templates/URLs and owner registration/admin
+bootstrap are pending operator setup and end-to-end verification. No deployment,
+push, account deletion, trading, orders, payments, fake users or business metrics.
+
+Evidence: `/home/kamron/.codex/artifacts/ecommerce-accounts-admin-20261111/`.
+Includes dirty-baseline preservation, RED/GREEN logs, review summary, check/browser
+logs and execution ledger. Earlier discovery/delivery sections below are historical.
+
+## Accounts and initial admin discovery — 2026-11-11
+
+The owner requested functional accounts and administration after the frontend
+delivery, then selected email/password registration, confirmation, recovery,
+profiles and an admin users list as the first implementation slice. Seller
+workspace/real catalog follow later. This is a new initiative; the completed
+frontend work below remains historical verification evidence.
+
+Inspection confirmed no auth dependency, database/migration setup, session
+validation or admin route. `/hisob` is an informational placeholder. Reviewed
+the route-group layouts, marketplace navigation, locale/config boundaries,
+requirements, existing tests and historical backend proposals. Preserved the
+eight pre-existing modified files; no runtime/dependency changes in discovery.
+
+The owner's existing Supabase project serves another live application and must
+remain untouched. A dedicated project is recommended. A Supabase integration was
+found and suggested, but connection has not been confirmed. No local environment
+files or Supabase CLI/psql executables were found. Docker is installed but socket
+access is denied. These facts limit real-provider/RLS testing until infrastructure
+is supplied; they do not justify fake authentication or sharing the live project.
+
+Proposed detailed design:
+[accounts/admin](docs/superpowers/specs/2026-11-11-accounts-admin-design.md).
+Initial scope/order has owner confirmation; detailed design review and project
+connection are pending. Independent read-only builder check returned “nothing
+important left”; the detailed design has been presented for owner approval. No production
+schema/auth changes, secrets, remote project creation or deployment performed.
+
+Fresh `npm run check` passed: strict typecheck, ESLint, 20 unit/component tests
+in three files and the production build with 46 generated pages. Targeted
+pre-implementation Playwright baseline passed all 9 cases in 1.6 minutes, zero
+retries: marketplace navigation, legacy cart behavior and responsive account
+access across desktop, tablet and mobile Chromium. This was a targeted run, not
+a fresh run of the entire 48-case frontend suite.
+Browser plugin not available; repository Playwright is the fallback. This is
+baseline evidence for existing code, not verification of new account features.
+Evidence directory:
+`/home/kamron/.codex/artifacts/ecommerce-backend-discovery-20261111/`.
+Contains `check.log`, `playwright.log`, `playwright-result.json` and preservation
+hashes for 74 existing source/test/configuration files. Browser tests used the
+outside-repository config at that location and a separate production server on
+127.0.0.1:3108, without reusing another running server. `git diff --check` passed.
+No account, admin, migration, email-delivery or live-commerce success is claimed.
+
+## Marketplace editorial redesign — 2026-11-11
+
+The owner requested implementation using plugins/skills and explicitly selected
+“Create a substantially new design.” Current work delivers that frontend change;
+the earlier marketplace preview and original storefront records below are historical.
+Backend/live-commerce decision gates in PRODUCT_REQUIREMENTS.md are unchanged.
+
+Implemented an asymmetric editorial home with two destination CTAs and a three-item
+sample edit; open media-led catalog cards; large catalog headings and native filter
+toolbars; type shortcuts preserving search/sort; and editorial details with return
+links preserving browsing context across languages. All customer text is in the
+three locale dictionaries. Cards have one associated-heading link, visible focus
+and reduced-motion handling. Marketplace styles now live in their own scoped
+stylesheet; original storefront rules remain intact.
+
+Used Superdesign's authenticated CLI/reference search, Imagegen concepts, Build Web
+Apps frontend builder/testing, shadcn, Vercel React/composition and Web Interface
+Guidelines, plus Superpowers planning/TDD/review/verification. Superdesign source
+context is recorded in .superdesign/init. No remote canvas draft or Superdesign
+generation-credit spend occurred. No new dependencies. Browser plugin unavailable;
+regular production Chromium Playwright is the fallback. Impeccable remains absent.
+
+Independent read-only review found a low-contrast active underline in explicit
+light CS2 and inherited invisible skip-link text. Both were fixed; a browser
+contrast test reproduced the 1:1 skip-link failure before the fix. Browser QA also
+found a category-navigation/form-label collision; separate translated landmark
+labels resolved it. Russian theme labels have sufficient control width. The final
+routing regression was a streaming HTTP 200 for invalid sample paths after reading
+searchParams on the server. Restored original static detail pages and isolated
+return-link query handling in the existing client navigation module under Suspense.
+Direct production requests now return 404 for wrong-domain and unknown samples,
+and 200 for valid sample details with query context. The no-JavaScript fallback
+returns to the full sample catalog.
+
+Final verification completed successfully after the routing fix:
+
+| Check | Fresh observed result |
+| --- | --- |
+| Strict TypeScript and ESLint | Passed with `npm run check` |
+| Unit tests | 20 passed in 3 files; URL serialization tests failed before implementation and passed afterward |
+| Production build | Passed; 46 generated pages, including static localized sample details |
+| Playwright | All 48 cases passed, 6.5 minutes, zero retries; desktop/tablet/mobile Chromium |
+| Marketplace journeys | Home sample discovery, category/query/sort preservation, localized detail return, 404 boundaries, theme persistence, empty/reset states and sample size choices |
+| Accessibility | Axe on home/catalog/detail surfaces; visible skip-link and light-CS2 navigation contrast; keyboard entry; Russian selected theme label fit; translated 320px layouts |
+| Legacy regression | Original browsing, cart/wishlist persistence/removal, stock disabling, account/mobile navigation, drawer focus/accessibility and checkout boundary passed |
+| Visual health | Seven production states passed: correct page/language, all images decoded, no console/page errors or horizontal overflow |
+| Visual comparison | Both concepts and latest desktop captures inspected with view_image, plus 320px Russian home and mobile detail; documented native-control/fixture/disclosure variations retained |
+| Preservation | 42 legacy route/data/store/asset/dependency files unchanged; original storefront CSS rules unchanged; all checkpoint files remain present |
+| Design context/docs | 29 raw Superdesign source captures match current files; task-document link targets and `git diff --check` passed |
+
+Final commands: `npm run check`, then `npm run test:e2e -- --config
+/home/kamron/.codex/artifacts/ecommerce-redesign-20261111/playwright.config.ts
+--max-failures=1`. The outside-repository config uses the unchanged suite settings
+with a dedicated production server at 127.0.0.1:3107 and external evidence paths.
+The earlier stopped/failing runs are recorded as failures, not counted as passes.
+
+Local handoff: http://localhost:3000. `/` resolves to `/uz/marketplace`; English is
+at `/en/marketplace`, and the original home remains `/storefront-preview`. Those
+three production entry points returned HTTP 200 in the handoff smoke check.
+
+Evidence directory: /home/kamron/.codex/artifacts/ecommerce-redesign-20261111/.
+Includes check.log, playwright.log/result, screenshots, contrast-red.log, review.txt,
+preservation.json and a pre-redesign source archive/hash manifest. Saved design
+concepts and prompt summaries: [redesign record](docs/design/marketplace/REDESIGN.md).
+The pre-redesign comparison confirms 42 legacy route/data/store/asset/dependency
+files unchanged and all original storefront CSS rules retained verbatim.
+
+Limits: frontend development preview only. No authentication, orders, payments,
+Steam integration, inventory, seller operations or backend implemented. Existing
+fixtures/prices remain explicitly illustrative. No Firefox/WebKit, real-device,
+load, formal security or live-commerce readiness is claimed. No deployment or push.
+
 ## Current initiative — CS2 and Fashion marketplace transformation
 
 Phase 0 audit/initial discovery and migration selection are recorded. Current delivery: **owner-approved marketplace frontend preview**, complete and verified on 2026-11-11. This is not a complete marketplace backend or a live-trading release. The former storefront Phases 0–1 below remain historical delivery evidence.

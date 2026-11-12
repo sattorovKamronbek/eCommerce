@@ -61,6 +61,13 @@ under /home/kamron/.codex/artifacts/ecommerce-redesign-20261111/.
   Type form label. Linked cards have one keyboard stop with an associated heading.
 - Shared legacy definition-list grid is reset within marketplace details so
   Category/Availability remain readable specification rows on phones.
+- Reading query state on the server made detail pages dynamic; invalid item paths
+  then reached a streaming 200 response. A route-segment restriction alone did
+  not resolve that behavior in the installed runtime. Sample details now retain
+  their original static rendering and validation. Only the return-link query
+  handling lives in the existing client navigation module under a small Suspense
+  boundary, with a usable catalog-link fallback. See the [Next.js static-query
+  pattern](https://nextjs.org/docs/app/api-reference/functions/use-search-params#static-rendering).
 
 Current verification counts and remaining platform limits are recorded in
 PROJECT_PROGRESS.md. No live commerce, backend, security or real-device readiness

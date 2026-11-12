@@ -4,12 +4,12 @@ import { Suspense, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useTheme } from "next-themes";
-import { Monitor, Moon, Sun } from "lucide-react";
+import { ArrowLeft, Monitor, Moon, Sun, UserRound } from "lucide-react";
 import { marketplaceConfig, storeConfig } from "@/lib/config";
 import { localeNames, type MarketplaceLocale, type MarketplaceMessages } from "@/messages/marketplace";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 
-export type NavigationCopy = Pick<MarketplaceMessages, "discover" | "cs2" | "fashion" | "notice" | "skip" | "navigation" | "language" | "theme" | "light" | "dark" | "system">;
+export type NavigationCopy = Pick<MarketplaceMessages, "discover" | "cs2" | "fashion" | "notice" | "skip" | "navigation" | "language" | "theme" | "light" | "dark" | "system"> & { account: string };
 
 const subscribeToMount = () => () => {};
 const clientSnapshot = () => true;
@@ -24,6 +24,11 @@ function LanguageLinks({ locale, path, label, query = "" }: { locale: Marketplac
 function QueryLanguageLinks(props: { locale: MarketplaceLocale; path: string; label: string }) {
   const query = useSearchParams().toString();
   return <LanguageLinks {...props} query={query ? `?${query}` : ""} />;
+}
+
+export function MarketplaceBackLink({ href, label }: { href: string; label: string }) {
+  const query = useSearchParams().toString();
+  return <Link className="mp-text-link mp-back" href={`${href}${query ? `?${query}` : ""}`}><ArrowLeft aria-hidden="true" />{label}</Link>;
 }
 
 export function MarketplaceFrame({ locale, copy, children, footer }: { locale: MarketplaceLocale; copy: NavigationCopy; children: React.ReactNode; footer: React.ReactNode }) {
@@ -43,6 +48,7 @@ export function MarketplaceFrame({ locale, copy, children, footer }: { locale: M
         {[[base, copy.discover], [`${base}/cs2`, copy.cs2], [`${base}/fashion`, copy.fashion]].map(([href, label]) => <Link key={href} href={href} aria-current={href === base ? path === href ? "page" : undefined : path.startsWith(href) ? "page" : undefined}>{label}</Link>)}
       </nav>
       <div className="mp-tools">
+        <Link className="mp-account-link" href={`/${locale}/account`} aria-label={copy.account}><UserRound aria-hidden="true" /></Link>
         <Suspense fallback={<LanguageLinks locale={locale} path={path} label={copy.language} />}><QueryLanguageLinks locale={locale} path={path} label={copy.language} /></Suspense>
         <label className="mp-theme">
           <ThemeIcon aria-hidden="true" />

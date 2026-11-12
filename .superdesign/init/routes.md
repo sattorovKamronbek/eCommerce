@@ -84,3 +84,11 @@ export function formatSamplePrice(amount: number, locale: MarketplaceLocale): st
   return `${new Intl.NumberFormat(locale === "uz" ? "uz-UZ" : locale === "ru" ? "ru-RU" : "en-US").format(amount)} UZS`;
 }
 ```
+
+## Detail return-link rendering
+
+Sample detail pages keep their original static rendering and early not-found validation. A Suspense boundary renders MarketplaceBackLink from the existing client navigation module, which preserves URL query context; the fallback is a usable unfiltered catalog link. No page-level searchParams read is required.
+
+## Account refinements — 2026-11-12
+
+`/{locale}/account/resend-confirmation` requests provider confirmation with a neutral response. `/{locale}/admin` authorizes then redirects to `/admin/users`, whose GET `q`, `language`, `page` parameters are validated on the server. Account/profile and users screens share `WorkspaceShell`; admin access remains read-only and database-authorized.

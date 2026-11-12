@@ -1,10 +1,12 @@
 import Image from "next/image";
+import { Suspense } from "react";
 import Link from "next/link";
 import { ArrowLeft, Info } from "lucide-react";
 import type { Ecosystem, MarketplaceSample, SampleType } from "@/data/marketplace-samples";
 import { marketplaceDictionaries, type MarketplaceLocale } from "@/messages/marketplace";
 import { filterMarketplaceSamples, formatSamplePrice, sampleFilterQuery, type SampleFilters } from "@/lib/marketplace";
 import { SampleCard } from "./sample-card";
+import { MarketplaceBackLink } from "./frame";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
@@ -85,13 +87,15 @@ export function MarketplaceCatalog({ locale, ecosystem, filters }: { locale: Mar
   );
 }
 
-export function MarketplaceDetail({ locale, sample, filters = {} }: { locale: MarketplaceLocale; sample: MarketplaceSample; filters?: SampleFilters }) {
+export function MarketplaceDetail({ locale, sample }: { locale: MarketplaceLocale; sample: MarketplaceSample }) {
   const copy = marketplaceDictionaries[locale];
   const item = copy.items[sample.id];
 
   return (
     <div className="mp-catalog mp-detail-page">
-      <Link className="mp-text-link mp-back" href={"/" + locale + "/marketplace/" + sample.ecosystem + sampleFilterQuery(filters)}><ArrowLeft aria-hidden="true" />{copy.back}</Link>
+      <Suspense fallback={<Link className="mp-text-link mp-back" href={"/" + locale + "/marketplace/" + sample.ecosystem}><ArrowLeft aria-hidden="true" />{copy.back}</Link>}>
+        <MarketplaceBackLink href={"/" + locale + "/marketplace/" + sample.ecosystem} label={copy.back} />
+      </Suspense>
       <div className="mp-detail">
         <div className="mp-detail-media"><Image src={sample.image} alt={item.name} fill priority sizes="(max-width: 800px) 100vw, 55vw" /></div>
         <div className="mp-detail-copy">

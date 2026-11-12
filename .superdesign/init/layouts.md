@@ -1,6 +1,6 @@
 # Shared layouts — complete source
 
-Two separate root layouts are intentional: marketplace `/{locale}/marketplace/**` and retained legacy storefront routes. Cross-root navigation may reload the document. Marketplace locale is `uz`, `ru` or `en`; brand/config remains `src/lib/config.ts`; customer copy remains `src/messages`. There is no root `src/app/layout.tsx`, sidebar, dashboard or separate breadcrumb component. Breadcrumb markup is inline in catalog/detail files. The marketplace root imports both legacy/base `src/app/globals.css` and marketplace-only `src/components/marketplace/styles.css`; the legacy root imports only globals.css. The marketplace shell remains sidebarless; wordmarks use translate="no" and the main target has tabIndex=-1 for the skip link.
+Two separate root layouts are intentional: marketplace `/{locale}/marketplace/**` and retained legacy storefront routes. Cross-root navigation may reload the document. Marketplace locale is `uz`, `ru` or `en`; brand/config remains `src/lib/config.ts`; customer copy remains `src/messages`. There is no root `src/app/layout.tsx` or separate breadcrumb component. Protected account/admin pages use `src/components/account/workspace.tsx`; public catalogs remain sidebarless. Breadcrumb markup is inline in catalog/detail files. The marketplace root imports both legacy/base `src/app/globals.css` and marketplace-only `src/components/marketplace/styles.css`; the legacy root imports only globals.css. The marketplace shell remains sidebarless; wordmarks use translate="no" and the main target has tabIndex=-1 for the skip link.
 
 ## `src/app/(marketplace)/[locale]/layout.tsx`
 
@@ -14,8 +14,10 @@ import { MarketplaceFrame, type NavigationCopy } from "@/components/marketplace/
 import { MarketplaceFooter } from "@/components/marketplace/footer";
 import { marketplaceConfig, storeConfig } from "@/lib/config";
 import { isMarketplaceLocale, marketplaceDictionaries } from "@/messages/marketplace";
+import { accountDictionaries } from "@/messages/account";
 import "../../globals.css";
 import "@/components/marketplace/styles.css";
+import "@/components/account/styles.css";
 
 export function generateStaticParams() { return marketplaceConfig.locales.map((locale) => ({ locale })); }
 
@@ -31,7 +33,7 @@ export default async function MarketplaceLayout({ children, params }: { children
   if (!isMarketplaceLocale(locale)) notFound();
   const copy = marketplaceDictionaries[locale];
   const { discover, cs2, fashion, notice, skip, navigation, language, theme, light, dark, system } = copy;
-  const navigationCopy: NavigationCopy = { discover, cs2, fashion, notice, skip, navigation, language, theme, light, dark, system };
+  const navigationCopy: NavigationCopy = { discover, cs2, fashion, notice, skip, navigation, language, theme, light, dark, system, account: accountDictionaries[locale].account };
   return <html lang={locale} suppressHydrationWarning><body><Providers defaultTheme="system" enableSystem><MarketplaceFrame locale={locale} copy={navigationCopy} footer={<MarketplaceFooter locale={locale} />}>{children}</MarketplaceFrame></Providers></body></html>;
 }
 ```
@@ -47,7 +49,7 @@ import { Suspense, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useTheme } from "next-themes";
-import { Monitor, Moon, Sun } from "lucide-react";
+import { ArrowLeft, Monitor, Moon, Sun } from "lucide-react";
 import { marketplaceConfig, storeConfig } from "@/lib/config";
 import { localeNames, type MarketplaceLocale, type MarketplaceMessages } from "@/messages/marketplace";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
@@ -67,6 +69,11 @@ function LanguageLinks({ locale, path, label, query = "" }: { locale: Marketplac
 function QueryLanguageLinks(props: { locale: MarketplaceLocale; path: string; label: string }) {
   const query = useSearchParams().toString();
   return <LanguageLinks {...props} query={query ? `?${query}` : ""} />;
+}
+
+export function MarketplaceBackLink({ href, label }: { href: string; label: string }) {
+  const query = useSearchParams().toString();
+  return <Link className="mp-text-link mp-back" href={`${href}${query ? `?${query}` : ""}`}><ArrowLeft aria-hidden="true" />{label}</Link>;
 }
 
 export function MarketplaceFrame({ locale, copy, children, footer }: { locale: MarketplaceLocale; copy: NavigationCopy; children: React.ReactNode; footer: React.ReactNode }) {
@@ -405,3 +412,7 @@ export function ThemeToggle() {
 }
 ```
 
+
+## Account workspace additions — 2026-11-12
+
+`src/components/account/shell.tsx` owns compact and split public account forms. `workspace.tsx` owns protected profile/users navigation; `admin-users.tsx` renders the authorized query result. Dedicated presentation is in `account/styles.css`.
