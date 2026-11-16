@@ -1,6 +1,6 @@
 # Product requirements — CS2 and Fashion marketplace
 
-Status: frontend preview delivered; detailed accounts and initial admin users design approved and implementation under verification. Started 2026-11-11. Dedicated Supabase project confirmed and public credentials configured locally; commercial policies and live-commerce architecture remain open.
+Status: frontend preview and accounts slice delivered locally; owner-role and seller-application foundation under local implementation. Started 2026-11-11. Dedicated Supabase project confirmed and public credentials configured locally; live-commerce policies and provider remain open.
 
 ## Confirmed direction from the owner's transformation brief
 
@@ -46,6 +46,12 @@ All sellers apply and require administrator approval, regardless of category.
 Both individuals and companies may apply.
 The owner requested all important application information, but did not specify
 individual fields or identity-document collection and verification procedures.
+The owner confirmed applicants may correct and resubmit rejected or mistaken
+applications; the administrator reviews each submitted revision.
+For seller identity and account-control review, the owner chose direct contact
+and secure, separate checking of documents by the administrator. The exact
+method, retention and reliable binding to the account remain to be established;
+documents are not collected in the application form.
 Once approved, sellers may publish new products immediately without an additional
 per-product admin review; administrator product-management powers remain.
 The owner also requested real customer purchasing and removal of demonstration
@@ -95,8 +101,8 @@ private and trading functions. Independent clothing sellers apply and require
 administrator approval. These decisions replace the previous
 first-sign-in confirmation preference and settle who should control roles; they
 do not by themselves define an owner bootstrap procedure, moderation operations
-or commerce rules. No implementation or provider setting has
-yet been changed for these decisions. In particular, a self-asserted email must
+or commerce rules. At the time of that follow-up, no implementation or provider
+setting had changed for these decisions. In particular, a self-asserted email must
 not be used as proof of identity or a basis for granting privileges.
 
 The owner requested a visual redesign drawing inspiration from LIS-SKINS for
@@ -206,6 +212,8 @@ For each owner answer, record date, decision ID, the answer, scope and remaining
 
 | Date | Decision IDs | Owner statement and scope | Remaining conditions |
 | --- | --- | --- | --- |
+| 2026-11-16 | D04 (partial) | Administrator contacts the seller and checks documents securely outside the site to verify identity and account control. | Establish the actual secure procedure, evidence, retention and binding to the account; never treat self-reported email alone as proof. |
+| 2026-11-16 | D04 (partial) | Applicants may correct and resubmit rejected or mistaken applications; administrators review them again. | Seller identity evidence and approved-seller category changes remain open. |
 | 2026-11-16 | D04 (partial) | Seller applications should require all important information. | Exact fields and safe identity/document verification remain to be defined. |
 | 2026-11-16 | D04 (partial) | Individuals and companies can apply to become sellers. | Verification, eligibility and application details remain open. |
 | 2026-11-16 | D04, D10 (partial) | Approved sellers can immediately publish new products without per-product administrator approval. | Listing validation, administrator actions and complaint/removal procedures remain to be defined. |

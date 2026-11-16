@@ -1,5 +1,42 @@
 # Project progress
 
+## Owner role and seller application foundation — 2026-11-16
+
+The owner asked to implement the phased design. Added a local, additive owner-role
+migration that preserves existing admin reads and never grants a role based on
+email or signup metadata. No live owner has been assigned. Owner role management,
+MFA/recent-auth enforcement, account-control verification and bootstrap/recovery
+remain unimplemented; the owner role currently enables only the existing admin
+capabilities.
+
+Added local seller-application migrations and localized account/admin pages.
+Individuals and companies can request CS2, fashion or both. Applications are
+private to the applicant and admins; admins can approve, reject and reopen a
+decision. Applicants can correct pending/rejected applications. Decisions check
+the exact revision, and audit entries record reviewed and changed scopes without
+copying contact information. The owner selected separate, secure offline document
+checks by an administrator; the actual evidence/account-control procedure remains
+open. Application approval currently records only a decision and grants no seller
+catalog or trading privileges. No identification documents are collected here.
+
+The current seller catalog, publishing, real inventory, user blocking, owner role
+management, orders, payment verification, payout and dispute operations remain
+unimplemented. Provider selection, verified money flow and other business rules
+remain necessary before live commerce. Existing sample items and development
+labels remain because no real replacement catalog or checkout is available. No
+new migration, role assignment, provider setting or deployment has been applied
+remotely. The other live application was not touched.
+
+Local verification in the isolated worktree: `npm run typecheck` and `npm run
+lint` passed; `npm test -- --maxWorkers=1` passed 95 tests in 18 files; `npm run
+build` passed; and Playwright account/marketplace workflows passed 48 tests across
+desktop, tablet and mobile using a separate loopback port. The Browser plugin was
+not available, so the repository's Playwright workflow was used. New seller routes
+were tested for anonymous access denial; no authenticated seller/admin browser
+test, real account/MFA test or live migration execution was performed. PostgreSQL
+tests use local PGlite with simulated JWT identities and do not establish live
+Supabase Auth, SMTP, identity verification or deployment behavior.
+
 ## Owner, seller categories and real commerce request — 2026-11-16
 
 Recorded the owner's designated Gmail, the requested CS2-only, clothing-only and

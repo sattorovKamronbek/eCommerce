@@ -17,7 +17,7 @@ export function validFlowToken(value: unknown): value is string {
   return typeof value === "string" && /^[a-f0-9]{40,128}$/i.test(value);
 }
 export function safeReturnPath(input: unknown, locale: MarketplaceLocale): string {
-  const allowed = [`/${locale}/account`, `/${locale}/admin`, `/${locale}/admin/users`];
+  const allowed = [`/${locale}/account`, `/${locale}/admin`, `/${locale}/admin/users`, `/${locale}/admin/sellers`, `/${locale}/seller/apply`];
   return typeof input === "string" && allowed.includes(input) ? input : allowed[0];
 }
 export function parseAdminPage(value: string | string[] | undefined): number {
