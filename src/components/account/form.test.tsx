@@ -1,0 +1,77 @@
+import { act, fireEvent, render, screen, waitFor, cleanup } from "@testing-library/react";
+import { afterEach, expect, it, vi } from "vitest";
+import { AccountForm } from "./form";
+import { accountDictionaries } from "@/messages/account";
+afterEach(cleanup);
+it("can reveal and conceal a password without submitting or losing its value", () => {
+  const action = vi.fn();
+  render(<AccountForm action={action} kind="login" copy={accountDictionaries.en} />);
+  const password = screen.getByLabelText("Password", { exact: true });
+  fireEvent.change(password, { target: { value: "my password 123" } });
+  fireEvent.click(screen.getByRole("button", { name: "Show password: Password" }));
+  expect(password).toHaveAttribute("type", "text");
+  expect(password).toHaveValue("my password 123");
+  expect(screen.getByRole("button", { name: "Hide password: Password" })).toHaveAttribute("aria-pressed", "true");
+  fireEvent.click(screen.getByRole("button", { name: "Hide password: Password" }));
+  expect(password).toHaveAttribute("type", "password");
+  expect(password).toHaveValue("my password 123");
+  expect(action).not.toHaveBeenCalled();
+});
+it("keeps confirmation retry available after neutral guidance without claiming delivery", async () => {
+  const action = vi.fn().mockResolvedValue({ status: "success", message: "confirmationRequested" });
+  const { container } = render(<AccountForm action={action} kind="resend" copy={accountDictionaries.en} />);
+  fireEvent.change(screen.getByLabelText("Email", { exact: true }), { target: { value: "retry@example.invalid" } });
+  await act(async () => { fireEvent.submit(container.querySelector("form")!); });
+  await waitFor(() => expect(screen.getByRole("status")).toHaveFocus());
+  expect(screen.getByRole("status")).toHaveTextContent(accountDictionaries.en.feedback.confirmationRequested);
+  expect(screen.getByRole("button", { name: "Resend confirmation" })).toBeEnabled();
+  expect(screen.getByLabelText("Email", { exact: true })).toHaveValue("retry@example.invalid");
+});
+it("keeps entered values and focuses a visible error after a rejected registration", async () => {
+  const action = vi.fn().mockResolvedValue({ status: "error", message: "unavailable" });
+  const { container } = render(<AccountForm action={action} kind="register" copy={accountDictionaries.en} />);
+  fireEvent.change(screen.getByLabelText("Display name"), { target: { value: "Registration Check" } });
+  fireEvent.change(screen.getByLabelText("Email", { exact: true }), { target: { value: "check@example.invalid" } });
+  fireEvent.change(screen.getByLabelText("Password", { exact: true }), { target: { value: "test password 123" } });
+  fireEvent.change(screen.getByLabelText("Repeat password"), { target: { value: "test password 123" } });
+  await act(async () => { fireEvent.submit(container.querySelector("form")!); });
+  await waitFor(() => expect(screen.getByRole("alert")).toHaveFocus());
+  expect(screen.getByLabelText("Display name")).toHaveValue("Registration Check");
+  expect(screen.getByLabelText("Email", { exact: true })).toHaveValue("check@example.invalid");
+  expect(screen.getByLabelText("Password", { exact: true })).toHaveValue("test password 123");
+  expect(screen.getByLabelText("Repeat password")).toHaveValue("test password 123");
+  expect(screen.getByRole("button", { name: "Create account" })).toBeEnabled();
+});
+it("clears password fields after successful registration and focuses confirmation guidance", async () => {
+  const action = vi.fn().mockResolvedValue({ status: "success", message: "checkEmail" });
+  const { container } = render(<AccountForm action={action} kind="register" copy={accountDictionaries.en} />);
+  fireEvent.change(screen.getByLabelText("Password", { exact: true }), { target: { value: "test password 123" } });
+  fireEvent.change(screen.getByLabelText("Repeat password"), { target: { value: "test password 123" } });
+  await act(async () => { fireEvent.submit(container.querySelector("form")!); });
+  await waitFor(() => expect(screen.getByRole("status")).toHaveFocus());
+  expect(screen.getByLabelText("Password", { exact: true })).toHaveValue("");
+  expect(screen.getByLabelText("Repeat password")).toHaveValue("");
+});
+it.each(["register", "forgot"] as const)("allows retry after a neutral %s request without claiming delivery", async kind => {
+  const action = vi.fn().mockResolvedValue({ status: "success", message: kind === "register" ? "checkEmail" : "recoverySent" });
+  const { container } = render(<AccountForm action={action} kind={kind} copy={accountDictionaries.en} />);
+  fireEvent.change(screen.getByLabelText("Email", { exact: true }), { target: { value: "retry@example.invalid" } });
+  await act(async () => { fireEvent.submit(container.querySelector("form")!); });
+  await waitFor(() => expect(screen.getByRole("status")).toHaveFocus());
+  expect(screen.getByLabelText("Email", { exact: true })).toHaveValue("retry@example.invalid");
+  expect(screen.getByLabelText("Email", { exact: true })).toBeEnabled();
+  expect(screen.getByRole("button", { name: kind === "register" ? "Create account" : "Send recovery email" })).toBeEnabled();
+});
+it("offers a separate signout retry after password update partial success", async () => {
+  const action = vi.fn().mockResolvedValue({ status: "success", message: "passwordUpdatedSignoutFailed" });
+  const recoveryLogout = vi.fn().mockResolvedValue({ status: "error", message: "unavailable" });
+  const { container } = render(<AccountForm action={action} kind="reset" copy={accountDictionaries.en} recoveryLogout={recoveryLogout} />);
+  fireEvent.change(screen.getByLabelText("Password", { exact: true }), { target: { value: "long password 123" } });
+  fireEvent.change(screen.getByLabelText("Repeat password"), { target: { value: "long password 123" } });
+  await act(async () => { fireEvent.submit(container.querySelector("form")!); });
+  await waitFor(() => expect(screen.getByRole("button", { name: "Sign out" })).toBeVisible());
+  expect(screen.getByRole("button", { name: "Set a new password" })).toBeDisabled();
+  expect(container.querySelectorAll("form")).toHaveLength(2);
+  await act(async () => { fireEvent.submit(container.querySelectorAll("form")[1]); });
+  await waitFor(() => expect(recoveryLogout).toHaveBeenCalledTimes(1));
+});

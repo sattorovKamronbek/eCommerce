@@ -1,0 +1,17 @@
+# Development milestones and verification gates
+
+Historical storefront guidance/delivery. The approved marketplace frontend now has separate route-group layouts and locale routes; the old home is at `/storefront-preview` and other original public routes remain. See [current progress](../PROJECT_PROGRESS.md), [requirements](../PRODUCT_REQUIREMENTS.md) and [marketplace scope](MARKETPLACE_PHASE1_PROPOSAL.md). Historical phase numbers and source paths below do not describe marketplace completion.
+
+Each phase starts with inspection and a bounded implementation plan, finishes with code review, checks, fixes and an updated PROJECT_PROGRESS.md. Preserve working storefront behavior throughout.
+
+| Phase | Deliverable | Acceptance evidence |
+| --- | --- | --- |
+| 0 — Foundation | Next.js, strict TypeScript, Tailwind, lint, Vitest/RTL, Playwright, architecture and working agreements | Clean typecheck/lint, successful production build, documented local commands and no required secrets |
+| 1 — Storefront | Uzbek/UZS editorial homepage, theme system, navigation, fixture catalog/detail foundations, local wishlist/cart previews | Desktop/tablet/mobile journeys, accessibility checks in both themes, no console errors, search/empty/unavailable states, cart validation/persistence tests; development status visible |
+| 2 — Database catalog | Supabase migrations, categories/products/images/variants/inventory, RLS, database-backed search/filter/pagination | Fresh database migrates successfully; anonymous clients can read only published catalog; unauthorized writes fail; constraints reject invalid prices/stock/SKUs; query integration tests cover filters and empty/error states |
+| 3 — Customer features | Supabase Auth, profiles, account routes, customer-owned wishlist/cart and order history foundations | Sign-in/out and session refresh tests; two users cannot access each other's records; invalid sessions rejected; cart merge/revalidation/persistence tested; history correctly empty before orders exist |
+| 4 — COD checkout | Validated guest/customer address/phone, configurable shipping, server pricing, persisted order/item snapshots and transaction-safe inventory | Tampered client prices ignored; insufficient stock/invalid address rejected; concurrent last-unit requests cannot oversell; retries create one order; cancellation restores stock exactly once; confirmation and unguessable tracking tested; COD remains unpaid |
+| 5 — Admin | Authorized products/categories/images/variants/inventory, orders/fulfillment, customers/settings and real analytics | Every write and data read has server authorization; non-admin direct requests fail; uploads reject unsupported/oversized content; inventory movements auditable; revenue/status metrics match seeded database assertions; cancellation/refund state transitions tested |
+| 6 — Payments and readiness | Selected gateway adapter, verified callbacks, idempotency, reconciliation/refunds, deployment setup | Provider sandbox success/failure/cancel tests; invalid signatures/replay events rejected; duplicate callbacks cannot duplicate payment; refunds reconciled; migration/backup/restore rehearsed; security/accessibility/performance reviews documented and release blockers resolved |
+
+External dependencies: Phase 2 needs a Supabase project; Phase 4 needs confirmed shipping/business settings; Phase 6 needs selected gateway and securely configured credentials. No fake substitutes satisfy these gates.
