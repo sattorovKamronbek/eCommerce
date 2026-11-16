@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { readSignupSettings } from "@/lib/auth/signup-settings";
 import { getAuthConfig } from "@/lib/supabase/config";
 import { isMarketplaceLocale, type MarketplaceLocale } from "@/messages/marketplace";
 import type { AccountFeedback } from "@/messages/account";
@@ -44,21 +45,22 @@ export async function signupAction(locale: MarketplaceLocale, _previous: Account
   const config = getAuthConfig();
   const client = await createServerSupabaseClient(true);
   if (!config || !client) return fail("unavailable");
+  const settings = await readSignupSettings(config);
+  if (settings !== "ready") return fail(settings === "confirmation-required" ? "signupSetupRequired" : "unavailable");
   try {
     const result = await client.auth.signUp({ email, password, options: {
-      emailRedirectTo: `${config.origin}/${locale}/auth/confirm`,
       data: { display_name: name, preferred_locale: locale },
     } });
-    // A project with email confirmation accidentally disabled must not pretend a mail was sent.
-    if (result.data?.session) {
-      try { await client.auth.signOut({ scope: "local" }); } catch { /* Remain unavailable on a misconfigured project. */ }
-      return fail("unavailable");
+    const { user, session } = result.data;
+    // Only Supabase can issue the session. Auto-confirmation is not mailbox proof
+    // and never grants any role; privileges remain tied to explicit UUID grants.
+    if (result.error || !session || !user?.email_confirmed_at || session.user.id !== user.id) {
+      if (session) await client.auth.signOut({ scope: "local" });
+      return fail("registrationFailed");
     }
-  } catch { /* Provider diagnostics belong in Auth logs, never public feedback. */ }
-  // Existing accounts may short-circuit before delivery/strength checks. Match
-  // every provider outcome so SMTP failures and cooldowns cannot expose them.
-  // This acknowledges only the request; the copy makes no delivery promise.
-  return success("checkEmail");
+  } catch { return fail("registrationFailed"); }
+  revalidatePath(`/${locale}/account`);
+  redirect(`/${locale}/account`);
 }
 
 export async function loginAction(locale: MarketplaceLocale, _previous: AccountState, form: FormData): Promise<AccountState> {

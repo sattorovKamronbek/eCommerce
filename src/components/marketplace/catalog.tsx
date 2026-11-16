@@ -35,7 +35,7 @@ export function MarketplaceCatalog({ locale, ecosystem, filters }: { locale: Mar
   const hasFilters = Boolean(filters.q || filters.type || filters.sort && filters.sort !== "featured");
 
   return (
-    <div className="mp-catalog">
+    <div className="mp-catalog mp-catalog-index">
       <nav className="mp-breadcrumb" aria-label={copy.breadcrumb}>
         <Link href={base}>{copy.discover}</Link><span aria-hidden="true">/</span><span aria-current="page">{copy[ecosystem]}</span>
       </nav>

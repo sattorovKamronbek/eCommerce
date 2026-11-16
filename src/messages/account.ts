@@ -28,6 +28,8 @@ const en = {
   readOnly: "Read-only access", readOnlyBody: "Application profiles can be viewed here. No changes can be made.",
   pagination: "Users pagination", retry: "Try again", usersUnavailable: "Profiles could not be loaded. Try again.",
   feedback: {
+    signupSetupRequired: "Registration without email confirmation is not enabled yet. Contact the site administrator. No registration request was sent.",
+    registrationFailed: "Could not create an account. Try again later with a strong password, or sign in or recover your existing account.",
     confirmationRequested: "Check your inbox if this address has an account awaiting confirmation. Delivery delays or an email-service issue may prevent the email from arriving. If nothing arrives, wait and try again. If already confirmed, sign in.",
     invalidEmail: "Enter a valid email address.", invalidName: "Enter a display name with 2–80 characters and no control characters.",
     invalidPassword: "Use a password with 12–128 characters.", passwordMismatch: "The passwords do not match.",
@@ -76,6 +78,8 @@ const uz: AccountMessages = {
   readOnly: "Ko‘rish huquqi", readOnlyBody: "Bu yerda profillarni ko‘rish mumkin. O‘zgartirish amallari mavjud emas.",
   pagination: "Foydalanuvchilar sahifalari", retry: "Qayta urinish", usersUnavailable: "Profillar yuklanmadi. Qayta urinib ko‘ring.",
   feedback: {
+    signupSetupRequired: "Email tasdig‘isiz ro‘yxatdan o‘tish hali sozlanmagan. Sayt administratoriga murojaat qiling. Ro‘yxatdan o‘tish so‘rovi yuborilmadi.",
+    registrationFailed: "Hisob yaratilmadi. Keyinroq kuchli parol bilan qayta urining yoki mavjud hisobingizga kiring yoxud parolni tiklang.",
     confirmationRequested: "Bu emailga tasdiqlash kutilayotgan hisob bog‘langan bo‘lsa, pochta qutingizni tekshiring. Yetkazish kechikishi yoki email xizmati muammosi sabab xat kelmasligi mumkin. Biroz kutib, qayta urining. Email tasdiqlangan bo‘lsa, hisobga kiring.",
     invalidEmail: "To‘g‘ri email manzilini kiriting.", invalidName: "2–80 belgili, boshqaruv belgilarisiz ism kiriting.",
     invalidPassword: "12–128 belgili paroldan foydalaning.", passwordMismatch: "Parollar bir xil emas.",
@@ -122,6 +126,8 @@ const ru: AccountMessages = {
   readOnly: "Доступ для просмотра", readOnlyBody: "Здесь можно просматривать профили. Изменения недоступны.",
   pagination: "Страницы пользователей", retry: "Попробовать снова", usersUnavailable: "Не удалось загрузить профили. Попробуйте снова.",
   feedback: {
+    signupSetupRequired: "Регистрация без подтверждения email ещё не настроена. Обратитесь к администратору сайта. Запрос на регистрацию не отправлен.",
+    registrationFailed: "Не удалось создать аккаунт. Попробуйте позже с надёжным паролем, войдите в существующий аккаунт или восстановите пароль.",
     confirmationRequested: "Если аккаунт с этим email ожидает подтверждения, проверьте почту. Письмо может не прийти из-за задержки или сбоя почтового сервиса. Подождите и попробуйте снова. Если email уже подтверждён, войдите.",
     invalidEmail: "Введите корректный email.", invalidName: "Введите имя из 2–80 символов без управляющих символов.",
     invalidPassword: "Используйте пароль из 12–128 символов.", passwordMismatch: "Пароли не совпадают.",

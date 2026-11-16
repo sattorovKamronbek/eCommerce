@@ -32,6 +32,91 @@ The owner reiterated in Uzbek that the existing site should become a complete, l
 
 The owner subsequently selected both frontend migration options, requested support for both CS2 payment-flow possibilities, and confirmed hybrid clothing supply. The implementation interpretation was communicated: add new locale routes, preserve the existing home at `/storefront-preview`, then switch `/` to the marketplace after verification. This authorizes the bounded frontend preview in [docs/MARKETPLACE_PHASE1_PROPOSAL.md](docs/MARKETPLACE_PHASE1_PROPOSAL.md). It does not authorize a provider, live payment flow, custody or seller settlement policy.
 
+## Owner and seller request — 2026-11-16
+
+The owner designated `sattorovkamronbek2@gmail.com` as the intended principal
+site owner. Owner authority must be attached to the independently verified account,
+not granted automatically to an account that merely supplies this email address.
+The owner reports that this marketplace account already exists and that they can
+access SQL Editor in the dedicated Supabase project; neither claim has yet been
+independently verified through the application or a privileged connection.
+The owner requested the ability to add sellers, with three permitted scopes:
+CS2 only, clothing only, or both. Sellers need a capable product-entry experience.
+All sellers apply and require administrator approval, regardless of category.
+Both individuals and companies may apply.
+The owner requested all important application information, but did not specify
+individual fields or identity-document collection and verification procedures.
+Once approved, sellers may publish new products immediately without an additional
+per-product admin review; administrator product-management powers remain.
+The owner also requested real customer purchasing and removal of demonstration
+items and labels. These are product goals; detailed seller onboarding, listing
+workflow, payments, delivery and the remaining commercial rules still need the
+decisions recorded below. Sample content must remain clearly identified while it
+is still displayed; remove it as real catalog functionality replaces it.
+
+For CS2 purchases, the owner confirmed that both direct-to-seller payment and
+payment to the platform are desired, and administrators must be able to see
+transactions. For a direct seller payment, the seller or buyer reports the
+payment and an administrator checks it. Reporting and administrator verification
+are distinct; the detailed evidence and review procedures remain open. The
+choice of provider, seller settlement execution, delivery mechanism and reversals
+also remain open.
+Visibility of transactions does not establish that payments outside the platform
+can be automatically detected or independently verified.
+
+For CS2 fulfillment, the seller initially delivers the skin; the owner may want
+site-mediated delivery later. Both the seller and buyer confirm delivery; their
+confirmations must be recorded separately so administrators can see each one.
+The delivery mechanism, evidence and dispute procedure are not yet specified.
+A future site-mediated option does not approve Steam custody, bots or an
+integration mechanism.
+
+For CS2 payments received by the platform, the owner wants seller payout after
+both buyer and seller confirm delivery. If one party does not confirm or objects,
+do not release platform-held funds to the seller; an administrator reviews the
+case. Direct seller payments outside the platform cannot be held by the site.
+Provider support, payout execution, dispute handling and reversals remain to be
+designed and verified. No payment provider has yet been selected. The owner chose no
+platform commission for now; later changes and their effective dates need a
+separate decision.
+
+For clothing, the owner answered "seller" to who receives payment and who
+delivers. Working interpretation: the customer pays the seller directly and the
+seller delivers; the owner can correct this interpretation. Payment methods,
+shipping regions, returns, and how platform-owned stock is handled remain open.
+
+## Accounts and administration follow-up — 2026-11-16
+
+The owner requested that new users can sign in with email and password without
+first confirming their email, while retaining security. The owner also selected
+that only the site owner may manage roles, administrators may manage products
+and user status, and moderators may review. Blocked users must lose access to
+private and trading functions. Independent clothing sellers apply and require
+administrator approval. These decisions replace the previous
+first-sign-in confirmation preference and settle who should control roles; they
+do not by themselves define an owner bootstrap procedure, moderation operations
+or commerce rules. No implementation or provider setting has
+yet been changed for these decisions. In particular, a self-asserted email must
+not be used as proof of identity or a basis for granting privileges.
+
+The owner requested a visual redesign drawing inspiration from LIS-SKINS for
+skins and Ralph Lauren for fashion, plus broader administration and automation.
+The first concept in `docs/design/2026-11-16/marketplace-concept.png` was not
+accepted. The owner wants all of the offered visual directions available through
+themes: dark/technical skins, light/classic fashion, and light or dark versions
+of both experiences. The owner approved the visual direction in
+`docs/design/2026-11-16/catalog-directions.png`; its generated ratings, counts,
+products, prices and unavailable filters are illustrative, not approved data.
+The later home-page concept in `docs/design/2026-11-16/home-proposal.png` was
+not accepted. The owner asked for the first section to explain the online store
+more fully, with additional information on the home page. A revised direction
+in `docs/design/2026-11-16/home-explained-proposal.png` also needs changes.
+The owner requested information about how the store works, sellers and products;
+the existing localized buying/selling explanation is now included on the home
+page. Real commerce must not be presented as already available.
+Trading, payments, seller operations and the full administration contract still
+depend on the unresolved business decisions listed below.
+
 ## Accounts and administration follow-up — 2026-11-11
 
 The owner requested a functional application beyond the completed frontend,
@@ -94,11 +179,11 @@ Potential item/category fields, seller metrics, payouts, reviews, promotions, st
 | D01 | First release: CS2, fashion, or both; first customer journey and measurable goal | Defines minimal launch scope and dependencies | Both together confirmed; detailed first journeys and success measures remain open |
 | D02 | Audience, buyer/seller countries, operating entity country, currencies/languages | Constrains providers, onboarding, shipping, consumer rules and localization | Uzbekistan/nearby region, en/uz/ru and UZS primary currency confirmed; exact countries, operating entity and production default locale open |
 | D03 | CS2 role: discovery/listings only, P2P, manual coordination or permitted integration; who takes payment/delivers | Determines custody, proof of delivery, reversal risk and settlement feasibility | Listings/contact + P2P initially; both direct-seller and platform-payment options desired; operating rules, delivery/reversal responsibility and verification open |
-| D04 | Seller eligibility, individual/business sellers, invitation/open applications, verification/reverification | Defines onboarding, risk and private data requirements | Follow-up |
+| D04 | Seller eligibility, individual/business sellers, invitation/open applications, verification/reverification | Defines onboarding, risk and private data requirements | Individuals and companies may apply; all require admin approval; verification and detailed eligibility remain open |
 | D05 | Fashion operations: third-party sellers, platform-owned stock or hybrid; permitted categories | Determines ownership, fulfillment and responsibility | Hybrid confirmed: own products + independent sellers; categories, seller onboarding, stock and fulfillment rules still open |
-| D06 | Commission basis/rate, subscriptions/listing fees and who pays fees | Defines pricing, accounting and seller economics | Follow-up; no default |
+| D06 | Commission basis/rate, subscriptions/listing fees and who pays fees | Defines pricing, accounting and seller economics | No platform commission for now; other fees and later changes remain open |
 | D07 | Payment methods/provider and money flow: direct seller, provider split or platform collection | Requires provider support and country/model review | Visa and later crypto requested; both direct-seller/platform-payment possibilities desired; provider, asset/network, custody and operating rules unselected |
-| D08 | Payout timing, reserves, reversal exposure, refund/dispute responsibility | Defines accounting and settlement; no wallet/escrow approved | Follow-up |
+| D08 | Payout timing, reserves, reversal exposure, refund/dispute responsibility | Defines accounting and settlement; no wallet/escrow approved | CS2 platform funds: seller payout after both delivery confirmations, otherwise admin review; provider, execution and reversals remain open |
 | D09 | Fashion shipping regions, carrier responsibility, returns and customer support | Defines logistics/state transitions | Follow-up |
 | D10 | Seller Center/Admin modules and action permissions at launch | Limits privileged scope and defines role matrix | Initial admin users list selected with accounts; seller modules and other privileged actions still require decisions |
 | D11 | Brand name, visual references and shared versus distinct identity | Gates design generation and navigation decisions | Follow-up; ORO remains temporary |
@@ -109,7 +194,7 @@ Potential item/category fields, seller metrics, payouts, reviews, promotions, st
 
 ## Deferred decisions and technical constraints
 
-No custodial/bot-based CS2 model, wallet, escrow, provider, fee, payout period or seller approval policy is selected. Integrations depend on documented access and permitted use. Steam policy research does not establish authorization for a particular commercial model. No unavailable ownership/float/pattern/market-price API is assumed.
+No custodial/bot-based CS2 model, wallet, escrow or provider is selected. No platform commission is charged for now, and platform-received CS2 funds are intended for payout after both parties confirm delivery; the provider and payout mechanism remain open. All sellers require administrator approval, while eligibility and verification remain open. Integrations depend on documented access and permitted use. Steam policy research does not establish authorization for a particular commercial model. No unavailable ownership/float/pattern/market-price API is assumed.
 
 Before real trading or money movement: owner approves the commercial model; provider/platform/jurisdiction feasibility is checked; server authorization, transactions, idempotency, verified events, reversal/dispute handling and reconciliation are tested.
 
@@ -121,6 +206,19 @@ For each owner answer, record date, decision ID, the answer, scope and remaining
 
 | Date | Decision IDs | Owner statement and scope | Remaining conditions |
 | --- | --- | --- | --- |
+| 2026-11-16 | D04 (partial) | Seller applications should require all important information. | Exact fields and safe identity/document verification remain to be defined. |
+| 2026-11-16 | D04 (partial) | Individuals and companies can apply to become sellers. | Verification, eligibility and application details remain open. |
+| 2026-11-16 | D04, D10 (partial) | Approved sellers can immediately publish new products without per-product administrator approval. | Listing validation, administrator actions and complaint/removal procedures remain to be defined. |
+| 2026-11-16 | D03, D08 (partial) | If a party fails to confirm CS2 delivery or objects, hold platform funds and have an administrator review. | A site cannot hold an already completed direct seller payment; dispute procedures and provider support remain open. |
+| 2026-11-16 | D07 | No payment provider has been selected yet. | Provider, entity, supported payment and payout flows and feasibility remain open. |
+| 2026-11-16 | D04 (partial) | All sellers, including CS2-only and dual-category sellers, apply and require administrator approval. | Eligibility, verification, category changes and detailed onboarding remain open. |
+| 2026-11-16 | D06 | No platform commission for now. | Later changes and effective dates require a decision. |
+| 2026-11-16 | D05, D07, D09 (partial) | Answered "seller" when asked who receives clothing payment and delivers; interpreted as seller for both. | Owner can correct interpretation; payment methods, shipping, returns and platform-owned stock remain open. |
+| 2026-11-16 | D03, D08 (partial) | Pay the seller after both buyer and seller confirm delivery for CS2 funds initially received by the platform. | Provider support, settlement execution, disputes, reversals and missing confirmations remain open. |
+| 2026-11-16 | D03 (partial) | Both seller and buyer confirm delivery of the CS2 skin. | What happens if they disagree or one does not confirm, evidence and dispute handling remain open. |
+| 2026-11-16 | D03 (partial) | CS2 skins are initially delivered by the seller; site-mediated delivery may be considered later. | Delivery mechanism, proof and disputes are unspecified; no custody or automation is approved. |
+| 2026-11-16 | D03, D07, D10 (partial) | For a direct seller payment, the seller or buyer reports the payment and an administrator checks it. | Evidence, review and dispute procedures remain open; no automatic verification is implied. |
+| 2026-11-16 | D03, D07, D10 (partial) | For CS2, wants both direct-to-seller and platform payments, with administrator visibility into transactions. | Provider, direct-payment review procedure, settlement, delivery and reversals remain open. |
 | 2026-11-11 | D01, D12 (partial) | Reaffirmed a complete site for CS2 skins and clothing with a large-scale ambition; asked to adapt the existing site now | Quantified capacity, timeline and budget remain open. |
 | 2026-11-11 | D01 | Selected CS2 and clothing together for the first release | Specific launch journeys and success measures remain open. |
 | 2026-11-11 | D02 (partial) | Primarily Uzbekistan and neighboring countries; English, Uzbek and Russian; other countries possible later | Exact countries, operating entity country, currency/currencies and default language are not selected. Regional intent does not approve worldwide shipping or trading. |
@@ -139,3 +237,12 @@ For each owner answer, record date, decision ID, the answer, scope and remaining
 | 2026-11-12 | D15 email setup follow-up | Confirmed Google 2-Step Verification was initially off; received App Password/Gmail SMTP instructions and subsequently reported setup complete | Post-setup resend returned 500 unexpected_failure with an email-delivery error. Exact Auth log requested; SMTP authentication and actual delivery are not yet verified. No production email-service or commerce decision implied. |
 
 First discovery and frontend migration answers are recorded above. Implement the authorized frontend preview while keeping real trading unavailable. Next discovery must resolve operating entity, exact country coverage, the operational distinction between the two payment flows, provider feasibility, crypto asset/network if pursued, delivery/reversal responsibility and seller onboarding before dependent backend/commerce implementation. UZS preference does not make sample prices authoritative or approve a payment provider.
+
+### Signup correction — 2026-11-16
+
+The owner reiterated that signup must not request email confirmation. The app now
+supports a provider-issued immediate session and refuses to submit signup if
+public provider settings still require confirmation. This replaces the previous
+behavior that signed out immediate sessions and displayed confirmation guidance.
+No provider setting was changed. UUID role authorization, RLS and password-based
+authentication remain in place; automatic confirmation is not mailbox proof.

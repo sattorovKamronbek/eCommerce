@@ -2,19 +2,20 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 vi.mock("server-only", () => ({}));
 const mock = vi.hoisted(() => {
   const auth = { signUp: vi.fn(), resend: vi.fn(), signInWithPassword: vi.fn(), resetPasswordForEmail: vi.fn(), getUser: vi.fn(), verifyOtp: vi.fn(), updateUser: vi.fn(), signOut: vi.fn() };
-  return { auth, configured: true, get: vi.fn(), set: vi.fn(), remove: vi.fn(), from: vi.fn(), redirect: vi.fn((path: string) => { throw new Error(`REDIRECT:${path}`); }) };
+  return { auth, configured: true, settings: vi.fn(), get: vi.fn(), set: vi.fn(), remove: vi.fn(), from: vi.fn(), redirect: vi.fn((path: string) => { throw new Error(`REDIRECT:${path}`); }) };
 });
 vi.mock("next/navigation", () => ({ redirect: mock.redirect }));
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
 vi.mock("next/headers", () => ({ cookies: async () => ({ get: mock.get, set: mock.set, delete: mock.remove }) }));
 vi.mock("@/lib/supabase/config", () => ({ getAuthConfig: () => mock.configured ? { url: "https://example.supabase.co", key: "sb_publishable_example", origin: "https://app.test" } : null }));
 vi.mock("@/lib/supabase/server", () => ({ createServerSupabaseClient: async () => mock.configured ? { auth: mock.auth, from: mock.from } : null }));
+vi.mock("@/lib/auth/signup-settings", () => ({ readSignupSettings: mock.settings }));
 import { signupAction, resendConfirmationAction, loginAction, recoveryAction, resetPasswordAction, confirmEmailAction, updateProfileAction, logoutAction } from "@/app/(marketplace)/[locale]/account/actions";
 const idle = { status: "idle" } as const;
 function form(values: Record<string, string>) { const data = new FormData(); Object.entries(values).forEach(([k,v]) => data.set(k,v)); return data; }
 const user = { id: "owner-uuid", email_confirmed_at: "2026-11-11T00:00:00Z" };
 beforeEach(() => {
-  vi.clearAllMocks(); mock.configured = true;
+  vi.clearAllMocks(); mock.configured = true; mock.settings.mockResolvedValue("ready");
   for (const method of Object.values(mock.auth)) method.mockResolvedValue({ data: { user, session: null }, error: null });
   mock.get.mockReturnValue(undefined);
 });
@@ -45,26 +46,34 @@ describe("provider-backed server action boundaries", () => {
     mock.configured = false;
     expect((await resendConfirmationAction("en", idle, form({ email: "ali@example.com" }))).message).toBe("unavailable");
   });
-  it("uses real signup, a trusted callback and only permitted signup metadata", async () => {
-    const result = await signupAction("en", idle, form({ email: "Ali@example.com", password: "valid password 123", repeatPassword: "valid password 123", displayName: "Ali", role: "admin" }));
-    expect(result).toEqual({ status: "success", message: "checkEmail" });
-    expect(mock.auth.signUp).toHaveBeenCalledWith({ email: "ali@example.com", password: "valid password 123", options: { emailRedirectTo: "https://app.test/en/auth/confirm", data: { display_name: "Ali", preferred_locale: "en" } } });
-    mock.auth.signUp.mockResolvedValue({ error: { code: "user_already_exists" } });
-    expect((await signupAction("en", idle, form({ email: "ali@example.com", password: "valid password 123", repeatPassword: "valid password 123", displayName: "Ali" }))).message).toBe("checkEmail");
+  it("opens the account only after provider signup returns an authenticated user and session", async () => {
+    mock.auth.signUp.mockResolvedValue({ data: { user, session: { user, access_token: "test" } }, error: null });
+    await expect(signupAction("uz", idle, form({ email: "Ali@example.com", password: "valid password 123", repeatPassword: "valid password 123", displayName: "Ali", role: "admin", next: "https://evil.test" }))).rejects.toThrow("REDIRECT:/uz/account");
+    expect(mock.auth.signUp).toHaveBeenCalledWith({ email: "ali@example.com", password: "valid password 123", options: { data: { display_name: "Ali", preferred_locale: "uz" } } });
+    expect(mock.auth.signOut).not.toHaveBeenCalled();
   });
-  it("keeps signup feedback identical for existing accounts, SMTP failures, cooldowns and transport failures", async () => {
+  it("does not submit signup when confirmation is enabled or settings cannot be verified", async () => {
+    for (const settings of ["confirmation-required", "unavailable"]) {
+      mock.settings.mockResolvedValue(settings);
+      const result = await signupAction("en", idle, form({ email: "a@example.com", password: "valid password 123", repeatPassword: "valid password 123", displayName: "Ali" }));
+      expect(result).toEqual({ status: "error", message: settings === "confirmation-required" ? "signupSetupRequired" : "unavailable" });
+    }
+    expect(mock.auth.signUp).not.toHaveBeenCalled();
+  });
+  it("never claims email delivery or successful signup without a session", async () => {
     const values = { email: "a@example.com", password: "valid password 123", repeatPassword: "valid password 123", displayName: "Ali" };
-    for (const error of [null, { code: "user_already_exists" }, { code: "email_exists" }, { code: "over_email_send_rate_limit", status: 429 }, { status: 429 }, { code: "over_request_rate_limit", status: 429 }, { code: "email_address_not_authorized", status: 403 }, { status: 500, message: "Error sending confirmation email: private detail" }, { code: "weak_password" }, { status: 503 }]) {
+    for (const error of [null, { code: "user_already_exists" }, { code: "weak_password" }, { status: 429 }, { status: 500 }]) {
       mock.auth.signUp.mockResolvedValue({ data: { user: null, session: null }, error });
-      expect(await signupAction("en", idle, form(values))).toEqual({ status: "success", message: "checkEmail" });
+      expect(await signupAction("en", idle, form(values))).toEqual({ status: "error", message: "registrationFailed" });
     }
     mock.auth.signUp.mockRejectedValue(new Error("private transport detail"));
-    expect(await signupAction("en", idle, form(values))).toEqual({ status: "success", message: "checkEmail" });
+    expect(await signupAction("en", idle, form(values))).toEqual({ status: "error", message: "registrationFailed" });
+    expect(mock.redirect).not.toHaveBeenCalled();
   });
-  it("does not disguise disabled confirmation as an email request even if local signout fails", async () => {
-    mock.auth.signUp.mockResolvedValue({ data: { user, session: { access_token: "test-session" } }, error: null });
-    mock.auth.signOut.mockRejectedValue(new Error("private signout detail"));
-    expect(await signupAction("en", idle, form({ email: "a@example.com", password: "valid password 123", repeatPassword: "valid password 123", displayName: "Ali" }))).toEqual({ status: "error", message: "unavailable" });
+  it("rejects inconsistent signup sessions", async () => {
+    mock.auth.signUp.mockResolvedValue({ data: { user, session: { user: { id: "different-user" } } }, error: null });
+    expect((await signupAction("en", idle, form({ email: "a@example.com", password: "valid password 123", repeatPassword: "valid password 123", displayName: "Ali" }))).status).toBe("error");
+    expect(mock.redirect).not.toHaveBeenCalled();
   });
   it("rejects invalid signup before calling provider and handles missing config honestly", async () => {
     expect((await signupAction("en", idle, form({ email: "bad" }))).message).toBe("invalidEmail");

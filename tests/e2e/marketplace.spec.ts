@@ -70,6 +70,17 @@ test("editorial home links to real sample details and keeps the preview boundary
   await expect(page.getByRole("note")).toContainText("Payment and delivery are not available");
 });
 
+test("home explains both marketplace directions and the current trading boundary", async ({ page }) => {
+  await page.goto("/uz/marketplace");
+  const copy = marketplaceDictionaries.uz;
+  const details = page.getByRole("region", { name: copy.buyingTitle });
+  await expect(details.getByText(copy.cs2Plan)).toBeVisible();
+  await expect(details.getByText(copy.fashionPlan)).toBeVisible();
+  await expect(details.getByText(copy.planNote)).toBeVisible();
+  await details.getByRole("link", { name: copy.how }).click();
+  await expect(page).toHaveURL(/\/uz\/marketplace\/how-it-works$/);
+});
+
 test("keyboard entry and translated narrow layouts remain usable", async ({ page }) => {
   test.setTimeout(60_000);
   await page.setViewportSize({ width: 320, height: 740 });

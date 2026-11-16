@@ -1,5 +1,106 @@
 # Project progress
 
+## Owner, seller categories and real commerce request — 2026-11-16
+
+Recorded the owner's designated Gmail, the requested CS2-only, clothing-only and
+combined seller scopes, seller product-entry tools, and the goal of replacing
+sample inventory with real purchasing. Inspection confirms the current role table
+supports only `admin`, the catalog reads static sample data, and there is no live
+order or payment implementation. No owner role has been assigned or verified;
+the locally configured Supabase credentials are public application credentials,
+not a privileged project connection. With unconfirmed signup, an email address
+alone cannot establish control of the intended owner account.
+
+Payment verification, delivery and other commercial policies remain undecided. No
+runtime behavior, remote configuration, database or sample labels were changed
+in this requirements-only update. Owner identity must be verified separately;
+real catalog and checkout require approved rules and end-to-end verification.
+
+The owner subsequently confirmed both direct-to-seller and platform payment
+paths for CS2, with administrator visibility into transactions. For direct
+payments, the seller or buyer reports payment and an administrator checks it.
+Review evidence and procedure, provider selection, settlement and delivery remain
+open; no automatic visibility into off-platform payments is assumed.
+For CS2 fulfillment, the owner selected delivery by the seller initially, with
+possible site-mediated delivery later, and confirmed that both seller and buyer
+must confirm delivery. The delivery mechanism and dispute procedure remain open;
+no Steam integration or custody was selected.
+The owner chose seller payout after both confirmations for platform-received CS2
+payments and no platform commission for now. When asked who receives payment and
+delivers clothing, the owner answered "seller"; this is interpreted as the seller
+doing both, subject to correction. Provider, shipping, returns and how platform-
+owned clothing stock is handled remain open.
+The owner confirmed administrator approval is required for every seller
+application, including CS2-only and dual-category sellers. Eligibility,
+verification and category-change procedures remain to be defined.
+The owner has not selected a payment provider. For CS2 platform funds, missing
+confirmation or an objection means withholding seller payout for administrator
+review; direct payments already sent to sellers cannot be held by the site.
+The owner reports the designated marketplace account exists and that they can
+access the dedicated project's SQL Editor. Its UUID and actual authority have not
+been independently verified or assigned. Prepared a draft phased design at
+`docs/superpowers/specs/2026-11-16-owner-seller-commerce-design.md`; it is not
+approved and makes no runtime or remote change.
+The owner subsequently chose immediate publication of products by approved
+sellers, without per-product preapproval. Independent review identified existing
+admin-role compatibility, continuous owner account control and database-level MFA
+enforcement as requirements; the draft was updated. Detailed onboarding,
+moderation and category-change procedures still need definition.
+Individuals and companies may both apply to become sellers; verification and
+detailed eligibility are still open. The owner requested all important seller
+application information; specific fields and safe document handling are proposed
+in the draft and are not yet approved.
+
+## Catalog direction and identity decisions — 2026-11-16
+
+The owner requested unconfirmed email/password signup, secure access, a complete
+admin panel and automation, with LIS-SKINS and Ralph Lauren as visual references.
+The owner chose owner-only role management, administrator product/user-status
+management, and moderator review. The owner chose to deny blocked users private
+and trading functions and to require administrator approval of independent
+clothing-seller applications; detailed moderation and commerce rules remain
+open. The owner also chose selectable visual themes for both ecosystems, rejected
+the first concept and approved the direction in
+`docs/design/2026-11-16/catalog-directions.png` without its invented data.
+The owner asked for an explanation of how the store works, its sellers and
+products. The home page now uses the existing localized and carefully qualified
+buying/selling copy and links to the full information page. Two alternate home
+visual concepts need further work; the existing home design was retained.
+
+The catalog now presents the existing functional GET filters beside a denser
+sample grid on desktop and stacks them on mobile. CS2 and fashion have distinct
+imagery, card treatments and typography; existing light/dark/system preferences,
+localization, sample warnings and non-trading boundary are retained. The
+[visual comparison](docs/design/2026-11-16/QA.md) records deliberate differences
+from the generated concept, including the absence of fictitious reviews, counts,
+products and controls. Browser plugin unavailable; Playwright Chromium was used.
+Production screenshots at 1440x900 and 390x844 were inspected after applying
+type filters; both interactions returned expected sample counts and recorded no
+horizontal overflow, console errors or page errors in those checks.
+
+The initial catalog build passed `npm run check` and 60 Playwright tests across
+desktop, tablet and mobile Chromium. A new home-page regression failed before the
+explanation was added, as expected, and passed after the change on each device.
+The updated source passed `npm run check` (71 tests, lint, typecheck and build).
+The first full Playwright run was interrupted with exit 143 after individual
+passes and is not counted as a complete suite. Three subsequent complete device
+runs passed: desktop 21, tablet 21 and mobile 21, all exit 0; logs and status files
+are under `/tmp/oro-final-20261116/`. Home screenshots were inspected at desktop
+1440x900 and mobile 390x844 with no overflow, page or console errors. Browser
+plugin was unavailable, so Playwright Chromium was used. No public deployment
+was performed.
+
+No authentication or admin behavior, Supabase setting, migration or deployment
+changed. New accounts still require email confirmation; admin remains read-only.
+Supabase documents that disabling Confirm Email implicitly confirms addresses,
+so the current `email_confirmed_at` checks cannot safely distinguish mailbox
+proof afterwards. The proposed cutover and owner-controlled privilege boundary
+are recorded in `docs/superpowers/specs/2026-11-16-unconfirmed-accounts-admin.md`.
+The Supabase plugin was found but is not installed/connected; live configuration,
+SMTP and authenticated admin integration remain unverified. Commercial rules,
+providers, seller operations and live transaction automation remain unresolved.
+The owner's other Supabase project was not accessed.
+
 ## Account-security maintenance and full-admin proposal — 2026-11-15
 
 The owner requested full administration, email/username login, a coherent
@@ -650,3 +751,28 @@ Moved the account-icon hiding rule into the 760px mobile breakpoint. The account
 Verification: strict TypeScript, warning-free ESLint, all 12 unit/component tests and the production build passed. Final Playwright run: all 18 checks passed in 2.6 minutes, including light/dark accessibility and account navigation in all three viewport projects. A prior run reached the default 30-second deadline in the combined mobile homepage audit; only that multi-state, image/screenshot/axe test now has a documented 60-second budget. Element assertion timeouts and failure checks remain intact. Typecheck/lint were rerun after the test-only timing adjustment and passed. `git diff --check` passed.
 
 Changed files: `src/app/globals.css`, `tests/e2e/storefront.spec.ts`, `docs/DESIGN_SYSTEM.md`, `docs/PHASE1_DELIVERY.md`, `README.md`, and this progress file. Phase 1 remains complete; Phase 2 has not started. Existing commerce limitations and external configuration requirements still apply.
+
+## Immediate email/password signup correction — 2026-11-16
+
+The owner reported that registration still displayed email-confirmation request
+feedback, contrary to their selected no-confirmation signup flow. Root cause:
+`signupAction` still rejected immediate provider sessions and always returned
+neutral email guidance for other provider outcomes. Corrected it to retain a
+valid Supabase-issued session and redirect to the localized profile. Signup
+metadata remains limited to name/language, with no role or submitted redirect.
+Existing server authorization, cookies, UUID role grants and RLS are preserved.
+
+Before submitting signup, the app now checks uncached public Auth settings.
+Confirmation-enabled projects return an explicit setup error without submitting
+signup; settings failures deny the attempt. Provider signup failures return a
+neutral error instead of an email-delivery or success claim. No existing account
+is automatically confirmed and no privileged credentials were added. Settings
+and signup are not atomic; maintain stable settings during rollout.
+
+Read-only dedicated-project check returned HTTP 200, email enabled and
+`mailer_autoconfirm: false`. No provider configuration changed. The owner was
+asked to disable Confirm email in that project's dashboard. No live signup,
+mail sending or account mutation was performed. See `docs/ACCOUNTS_SETUP.md` for
+residual unverified-mailbox, recovery and direct-provider enumeration limitations.
+Three action regressions failed before the correction and passed afterward.
+Final verification: typecheck, lint, all 80 tests in 13 files and production build passed. All 12 account Playwright workflows passed across desktop/tablet/mobile. Logs: `/tmp/oro-no-email-check.log` and `/tmp/oro-no-email-browser.log`. These local checks do not establish successful live no-confirmation signup; provider auto-confirmation was still off at the read-only check.

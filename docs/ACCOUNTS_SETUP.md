@@ -244,3 +244,37 @@ The npm command enables Node 20's native WebSocket support required by the
 standalone SDK constructor; the Next.js runtime supplies its own WebSocket setup.
 It does not send signup/recovery emails or grant admin rights. Do not run it using
 real customer credentials. Never post test-account passwords into chat.
+
+## Current signup contract — 2026-11-16
+
+The owner explicitly selected email/password signup without email confirmation.
+This supersedes the earlier instruction to keep confirmation enabled. In the
+**dedicated** project `xevzbtivteugbqbmmtyz`, disable **Confirm email** in
+Authentication → Sign In / Providers → Email, then save. No secret key is needed
+in the application. Never change the owner's other project's settings.
+
+Signup now reads uncached public Auth settings before calling `signUp`. If email
+confirmation remains enabled, no signup is submitted; the UI reports the setup
+issue instead of claiming mail delivery. Unavailable/malformed settings fail
+closed. Once auto-confirmation is enabled, a successful provider-issued session
+redirects directly to the account. Failed attempts return neutral failure copy.
+Settings verification and signup are separate requests: changing the provider
+setting between them is a cutover race, so keep the setting stable during rollout.
+
+Supabase auto-populates `email_confirmed_at` in this mode. It is an account state,
+not proof of mailbox ownership. Existing profile creation and RLS remain in
+place; roles are still explicitly granted by UUID, never by matching emails or
+signup metadata. Never bootstrap an administrator from an unverified email.
+The actual mailbox holder can recover an account registered with their address;
+enter only an address you control. Recovery still requires working SMTP and a
+valid recovery token. Disabling confirmation does not establish recovery delivery
+or necessarily resolve previously pending accounts; inspect those individually,
+without bulk-confirming or deleting accounts.
+
+Read-only live settings check on this date returned HTTP 200, email enabled,
+`mailer_autoconfirm: false`. No management credential/connection was available;
+no provider settings or existing accounts were modified. Verify a new designated
+test account, login, logout, profile and recovery after changing the setting.
+Public Auth signup endpoints may reveal whether an address exists when auto-
+confirmation is enabled; neutral app errors cannot hide direct provider behavior.
+Provider rate limits/CAPTCHA and production transport still require verification.
