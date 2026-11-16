@@ -19,9 +19,9 @@ export async function requireAdmin(locale: MarketplaceLocale, destination = `/${
   const account = await requireAccount(locale, destination);
   if (!account) return { kind: "unavailable" } as const;
   try {
-    const result = await account.client.from("marketplace_user_roles").select("role").eq("user_id", account.user.id).eq("role", "admin").maybeSingle();
+    const result = await account.client.from("marketplace_user_roles").select("role").eq("user_id", account.user.id).maybeSingle();
     if (result.error) return { kind: "unavailable" } as const;
-    if (!result.data) return { kind: "denied" } as const;
+    if (!result.data || (result.data.role !== "admin" && result.data.role !== "owner")) return { kind: "denied" } as const;
     return { kind: "admin", ...account } as const;
   } catch { return { kind: "unavailable" } as const; }
 }

@@ -18,6 +18,8 @@ describe("account input boundaries", () => {
   });
   it("allows only exact local account/admin destinations", () => {
     expect(safeReturnPath("/en/admin/users", "en")).toBe("/en/admin/users");
+    expect(safeReturnPath("/en/seller/apply", "en")).toBe("/en/seller/apply");
+    expect(safeReturnPath("/en/admin/sellers", "en")).toBe("/en/admin/sellers");
     for (const value of ["https://evil.test", "//evil.test", "/\\evil.test", "/en/admin/../auth/confirm", "/en/account?next=https://evil.test", "/%2fen/admin", "/en/admin%2fusers", "/ru/admin", "/en/admin/users\n"]) {
       expect(safeReturnPath(value, "en")).toBe("/en/account");
     }

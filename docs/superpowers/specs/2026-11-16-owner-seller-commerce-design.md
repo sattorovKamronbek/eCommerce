@@ -1,6 +1,8 @@
 # Owner, seller workspace and path to real commerce
 
-Date: 2026-11-16. Status: **draft for owner review; not approved or implemented**.
+Date: 2026-11-16. Status: **owner requested implementation; phased work in progress**.
+The owner asked for the code on 2026-11-16 after review of this design. Previously
+unresolved business decisions and external provider setup remain open.
 
 ## Intent and existing state
 
@@ -26,8 +28,7 @@ The separate live application's project must never be touched.
 
 Neither approach invents a Steam custody model or treats a user's email string as
 proof of mailbox control. Each phase preserves the existing application and can
-be verified before the next. This draft selects the second as a recommendation,
-not as an owner-approved design.
+be verified before the next. The implementation follows the second approach.
 
 ## Owner and authorization
 
@@ -70,8 +71,10 @@ not as an owner-approved design.
   fields are applicant type, individual or company name, contact details,
   operating area and requested categories, plus company registration details
   for companies. Admin reviews applications; seller approval and publication are
-  separate actions. Identity documents, evidence collection, retention and the
-  identity-verification method require a defined secure process before collection.
+  separate actions. The owner selected administrator contact and secure checking
+  of identity documents outside the site; the actual verification and retention
+  procedure, including reliable binding to the applicant account, remains open.
+  Do not collect identity documents in the application form.
 - The seller workspace should provide a clear draft-to-publication workflow,
   editing and archiving, image upload, search and category-specific fields. For
   clothing, variants and exact stock quantities must be represented without
@@ -88,6 +91,14 @@ not as an owner-approved design.
   immediately without per-product preapproval. Server validation and category
   restrictions still apply, and administrators retain product management powers.
   Detailed removal, complaint and audit procedures remain to be defined.
+- Applicants can correct pending or rejected applications and resubmit for admin
+  review. Preserve past decisions and reject reviews made against an older version
+  of the application so changed information is never silently approved.
+- Admins can reopen an erroneous approval or rejection with an audited decision.
+  Reopening must atomically remove any seller authority when such authority exists;
+  the present application-intake phase grants no seller authority. Audit records
+  preserve the reviewed scope and scope revisions, but not historical copies of
+  all contact information or independent identity evidence.
 - The existing sample catalog stays visibly labeled until replaced with real
   records. A real catalog can show an honest empty state; it cannot claim items
   are purchasable before the purchase workflow works. Retain the legacy preview

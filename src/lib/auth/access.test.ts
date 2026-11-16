@@ -30,3 +30,9 @@ it("reads current admin assignments on every request and denies a revoked role",
   expect((await requireAdmin("en")).kind).toBe("denied");
   expect(mock.maybeSingle).toHaveBeenCalledTimes(2);
 });
+it("allows an explicitly assigned owner to access administrator pages", async () => {
+  let onlyAdmin = false;
+  const query = { select: () => query, eq: (column: string, value: string) => { if (column === "role" && value === "admin") onlyAdmin = true; return query; }, maybeSingle: async () => ({ data: onlyAdmin ? null : { role: "owner" }, error: null }) };
+  mock.from.mockReturnValue(query);
+  expect((await requireAdmin("en")).kind).toBe("admin");
+});

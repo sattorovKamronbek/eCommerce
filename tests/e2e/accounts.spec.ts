@@ -1,4 +1,11 @@
 import { test, expect } from "@playwright/test";
+
+test("seller application and admin review require authentication", async ({ page }) => {
+  await page.goto("/en/seller/apply");
+  await expect(page).toHaveURL(/\/en\/account\/login\?next=/);
+  await page.goto("/en/admin/sellers");
+  await expect(page).toHaveURL(/\/en\/account\/login\?next=/);
+});
 import AxeBuilder from "@axe-core/playwright";
 
 test("password visibility and localized confirmation retry are usable without a provider request", async ({ page }) => {
