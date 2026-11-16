@@ -8,6 +8,8 @@ export async function updateSession(request: NextRequest) {
   const config = getAuthConfig();
   if (config) {
     const client = createServerClient<Database>(config.url, config.key, {
+      // Refresh must preserve the policy used by the server action client.
+      cookieOptions: { httpOnly: true, secure: config.origin.startsWith("https:"), sameSite: "lax", path: "/" },
       cookies: {
         getAll: () => request.cookies.getAll(),
         setAll: (values) => {

@@ -37,7 +37,8 @@ export function AccountForm({ action, kind, copy, next, profile, recoveryLogout 
     : kind === "login" ? ["email", "password"] : kind === "forgot" || kind === "resend" ? ["email"]
       : kind === "reset" ? ["password", "repeatPassword"] : kind === "profile" ? ["displayName", "preferredLocale"] : [];
   const submitLabel = { login: copy.login, register: copy.register, forgot: copy.sendReset, resend: copy.resend, reset: copy.reset, profile: copy.save, confirm: copy.confirm, logout: copy.logout }[kind];
-  const completed = state.status === "success" && ["register", "forgot", "reset"].includes(kind);
+  // Email requests acknowledge an attempt, not delivery. Keep retry available.
+  const completed = state.status === "success" && kind === "reset";
   return <><form action={submit} className="account-form" aria-busy={pending}>
     {next ? <input type="hidden" name="next" value={next} /> : null}
     <FieldGroup>

@@ -67,7 +67,7 @@ export const copy = {
     "Do‘kon ishlab chiqilmoqda. Tasdiqlangan telefon, email va manzil ishga tushirishdan oldin shu yerga qo‘shiladi. Hozir murojaat yoki email yig‘ish xizmati ulanmagan.",
   malumotlaringizHaqida: "Ma’lumotlaringiz haqida",
   ushbuVersiyaHisobYokiBuyurtmaMalumotlarini:
-    "Ushbu versiya hisob yoki buyurtma ma’lumotlarini yig‘maydi. Savat, sevimlilar va rang mavzusi brauzeringizda saqlanadi. Analitika va newsletter xizmatlari ulanmagan. Haqiqiy xizmatlar ulanishidan oldin to‘liq maxfiylik siyosati e’lon qilinadi.",
+    "Hisob yaratishda email va parol Supabase autentifikatsiya xizmatiga yuboriladi. Tasdiqlangan hisobning ko‘rinadigan ismi, afzal tili va profil sanalari ilova bazasida saqlanadi. Kirish sessiyasi cookie orqali, savat, sevimlilar va rang mavzusi esa brauzeringizda saqlanadi. Buyurtma va to‘lov qabul qilinmaydi; analitika va newsletter xizmatlari ulanmagan. Ommaviy ishga tushirishdan oldin to‘liq maxfiylik siyosati e’lon qilinadi.",
   sahifaTopilmadi: "Sahifa topilmadi",
   oroMalumot: "ORO · Ma’lumot",
   manzilOzgarganYokiBundayMahsulotMavjud:

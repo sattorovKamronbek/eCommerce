@@ -49,15 +49,16 @@ export async function signupAction(locale: MarketplaceLocale, _previous: Account
       emailRedirectTo: `${config.origin}/${locale}/auth/confirm`,
       data: { display_name: name, preferred_locale: locale },
     } });
-    if (result.error && !["user_already_exists", "email_exists"].includes(result.error.code ?? "")) {
-      if (result.error.status === 429 || ["over_email_send_rate_limit", "over_request_rate_limit"].includes(result.error.code ?? "")) return fail("rateLimited");
-      if (result.error.code === "email_address_not_authorized" || /error sending (confirmation )?email/i.test(result.error.message)) return fail("emailDelivery");
-      return fail(result.error.code === "weak_password" ? "invalidPassword" : "unavailable");
-    }
     // A project with email confirmation accidentally disabled must not pretend a mail was sent.
-    if (result.data?.session) { await client.auth.signOut({ scope: "local" }); return fail("unavailable"); }
-    return success("checkEmail");
-  } catch { return fail("unavailable"); }
+    if (result.data?.session) {
+      try { await client.auth.signOut({ scope: "local" }); } catch { /* Remain unavailable on a misconfigured project. */ }
+      return fail("unavailable");
+    }
+  } catch { /* Provider diagnostics belong in Auth logs, never public feedback. */ }
+  // Existing accounts may short-circuit before delivery/strength checks. Match
+  // every provider outcome so SMTP failures and cooldowns cannot expose them.
+  // This acknowledges only the request; the copy makes no delivery promise.
+  return success("checkEmail");
 }
 
 export async function loginAction(locale: MarketplaceLocale, _previous: AccountState, form: FormData): Promise<AccountState> {
@@ -84,10 +85,9 @@ export async function recoveryAction(locale: MarketplaceLocale, _previous: Accou
   const config = getAuthConfig(); const client = await createServerSupabaseClient(true);
   if (!config || !client) return fail("unavailable");
   try {
-    const result = await client.auth.resetPasswordForEmail(email, { redirectTo: `${config.origin}/${locale}/auth/confirm` });
-    if (result.error && result.error.code !== "user_not_found") return fail("unavailable");
-    return success("recoverySent");
-  } catch { return fail("unavailable"); }
+    await client.auth.resetPasswordForEmail(email, { redirectTo: `${config.origin}/${locale}/auth/confirm` });
+  } catch { /* Keep transport and address-dependent delivery failures neutral. */ }
+  return success("recoverySent");
 }
 
 export async function confirmEmailAction(locale: MarketplaceLocale, _previous: AccountState, _form: FormData): Promise<AccountState> {

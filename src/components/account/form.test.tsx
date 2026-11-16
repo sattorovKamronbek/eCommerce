@@ -52,6 +52,16 @@ it("clears password fields after successful registration and focuses confirmatio
   expect(screen.getByLabelText("Password", { exact: true })).toHaveValue("");
   expect(screen.getByLabelText("Repeat password")).toHaveValue("");
 });
+it.each(["register", "forgot"] as const)("allows retry after a neutral %s request without claiming delivery", async kind => {
+  const action = vi.fn().mockResolvedValue({ status: "success", message: kind === "register" ? "checkEmail" : "recoverySent" });
+  const { container } = render(<AccountForm action={action} kind={kind} copy={accountDictionaries.en} />);
+  fireEvent.change(screen.getByLabelText("Email", { exact: true }), { target: { value: "retry@example.invalid" } });
+  await act(async () => { fireEvent.submit(container.querySelector("form")!); });
+  await waitFor(() => expect(screen.getByRole("status")).toHaveFocus());
+  expect(screen.getByLabelText("Email", { exact: true })).toHaveValue("retry@example.invalid");
+  expect(screen.getByLabelText("Email", { exact: true })).toBeEnabled();
+  expect(screen.getByRole("button", { name: kind === "register" ? "Create account" : "Send recovery email" })).toBeEnabled();
+});
 it("offers a separate signout retry after password update partial success", async () => {
   const action = vi.fn().mockResolvedValue({ status: "success", message: "passwordUpdatedSignoutFailed" });
   const recoveryLogout = vi.fn().mockResolvedValue({ status: "error", message: "unavailable" });

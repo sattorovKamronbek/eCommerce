@@ -198,6 +198,31 @@ Run against the configured trusted origin for actual email-provider testing.
 
 ## Verify before public release
 
+### Response privacy and session policy update — 2026-11-15
+
+Signup, recovery and confirmation-resend requests now use neutral public
+acknowledgments for every provider outcome, including email delivery failures,
+per-address cooldowns, transport failures and existing/unknown addresses. Local
+input validation and missing configuration still report errors; unexpectedly
+returned signup sessions still report unavailable. A neutral acknowledgment does
+not establish registration or email delivery. Consult Supabase Auth logs for
+operator diagnostics rather than differentiating responses by address. This
+supersedes the earlier UI-specific registration SMTP/rate-limit feedback.
+
+Registration/recovery forms remain usable for a later retry and clear entered
+passwords after the acknowledgment. Wait before requesting another email; the
+provider's actual limits and SMTP setup remain necessary. No local success state
+confirms an account or bypasses password verification.
+
+All application Auth calls and session refresh remain on the server. Both SSR
+clients explicitly set HttpOnly, SameSite=Lax, root-path session cookies and Secure
+when `APP_ORIGIN` is HTTPS; loopback HTTP remains usable for development. The
+provider still determines token lifetime. Do not add a browser Supabase Auth client
+that expects to read these cookies without reviewing the identity design.
+See [Supabase session guidance](https://supabase.com/docs/guides/auth/sessions),
+[password auth](https://supabase.com/docs/guides/auth/passwords) and
+[provider rate limits](https://supabase.com/docs/guides/auth/rate-limits).
+
 Run typecheck, lint, unit/database tests, production build, then Playwright. Against
 the dedicated test project, additionally verify real signup mail, explicit email
 confirmation, sign-in, session refresh, profile changes, logout, real recovery mail

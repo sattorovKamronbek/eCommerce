@@ -9,6 +9,8 @@ export async function createServerSupabaseClient(writeCookies = false) {
   if (!config) return null;
   const store = await cookies();
   return createServerClient<Database>(config.url, config.key, {
+    // Auth is server-only; no browser Supabase client needs token access.
+    cookieOptions: { httpOnly: true, secure: config.origin.startsWith("https:"), sameSite: "lax", path: "/" },
     cookies: {
       getAll: () => store.getAll(),
       setAll: (values) => {

@@ -71,6 +71,15 @@ implementation and tests are recorded in `PROJECT_PROGRESS.md`.
 
 ## Proposed, not approved
 
+On 2026-11-15 the owner requested complete administration, email/username login,
+coherent skins/clothing experiences and login-security checks. Asked which modules
+matter, the owner answered that all are important, including users/roles,
+catalogues, sellers and order/payment administration. This confirms their desired
+scope, not unresolved permission, seller, payment or fulfillment policies. See
+the [reviewable expansion proposal](docs/superpowers/specs/2026-11-15-admin-marketplace-expansion.md).
+Username authentication and privileged writes are proposed next phases; they are
+not implemented or implied by the existing email/read-only-admin design.
+
 - Candidate modular-monolith domains and additive migration steps in MARKETPLACE_AUDIT.md.
 - Reusing UI primitives, token foundations, localization and test tooling while introducing domain-specific catalog/listing/fulfillment contracts.
 - Seller workspaces, further admin modules and commerce domain contracts remain proposed. The initial read-only admin workspace is separately approved in the accounts slice above. The development catalog uses `/{locale}/marketplace`, separate `/cs2` and `/fashion` paths and localized sample details; the original home is retained at `/storefront-preview`.

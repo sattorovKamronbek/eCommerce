@@ -52,14 +52,19 @@ describe("provider-backed server action boundaries", () => {
     mock.auth.signUp.mockResolvedValue({ error: { code: "user_already_exists" } });
     expect((await signupAction("en", idle, form({ email: "ali@example.com", password: "valid password 123", repeatPassword: "valid password 123", displayName: "Ali" }))).message).toBe("checkEmail");
   });
-  it("reports registration rate limits and email-delivery failures distinctly without leaking provider content", async () => {
+  it("keeps signup feedback identical for existing accounts, SMTP failures, cooldowns and transport failures", async () => {
     const values = { email: "a@example.com", password: "valid password 123", repeatPassword: "valid password 123", displayName: "Ali" };
-    for (const error of [{ code: "over_email_send_rate_limit", status: 429 }, { status: 429 }, { code: "over_request_rate_limit", status: 429 }]) {
-      mock.auth.signUp.mockResolvedValue({ error });
-      expect((await signupAction("en", idle, form(values))).message).toBe("rateLimited");
+    for (const error of [null, { code: "user_already_exists" }, { code: "email_exists" }, { code: "over_email_send_rate_limit", status: 429 }, { status: 429 }, { code: "over_request_rate_limit", status: 429 }, { code: "email_address_not_authorized", status: 403 }, { status: 500, message: "Error sending confirmation email: private detail" }, { code: "weak_password" }, { status: 503 }]) {
+      mock.auth.signUp.mockResolvedValue({ data: { user: null, session: null }, error });
+      expect(await signupAction("en", idle, form(values))).toEqual({ status: "success", message: "checkEmail" });
     }
-    mock.auth.signUp.mockResolvedValue({ error: { code: "email_address_not_authorized", status: 403 } });
-    expect((await signupAction("en", idle, form(values))).message).toBe("emailDelivery");
+    mock.auth.signUp.mockRejectedValue(new Error("private transport detail"));
+    expect(await signupAction("en", idle, form(values))).toEqual({ status: "success", message: "checkEmail" });
+  });
+  it("does not disguise disabled confirmation as an email request even if local signout fails", async () => {
+    mock.auth.signUp.mockResolvedValue({ data: { user, session: { access_token: "test-session" } }, error: null });
+    mock.auth.signOut.mockRejectedValue(new Error("private signout detail"));
+    expect(await signupAction("en", idle, form({ email: "a@example.com", password: "valid password 123", repeatPassword: "valid password 123", displayName: "Ali" }))).toEqual({ status: "error", message: "unavailable" });
   });
   it("rejects invalid signup before calling provider and handles missing config honestly", async () => {
     expect((await signupAction("en", idle, form({ email: "bad" }))).message).toBe("invalidEmail");
@@ -72,9 +77,11 @@ describe("provider-backed server action boundaries", () => {
     expect((await loginAction("en", idle, form({ email: "ali@example.com", password: "password" }))).message).toBe("invalidCredentials");
     await expect(loginAction("en", idle, form({ email: "ali@example.com", password: "password", next: "//evil.test" }))).rejects.toThrow("REDIRECT:/en/account");
   });
-  it("does not enumerate recovery addresses, including provider rejection", async () => {
-    mock.auth.resetPasswordForEmail.mockResolvedValue({ error: { code: "user_not_found" } });
-    expect(await recoveryAction("uz", idle, form({ email: "a@example.com" }))).toEqual({ status: "success", message: "recoverySent" });
+  it("keeps recovery feedback identical for unknown accounts, SMTP failures and per-address cooldowns", async () => {
+    for (const error of [null, { code: "user_not_found" }, { code: "over_email_send_rate_limit", status: 429 }, { status: 500, message: "Error sending recovery email: private detail" }, { status: 503 }]) {
+      mock.auth.resetPasswordForEmail.mockResolvedValue({ data: null, error });
+      expect(await recoveryAction("uz", idle, form({ email: "a@example.com" }))).toEqual({ status: "success", message: "recoverySent" });
+    }
   });
   it("never treats an ordinary logged-in session as proof of recovery", async () => {
     expect((await resetPasswordAction("en", idle, form({ password: "long password 123", repeatPassword: "long password 123" }))).message).toBe("invalidLink");
@@ -112,14 +119,14 @@ describe("provider-backed server action boundaries", () => {
   });
   it("reports provider transport failures without exposing provider errors", async () => {
     mock.auth.resetPasswordForEmail.mockRejectedValue(new Error("sensitive provider details"));
-    expect(await recoveryAction("en", idle, form({ email: "a@example.com" }))).toEqual({ status: "error", message: "unavailable" });
+    expect(await recoveryAction("en", idle, form({ email: "a@example.com" }))).toEqual({ status: "success", message: "recoverySent" });
     mock.auth.signOut.mockResolvedValue({ error: { message: "unavailable" } });
     expect((await logoutAction("en", idle, form({}))).message).toBe("unavailable");
   });
-  it("does not misreport returned transport, service or rate-limit failures as recovery success", async () => {
+  it("acknowledges recovery attempts neutrally while reporting login service failures", async () => {
     for (const error of [{ name: "AuthRetryableFetchError", status: 0 }, { code: "over_request_rate_limit", status: 429 }, { code: "unexpected_failure", status: 503 }]) {
       mock.auth.resetPasswordForEmail.mockResolvedValue({ error });
-      expect((await recoveryAction("en", idle, form({ email: "a@example.com" }))).message).toBe("unavailable");
+      expect((await recoveryAction("en", idle, form({ email: "a@example.com" }))).message).toBe("recoverySent");
       mock.auth.signInWithPassword.mockResolvedValue({ error });
       expect((await loginAction("en", idle, form({ email: "a@example.com", password: "password" }))).message).toBe("unavailable");
     }

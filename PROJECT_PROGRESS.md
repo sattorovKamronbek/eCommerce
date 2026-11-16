@@ -1,5 +1,126 @@
 # Project progress
 
+## Account-security maintenance and full-admin proposal — 2026-11-15
+
+The owner requested full administration, email/username login, a coherent
+CS2/clothing experience and error/security checks. When asked which modules are
+important, the owner included all: users/roles, catalogues, sellers and
+orders/payments. Recorded this desired scope in `PRODUCT_REQUIREMENTS.md` without
+inventing commercial or privilege policies. The current implementation remains
+the previously approved email-account/read-only-admin slice. **Username login,
+privileged user/role writes, real catalogues, seller operations and commerce are
+not implemented by this maintenance patch.**
+
+Prepared the concrete [expansion design](docs/superpowers/specs/2026-11-15-admin-marketplace-expansion.md)
+for owner review. It specifies optional post-confirmation username claim, private
+resolution/provider authentication, abuse controls, a proposed permission matrix,
+catalogue ownership, seller isolation and separately gated order/payment flows.
+An independent builder review identified the new-account username-enrollment
+contract; resolved it as optional post-confirmation claim for all accounts, with
+no signup reservation. Later seller/payment/fulfillment decisions remain open.
+This is a proposal, not a new architecture/commerce approval.
+
+Source review found a conditional response-privacy issue: signup/recovery could
+return different visible feedback for existing/unknown addresses when the provider
+produced address-specific SMTP or cooldown failures. Signup, recovery and resend
+now give neutral acknowledgments for all provider outcomes, including transport
+and provider password-policy failures. Input validation and missing configuration
+still report local errors; unexpected signup sessions still report unavailable.
+The feedback in en/uz/ru explicitly does not promise registration or email delivery.
+Registration/recovery remain available for later retry, retain email/name in
+browser memory and clear password fields after acknowledgment. Provider rate
+limits and functioning SMTP remain necessary; response normalization does not
+establish timing uniformity or change the provider's direct endpoints.
+
+Both server Supabase clients now explicitly apply HttpOnly, SameSite=Lax,
+root-path session cookies, with Secure under a trusted HTTPS `APP_ORIGIN` and
+loopback HTTP support for development. Refresh preserves the same policy. No
+browser Supabase Auth client exists; adding one requires reviewing that contract.
+Token validity remains provider-controlled. Corrected the old privacy information
+page, which incorrectly claimed that the version collected no account data.
+
+Observed red/green regressions: four action-response cases, two form-retry cases,
+and three real-SDK cookie-policy cases failed before their respective fixes and
+passed afterward. Cookie tests use the installed Supabase SSR implementation,
+synthetic provider responses and Next cookie/request adapters; they verify emitted
+session/refresh cookie attributes rather than a mocked client option object.
+Node 20's disabled native WebSocket initially blocked the test harness; a test-only
+unused-Realtime guard permits the Auth SDK constructor and fails on socket use.
+No runtime workaround or dependency change was introduced. A Testing Library
+query incorrectly used Playwright's `exact` option; removed it after typecheck
+reported the test-only type error, then reran the full checks.
+
+Independent code review found no additional Critical/Important/Minor defect and
+independently passed the 26 targeted action/form/SSR tests. Local verification:
+
+| Check | Observed result |
+| --- | --- |
+| Strict TypeScript | Passed `next typegen` and `tsc --noEmit` |
+| ESLint | Passed, no warnings/errors |
+| Full unit/component/database suite | 71 passed in 12 files, including the actual embedded PostgreSQL migration/RLS checks |
+| Production build | Passed; 73 generated pages; private routes remain dynamic |
+| Playwright | 60 passed in three complete Chromium runs: desktop 20 (90.9s), tablet 20 (1.7m), mobile 20 (112.6s); each exit 0, zero retries |
+| Repository whitespace | Final `git diff --check` passed; local Markdown targets resolved |
+
+The source inspection included an independent baseline audit, architecture review
+and public-preview investigation. Public catalogue inputs/cart state provided no
+source-backed privilege/payment path; private pages verify provider identity and
+current database role, and existing grants/RLS restrict customers to permitted
+self-profile changes. No embedded private credential was identified. These are
+bounded source-review observations, not an assertion of vulnerability-free or
+production-ready software.
+
+Browser plugin is unavailable; repository Playwright Chromium is the fallback.
+The initial all-project command ended with SIGTERM/143 after 51 individual passes
+without a terminal suite result; it is not counted as a complete pass. A separate
+desktop command also ended with SIGTERM/143. Final desktop/mobile runs use an
+independent process with explicit per-project exit-code capture to avoid losing
+the result when a tool session ends. Tablet's separate run completed normally.
+No timeout increase, application guard bypass or test-assertion relaxation was
+introduced.
+Final logs: `/tmp/oro-auth-security-20261115-final/{desktop,mobile}.log` and
+`/tmp/oro-auth-security-20261115-tablet.log`; captured desktop/mobile exit codes:
+`/tmp/oro-auth-security-20261115-final/status.json`. Coverage includes public and
+preserved legacy browsing, both ecosystems, en/uz/ru, theme/query persistence,
+cart/wishlist, keyboard/axe/overflow/image/console checks, unavailable checkout,
+account forms, denied anonymous admin access and invalid/staged email links.
+No Firefox/Safari, real device, load or live authenticated-provider result is
+claimed. Screenshots and logs are outside Git; no deployment was performed.
+
+Additional rendered UI QA at 1280px English, 390px Uzbek and 320px Russian passed
+page-title/content, console/page-error, no-overflow, retry, password-clear and axe
+checks. It substitutes only a neutral Server Action result after a real local
+password-mismatch rejection, which returns before any provider call. These are
+explicitly UI fixtures, not evidence of email delivery, signup or authentication.
+Screenshots `/tmp/oro-auth-neutral-{en,uz,ru}-20261115.png` were visually inspected;
+`/tmp/oro-auth-security-20261115-ui.json` contains the observations. Captures from
+scroll top avoid a full-page screenshot artifact that displayed an off-viewport
+fixed skip link; its actual viewport bounds remained -100 to -52px and unfocused.
+The updated privacy page was also rendered/captured at
+`/tmp/oro-auth-privacy-20261115.png`. No test route or fixture was added to runtime.
+
+The Codex Security workflow could not save its canonical checkpoint: the artifact
+tool returned **`Scan output parent must not be group- or world-writable without
+the sticky bit.`** No sealed security report was produced and the scan was not
+marked complete. Its durable ID is `56ff5d69-9ef1-44cb-8235-79fde578470f`, targeting
+baseline `6c7a8886ebd02339415b90d9cbb2afdc1423c141`; it must not be represented as a
+completed scan of the later patch. No persistent permission/configuration change,
+scan cancellation or finding export was performed. The independently reviewed
+corrective app patch was verified separately from that blocked artifact workflow.
+
+No remote database, SMTP, account-role, email-template or deployment operation was
+performed. Migrations, credentials and public browsing remain preserved; no new
+privileged key is required. Actual signup/confirmation delivery, authenticated
+login/recovery/logout, live customer isolation/admin pagination/revocation and
+production transport/CAPTCHA/rate-limit settings remain unverified. The last
+recorded SMTP credential rejection and absent confirmed admin/test sessions have
+not been replaced with new live evidence. The owner's other application remains
+untouched. See `docs/ACCOUNTS_SETUP.md` for the explicit local/integration boundary.
+The final local production preview is running at
+`http://localhost:3000/uz/account/login` with the owner's existing local
+configuration; HTTP 200 verified. The test-origin server was stopped before this
+preview started. Log: `/tmp/oro-auth-security-20261115-preview.log`.
+
 ## Account/workspace completion and visual refinement — 2026-11-12
 
 The owner requested a functional users/admin experience and a polished interface
