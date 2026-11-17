@@ -91,3 +91,17 @@ test("email confirmation GET stages a token without consuming it and removes it 
   expect(response.headers()["cache-control"]).toContain("no-store");
   expect(response.headers()["referrer-policy"]).toBe("no-referrer");
 });
+
+test("new private seller, moderation and security pages require an account", async ({ page }) => {
+  for (const path of ["/en/seller/products", "/en/seller/products/new", "/en/admin/listings", "/en/account/security"]) {
+    await page.goto(path);
+    await expect(page).toHaveURL(/\/en\/account\/login\?next=/);
+  }
+});
+
+test("public seller catalog explains purchase availability", async ({ page }) => {
+  await page.goto("/en/listings/cs2");
+  await expect(page.getByRole("heading", { name: "CS2 skins — Seller listings" })).toBeVisible();
+  await expect(page.getByText("Seller-provided listings. Purchases are not yet available.")).toBeVisible();
+  await expect(page.getByRole("button", { name: /buy|checkout/i })).toHaveCount(0);
+});

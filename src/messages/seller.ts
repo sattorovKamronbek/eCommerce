@@ -4,10 +4,12 @@ const en = {
   contact: "Contact details", region: "Operating region", scope: "What would you like to sell?", cs2: "CS2 skins", fashion: "Clothing", both: "Both",
   registration: "Company registration details", registrationHint: "Required for companies. Do not submit identity documents here.", submit: "Submit application",
   status: "Application status", pending: "Awaiting review", approved: "Approved", rejected: "Not approved", resubmit: "Update and resubmit",
-  approvedNote: "Seller tools are not available yet.", invalid: "Check all fields and try again.", unavailable: "The application could not be submitted. Please try again later.",
-  adminTitle: "Seller applications", adminIntro: "Contact the applicant and verify their identity and account control separately. Approval records a decision; seller tools are not available yet.",
+  approvedNote: "Ask an administrator to reopen this application to complete account verification.", authorizedNote: "Your seller account is verified.", invalid: "Check all fields and try again.", unavailable: "The application could not be submitted. Please try again later.",
+  adminTitle: "Seller applications", adminIntro: "Contact the applicant and verify their identity separately. Approval requires their one-time site code and enables the reviewed seller scope.",
   empty: "No applications in this status.", approve: "Approve", reject: "Reject", reopen: "Reopen for review", reviewFailed: "The review could not be saved. Refresh and try again.",
   applicationLink: "Seller application", adminLink: "Seller applications",
+  challengeTitle: "Verify control of your account", challengeIntro: "After enabling this site's two-step verification, generate a one-time code and give it to the administrator during your identity check. It expires after 10 minutes and is not a Steam code.", challengeButton: "Generate verification code", challengeError: "The code could not be generated. Verify this session with two-step verification and try again.", challengeCode: "One-time site verification code", securityLink: "Verify this session",
+  adminCode: "One-time site verification code", adminAttestation: "I checked the applicant's identity separately and received this code from that person.", adminSecurity: "Seller reviews require this site's two-step verification.",
 };
 const uz: typeof en = {
   title: "Seller bo‘lish uchun ariza", intro: "Faoliyatingiz haqida ma’lumot bering. Har bir arizani admin ko‘rib chiqadi.",
@@ -15,10 +17,12 @@ const uz: typeof en = {
   contact: "Aloqa ma’lumotlari", region: "Faoliyat hududi", scope: "Nima sotmoqchisiz?", cs2: "CS2 skinlar", fashion: "Kiyimlar", both: "Har ikkisi",
   registration: "Kompaniya ro‘yxatdan o‘tganligi ma’lumotlari", registrationHint: "Kompaniyalar uchun majburiy. Bu yerga shaxsiy hujjatlarni yubormang.", submit: "Ariza yuborish",
   status: "Ariza holati", pending: "Ko‘rib chiqilmoqda", approved: "Tasdiqlangan", rejected: "Tasdiqlanmagan", resubmit: "Tuzatib qayta yuborish",
-  approvedNote: "Seller vositalari hali mavjud emas.", invalid: "Maydonlarni tekshirib, qayta urinib ko‘ring.", unavailable: "Arizani yuborib bo‘lmadi. Keyinroq qayta urinib ko‘ring.",
-  adminTitle: "Seller arizalari", adminIntro: "Arizachi bilan bog‘lanib, shaxsi va akkaunt nazoratini alohida tekshiring. Tasdiq qarorni qayd etadi; seller vositalari hali mavjud emas.",
+  approvedNote: "Akkaunt tekshiruvini yakunlash uchun admindan arizani qayta ochishni so‘rang.", authorizedNote: "Seller akkauntingiz tasdiqlangan.", invalid: "Maydonlarni tekshirib, qayta urinib ko‘ring.", unavailable: "Arizani yuborib bo‘lmadi. Keyinroq qayta urinib ko‘ring.",
+  adminTitle: "Seller arizalari", adminIntro: "Arizachi bilan bog‘lanib, shaxsini alohida tekshiring. Tasdiqlash uchun uning sayt kodi kerak; faqat tekshirilgan seller yo‘nalishi faollashadi.",
   empty: "Bu holatda arizalar yo‘q.", approve: "Tasdiqlash", reject: "Rad etish", reopen: "Qayta ko‘rib chiqish", reviewFailed: "Qarorni saqlab bo‘lmadi. Sahifani yangilab qayta urinib ko‘ring.",
   applicationLink: "Seller arizasi", adminLink: "Seller arizalari",
+  challengeTitle: "Akkaunt nazoratini tasdiqlash", challengeIntro: "Saytning ikki bosqichli himoyasini yoqqach, bir martalik kod yarating va shaxsingiz tekshirilayotganda adminga ayting. Kod 10 daqiqa amal qiladi; bu Steam kodi emas.", challengeButton: "Tasdiqlash kodini yaratish", challengeError: "Kod yaratilmadi. Avval bu seansni ikki bosqichli himoya bilan tasdiqlab, qayta urining.", challengeCode: "Saytning bir martalik tasdiqlash kodi", securityLink: "Seansni tasdiqlash",
+  adminCode: "Saytning bir martalik tasdiqlash kodi", adminAttestation: "Arizachining shaxsini alohida tekshirdim va ushbu kodni undan oldim.", adminSecurity: "Seller arizalarini ko‘rib chiqish uchun saytning ikki bosqichli himoyasi talab qilinadi.",
 };
 const ru: typeof en = {
   title: "Заявка продавца", intro: "Расскажите о своей деятельности. Администратор рассмотрит каждую заявку.",
@@ -26,9 +30,11 @@ const ru: typeof en = {
   contact: "Контактные данные", region: "Регион работы", scope: "Что вы хотите продавать?", cs2: "Скины CS2", fashion: "Одежда", both: "Оба направления",
   registration: "Регистрационные данные компании", registrationHint: "Обязательно для компаний. Не отправляйте здесь документы, удостоверяющие личность.", submit: "Отправить заявку",
   status: "Статус заявки", pending: "На рассмотрении", approved: "Одобрена", rejected: "Не одобрена", resubmit: "Исправить и отправить снова",
-  approvedNote: "Инструменты продавца пока недоступны.", invalid: "Проверьте поля и повторите попытку.", unavailable: "Не удалось отправить заявку. Повторите попытку позже.",
-  adminTitle: "Заявки продавцов", adminIntro: "Свяжитесь с заявителем и отдельно проверьте личность и контроль аккаунта. Одобрение фиксирует решение; инструменты продавца пока недоступны.",
+  approvedNote: "Попросите администратора вернуть заявку на рассмотрение для проверки аккаунта.", authorizedNote: "Ваш аккаунт продавца подтверждён.", invalid: "Проверьте поля и повторите попытку.", unavailable: "Не удалось отправить заявку. Повторите попытку позже.",
+  adminTitle: "Заявки продавцов", adminIntro: "Свяжитесь с заявителем и отдельно проверьте личность. Для одобрения нужен одноразовый код сайта; активируется проверенное направление продавца.",
   empty: "В этом статусе заявок нет.", approve: "Одобрить", reject: "Отклонить", reopen: "Вернуть на рассмотрение", reviewFailed: "Не удалось сохранить решение. Обновите страницу и повторите попытку.",
   applicationLink: "Заявка продавца", adminLink: "Заявки продавцов",
+  challengeTitle: "Подтвердите контроль аккаунта", challengeIntro: "После включения двухэтапной защиты сайта создайте одноразовый код и сообщите его администратору при проверке личности. Код действует 10 минут; это не код Steam.", challengeButton: "Создать код подтверждения", challengeError: "Не удалось создать код. Подтвердите этот сеанс двухэтапной защитой и повторите попытку.", challengeCode: "Одноразовый код подтверждения сайта", securityLink: "Подтвердить сеанс",
+  adminCode: "Одноразовый код подтверждения сайта", adminAttestation: "Я отдельно проверил личность заявителя и получил этот код от него.", adminSecurity: "Для рассмотрения заявок нужна двухэтапная защита сайта.",
 };
 export const sellerDictionaries = { en, uz, ru };

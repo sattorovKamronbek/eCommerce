@@ -5,6 +5,7 @@ import { WorkspaceShell } from "@/components/account/workspace";
 import { AccountForm } from "@/components/account/form";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { accountDictionaries } from "@/messages/account";
+import { mfaDictionaries } from "@/messages/mfa";
 import { requireAccount } from "@/lib/auth/access";
 import { logoutAction, updateProfileAction } from "./actions";
 
@@ -30,6 +31,7 @@ export default async function Account({ params }: { params: Promise<{ locale: st
     <section className="profile-section profile-access">
       <div className="profile-section-heading"><h2><KeyRound aria-hidden="true" />{copy.security}</h2><p>{copy.securityIntro}</p></div>
       <Link className="mp-text-link" href={`/${locale}/account/forgot-password`}>{copy.forgot}</Link>
+      <Link className="mp-text-link" href={`/${locale}/account/security`}>{mfaDictionaries[locale].securityLink}</Link>
     </section>
     <div className="profile-signout"><AccountForm action={logoutAction.bind(null, locale)} kind="logout" copy={copy} /></div>
   </WorkspaceShell>;

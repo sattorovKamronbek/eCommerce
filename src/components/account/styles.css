@@ -18,13 +18,21 @@
 .account-brand-caption { color: #c2c9d2; font-size: 12px; }
 .account-form { width: 100%; }
 .seller-form { display: grid; gap: 18px; }
+.mfa-panel, .mfa-setup { display: grid; gap: 18px; }
+.mfa-setup code { overflow-wrap: anywhere; }
+.mfa-button { min-height: 44px; padding: 10px 18px; border: 1px solid var(--border); border-radius: 6px; background: var(--foreground); color: var(--background); font-weight: 600; }
 .seller-form label { display: grid; gap: 7px; font-size: 14px; font-weight: 500; }
-.seller-form input, .seller-form select { min-width: 0; width: 100%; min-height: 44px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 6px; background: var(--card); color: var(--foreground); font-size: 16px; }
+.seller-form input, .seller-form select, .seller-form textarea { min-width: 0; width: 100%; min-height: 44px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 6px; background: var(--card); color: var(--foreground); font-size: 16px; }
 .seller-form label span { color: var(--muted-foreground); font-size: 12px; font-weight: 400; }
+.seller-form .seller-help { color: var(--muted-foreground); font-size: 12px; margin-top: -12px; }
 .seller-form button, .seller-review button { min-height: 44px; padding: 10px 18px; border: 1px solid var(--border); border-radius: 6px; background: var(--foreground); color: var(--background); font-weight: 600; }
 .seller-form [role="alert"], .workspace-content > [role="alert"] { color: var(--destructive); }
 .seller-status { display: grid; gap: 8px; }
+.seller-challenge { display: grid; gap: 12px; margin-block: 20px; }
+.seller-challenge code { overflow-wrap: anywhere; }
 .seller-reviews { display: grid; gap: 16px; }
+.seller-catalog-note { margin-bottom: 18px; color: var(--muted-foreground); }
+.seller-reviews { margin-top: 20px; }
 .seller-review-filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
 .seller-review-filters a { padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; }
 .seller-review-filters a[aria-current="page"] { background: var(--foreground); color: var(--background); }
@@ -34,6 +42,8 @@
 .seller-review dt { color: var(--muted-foreground); }
 .seller-review dd { overflow-wrap: anywhere; }
 .seller-review form { display: flex; flex-wrap: wrap; gap: 10px; }
+.seller-review form label { flex-basis: 100%; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 14px; }
+.seller-review form input[name="verificationCode"] { width: min(100%, 600px); min-height: 44px; padding: 8px; border: 1px solid var(--border); border-radius: 6px; background: var(--background); color: var(--foreground); }
 .account-form [data-slot="field-group"] { gap: 20px; }
 .account-form [data-slot="field"] { gap: 8px; }
 .account-form [data-slot="field-label"] { font-size: 14px; font-weight: 500; }

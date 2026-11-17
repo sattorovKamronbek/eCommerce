@@ -20,6 +20,8 @@ describe("account input boundaries", () => {
     expect(safeReturnPath("/en/admin/users", "en")).toBe("/en/admin/users");
     expect(safeReturnPath("/en/seller/apply", "en")).toBe("/en/seller/apply");
     expect(safeReturnPath("/en/admin/sellers", "en")).toBe("/en/admin/sellers");
+    expect(safeReturnPath("/en/account/security", "en")).toBe("/en/account/security");
+    expect(safeReturnPath("/en/seller/products", "en")).toBe("/en/seller/products");
     for (const value of ["https://evil.test", "//evil.test", "/\\evil.test", "/en/admin/../auth/confirm", "/en/account?next=https://evil.test", "/%2fen/admin", "/en/admin%2fusers", "/ru/admin", "/en/admin/users\n"]) {
       expect(safeReturnPath(value, "en")).toBe("/en/account");
     }

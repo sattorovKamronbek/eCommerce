@@ -82,7 +82,10 @@ both buyer and seller confirm delivery. If one party does not confirm or objects
 do not release platform-held funds to the seller; an administrator reviews the
 case. Direct seller payments outside the platform cannot be held by the site.
 Provider support, payout execution, dispute handling and reversals remain to be
-designed and verified. No payment provider has yet been selected. The owner chose no
+designed and verified. The owner selected Click Business as the integration target;
+the business is not yet registered and has no provider contract. Click's approval
+of CS2, this marketplace model, settlement and actual credentials remain open.
+The owner chose no
 platform commission for now; later changes and their effective dates need a
 separate decision.
 
@@ -188,19 +191,19 @@ Potential item/category fields, seller metrics, payouts, reviews, promotions, st
 | D04 | Seller eligibility, individual/business sellers, invitation/open applications, verification/reverification | Defines onboarding, risk and private data requirements | Individuals and companies may apply; all require admin approval; verification and detailed eligibility remain open |
 | D05 | Fashion operations: third-party sellers, platform-owned stock or hybrid; permitted categories | Determines ownership, fulfillment and responsibility | Hybrid confirmed: own products + independent sellers; categories, seller onboarding, stock and fulfillment rules still open |
 | D06 | Commission basis/rate, subscriptions/listing fees and who pays fees | Defines pricing, accounting and seller economics | No platform commission for now; other fees and later changes remain open |
-| D07 | Payment methods/provider and money flow: direct seller, provider split or platform collection | Requires provider support and country/model review | Visa and later crypto requested; both direct-seller/platform-payment possibilities desired; provider, asset/network, custody and operating rules unselected |
+| D07 | Payment methods/provider and money flow: direct seller, provider split or platform collection | Requires provider support and country/model review | Click Business selected as target; business registration, contract, support for CS2 and settlement, asset/network and operating rules remain open |
 | D08 | Payout timing, reserves, reversal exposure, refund/dispute responsibility | Defines accounting and settlement; no wallet/escrow approved | CS2 platform funds: seller payout after both delivery confirmations, otherwise admin review; provider, execution and reversals remain open |
-| D09 | Fashion shipping regions, carrier responsibility, returns and customer support | Defines logistics/state transitions | Follow-up |
+| D09 | Fashion shipping regions, carrier responsibility, returns and customer support | Defines logistics/state transitions | Seller sets shipping price; owner delegated a common return policy to research; see docs/FASHION_RETURNS_POLICY.md. Regions, carrier and operational workflow remain open |
 | D10 | Seller Center/Admin modules and action permissions at launch | Limits privileged scope and defines role matrix | Initial admin users list selected with accounts; seller modules and other privileged actions still require decisions |
 | D11 | Brand name, visual references and shared versus distinct identity | Gates design generation and navigation decisions | Follow-up; ORO remains temporary |
 | D12 | Expected sellers, listings, daily users, order volume and launch timeline/budget constraints | Grounds query, operational and performance design | Large-scale ambition reconfirmed; numeric targets, timeline and budget remain follow-up |
 | D13 | Steam/item/price/image data sources, permitted commercial use and verification confidence | Prevents unsupported capabilities and misleading market/ownership claims | Research + owner gate |
-| D14 | Mixed-ecosystem/multi-seller baskets, split payments/orders and customer-facing totals | Determines checkout boundaries and refund/fulfillment grouping | Follow-up; no default |
+| D14 | Mixed-ecosystem/multi-seller baskets, split payments/orders and customer-facing totals | Determines checkout boundaries and refund/fulfillment grouping | Separate order for each seller and ecosystem; checkout and payment implementation remain open |
 | D15 | Identity backend, signup methods, account/admin first slice and infrastructure isolation | Defines real authentication, private data and initial privileged scope | Detailed design approved; dedicated project xevzbtivteugbqbmmtyz confirmed, public credentials configured and migration applied per owner; authenticated/email/admin end-to-end verification pending; other live application's project remains untouched |
 
 ## Deferred decisions and technical constraints
 
-No custodial/bot-based CS2 model, wallet, escrow or provider is selected. No platform commission is charged for now, and platform-received CS2 funds are intended for payout after both parties confirm delivery; the provider and payout mechanism remain open. All sellers require administrator approval, while eligibility and verification remain open. Integrations depend on documented access and permitted use. Steam policy research does not establish authorization for a particular commercial model. No unavailable ownership/float/pattern/market-price API is assumed.
+No custodial/bot-based CS2 model, wallet or escrow is selected. Click Business is the selected integration target, but no contract or supported marketplace payout mechanism has been verified. No platform commission is charged for now, and platform-received CS2 funds are intended for payout after both parties confirm delivery; payout execution remains open. All sellers require administrator approval, while eligibility and verification remain open. Integrations depend on documented access and permitted use. Steam policy research does not establish authorization for a particular commercial model. No unavailable ownership/float/pattern/market-price API is assumed.
 
 Before real trading or money movement: owner approves the commercial model; provider/platform/jurisdiction feasibility is checked; server authorization, transactions, idempotency, verified events, reversal/dispute handling and reconciliation are tested.
 
@@ -212,6 +215,8 @@ For each owner answer, record date, decision ID, the answer, scope and remaining
 
 | Date | Decision IDs | Owner statement and scope | Remaining conditions |
 | --- | --- | --- | --- |
+| 2026-11-18 | D09, D14 | Seller sets delivery price; orders are separated by seller and ecosystem. Owner asked us to derive one clothing return rule from other stores. | Selected customer-facing draft in docs/FASHION_RETURNS_POLICY.md; legal review, seller implementation and checkout remain outstanding. |
+| 2026-11-16 | D02, D07 (partial) | Business not yet registered; no payment-provider contract. After reviewing options, selected Click Business as target. | Verify merchant eligibility, Visa, CS2 listings, marketplace settlement, hold and seller payouts with Click; register the business and obtain credentials. Selection is not evidence of any approved capabilities or live connection. |
 | 2026-11-16 | D04 (partial) | Administrator contacts the seller and checks documents securely outside the site to verify identity and account control. | Establish the actual secure procedure, evidence, retention and binding to the account; never treat self-reported email alone as proof. |
 | 2026-11-16 | D04 (partial) | Applicants may correct and resubmit rejected or mistaken applications; administrators review them again. | Seller identity evidence and approved-seller category changes remain open. |
 | 2026-11-16 | D04 (partial) | Seller applications should require all important information. | Exact fields and safe identity/document verification remain to be defined. |

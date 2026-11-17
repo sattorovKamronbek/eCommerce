@@ -394,3 +394,13 @@
   .mp-destination-media img, .mp-sample-media img { transition: none; }
   .mp-destination:hover img, .mp-sample-link:hover img { transform: none; }
 }
+.real-catalog { display: grid; gap: 20px; }
+.real-catalog > p { color: var(--muted-foreground); }
+.real-filters, .real-catalog-links { display: flex; flex-wrap: wrap; gap: 16px; align-items: end; }
+.real-filters label { display: grid; gap: 6px; flex: 1 1 180px; }
+.real-filters input, .real-filters select { width: 100%; min-height: 44px; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; background: var(--card); color: var(--foreground); }
+.real-filters button { min-height: 44px; padding: 8px 18px; background: var(--foreground); color: var(--background); border-radius: 6px; }
+.real-listings { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 16px; }
+.real-listing-card { display: grid; gap: 8px; padding: 20px; border: 1px solid var(--border); border-radius: 6px; background: var(--card); overflow-wrap: anywhere; }
+.real-listing-card h2 { font-size: 18px; font-weight: 600; }
+.real-description { white-space: pre-wrap; overflow-wrap: anywhere; }

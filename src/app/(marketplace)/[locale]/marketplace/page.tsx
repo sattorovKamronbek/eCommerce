@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { SampleCard } from "@/components/marketplace/sample-card";
 import { marketplaceSamples } from "@/data/marketplace-samples";
 import { isMarketplaceLocale, marketplaceDictionaries } from "@/messages/marketplace";
+import { listingDictionaries } from "@/messages/seller-catalog";
 
 export default async function MarketplaceHome({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -42,6 +43,7 @@ export default async function MarketplaceHome({ params }: { params: Promise<{ lo
           <article><h3>{copy.fashion}</h3><p>{copy.fashionPlan}</p></article>
         </div>
         <p className="mp-home-about-note">{copy.planNote}</p>
+        <div className="real-catalog-links"><Link className="mp-text-link" href={`/${locale}/listings/cs2`}>{listingDictionaries[locale].browseReal} — {copy.cs2}</Link><Link className="mp-text-link" href={`/${locale}/listings/fashion`}>{listingDictionaries[locale].browseReal} — {copy.fashion}</Link></div>
       </section>
       <section className="mp-edit" aria-labelledby="sample-edit-title">
         <div className="mp-section-heading"><h2 id="sample-edit-title">{copy.editTitle}</h2><p>{copy.editIntro}</p></div>

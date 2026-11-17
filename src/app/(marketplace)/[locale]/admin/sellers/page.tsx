@@ -27,11 +27,12 @@ export default async function SellerReviews({ params, searchParams }: {
   const base = `/${locale}/admin/sellers`;
   return <WorkspaceShell locale={locale} title={copy.adminTitle} intro={copy.adminIntro} active="sellers" admin>
     {query.error ? <p role="alert">{copy.reviewFailed}</p> : null}
+    <p>{copy.adminSecurity} <Link className="mp-text-link" href={`/${locale}/account/security?next=${encodeURIComponent(base)}`}>{copy.securityLink}</Link></p>
     <nav className="seller-review-filters" aria-label={copy.status}>{(["pending", "approved", "rejected"] as const).map((option) => <Link key={option} href={`${base}?status=${option}`} aria-current={status === option ? "page" : undefined}>{copy[option]}</Link>)}</nav>
     {result.rows.length === 0 ? <p>{copy.empty}</p> : <div className="seller-reviews">{result.rows.map((application) =>
       <article key={application.applicant_id} className="seller-review"><h2>{application.name}</h2>
         <dl><dt>{accountCopy.identifier}</dt><dd>{application.applicant_id}</dd><dt>{copy.type}</dt><dd>{copy[application.applicant_type]}</dd><dt>{copy.contact}</dt><dd>{application.contact}</dd><dt>{copy.region}</dt><dd>{application.region}</dd><dt>{copy.scope}</dt><dd>{copy[application.requested_scope]}</dd>{application.registration_details ? <><dt>{copy.registration}</dt><dd>{application.registration_details}</dd></> : null}</dl>
-        <form action={reviewSeller.bind(null, locale)}><input type="hidden" name="applicant" value={application.applicant_id} /><input type="hidden" name="revision" value={application.revision} />{application.status === "pending" ? <><button name="decision" value="approved">{copy.approve}</button><button name="decision" value="rejected">{copy.reject}</button></> : <button name="decision" value="reopen">{copy.reopen}</button>}</form>
+        <form action={reviewSeller.bind(null, locale)}><input type="hidden" name="applicant" value={application.applicant_id} /><input type="hidden" name="revision" value={application.revision} />{application.status === "pending" ? <><label>{copy.adminCode}<input name="verificationCode" autoComplete="off" spellCheck={false} maxLength={64} /></label><label><input type="checkbox" name="identityVerified" value="yes" />{copy.adminAttestation}</label><button name="decision" value="approved">{copy.approve}</button><button name="decision" value="rejected">{copy.reject}</button></> : <button name="decision" value="reopen">{copy.reopen}</button>}</form>
       </article>)}</div>}
     <nav className="account-pagination" aria-label={copy.adminTitle}>
       {page > 1 ? <Link href={`${base}?status=${status}&page=${page - 1}`} rel="prev">{accountCopy.previous}</Link> : <span aria-disabled="true">{accountCopy.previous}</span>}

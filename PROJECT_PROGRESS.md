@@ -1,5 +1,49 @@
 # Project progress
 
+## Seller catalog continuation — 2026-11-18
+
+Local, un-deployed work adds MFA setup and step-up, revision-bound seller
+verification after an offline identity check, category-limited seller listings,
+moderation, audit records and a separate public catalog. A seller cannot override
+admin suppression. Public reads use an anonymous client. The current listing
+quantity is not a transaction-safe inventory reservation; CS2 asset ownership
+is not verified. A local Click signature parser is protocol preparation only,
+not a payment endpoint or evidence that payment settled.
+
+The owner chose Click Business, but their entity is not registered and no Click
+contract, credentials, CS2 eligibility, Visa support for this merchant, hold,
+settlement or seller payout capabilities have been verified. Orders, checkout,
+payment reports/reconciliation, funds holding, delivery confirmations, disputes,
+payouts, returns processing, transaction-safe inventory and user blocking are
+not implemented. No live commerce should be enabled. Existing sample catalog and
+its clear development labels remain until the real catalog and checkout have
+been migrated and verified. Seller products have no image upload yet.
+
+The owner set shipping prices by seller, separate orders by seller and ecosystem,
+and requested a researched common clothing return rule; see
+`docs/FASHION_RETURNS_POLICY.md`. The rule is a draft, not an operational return
+flow. `docs/OWNER_BOOTSTRAP.md` describes manual verified owner assignment: it has
+not been performed. Local migrations 001–004 have not been independently
+verified on the dedicated Supabase project, and no remote database, project
+settings or other application was modified.
+
+Supabase may retain AAL2 claims in previously issued tokens until refresh or
+expiry. Checking for a current verified factor denies privileges once the last
+factor is removed, but does not provide immediate revocation of all old sessions
+when another factor remains. Confirm the deployment's session-revocation policy.
+MFA requests made by the server may share provider IP rate limits: configure and
+test an appropriate trusted-proxy/provider rate-limit design before launch.
+There has been no real provider MFA, authenticated seller/admin, SMTP, Click,
+stock contention, or end-to-end purchase test.
+
+Local verification: `npm run typecheck` passed, `npm run lint` completed with
+four unused-action-parameter warnings and no errors, and `npm test --
+--maxWorkers=1` passed 128 tests across 32 files. After that run, the
+latest MFA migration was also exercised in the five seller catalog database
+tests and the security-page sign-out regression passed separately. The
+production build passed, including TypeScript. Playwright passed all 72 workflows across desktop, tablet and mobile using the local production build. The live provider and remote migrations were not
+tested; the database tests use local PGlite and simulated identities.
+
 ## Owner role and seller application foundation — 2026-11-16
 
 The owner asked to implement the phased design. Added a local, additive owner-role

@@ -6,6 +6,7 @@ export type SellerApplicationInput = {
   requested_scope: "cs2" | "fashion" | "both";
   registration_details: string | null;
 };
+export type SellerChallengeState = { code?: string; error?: "unavailable" };
 export type SellerFormState = { error?: "invalid" | "unavailable" };
 
 function requiredText(value: FormDataEntryValue | null, max: number): string | null {

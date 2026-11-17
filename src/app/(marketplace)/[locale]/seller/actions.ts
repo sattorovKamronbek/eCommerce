@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { requireAccount, requireAdmin } from "@/lib/auth/access";
-import { parseSellerApplication, type SellerFormState } from "@/lib/sellers/application";
+import { parseSellerApplication, type SellerChallengeState, type SellerFormState } from "@/lib/sellers/application";
 import { isMarketplaceLocale, type MarketplaceLocale } from "@/messages/marketplace";
 
 export async function applyAsSeller(locale: MarketplaceLocale, _previous: SellerFormState, form: FormData): Promise<SellerFormState> {
@@ -36,12 +36,28 @@ export async function reviewSeller(locale: MarketplaceLocale, form: FormData) {
   const decision = form.get("decision");
   const revision = form.get("revision");
   if (typeof applicant !== "string" || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(applicant) || (decision !== "approved" && decision !== "rejected" && decision !== "reopen") || typeof revision !== "string" || !/^[1-9]\d{0,9}$/.test(revision) || Number(revision) > 2147483647) redirect(`${destination}?error=unavailable`);
+  const submittedCode = form.get("verificationCode");
+  const code = typeof submittedCode === "string" ? submittedCode.trim().toLowerCase() : "";
+  if (decision === "approved" && (!/^[0-9a-f]{64}$/.test(code) || form.get("identityVerified") !== "yes")) redirect(`${destination}?error=unavailable`);
   let failed = false;
   try {
-    const result = await access.client.rpc("marketplace_review_seller_application", { p_applicant_id: applicant, p_decision: decision, p_revision: Number(revision) });
+    const result = decision === "approved"
+      ? await access.client.rpc("marketplace_verify_seller", { p_applicant_id: applicant, p_revision: Number(revision), p_code: code })
+      : await access.client.rpc("marketplace_review_seller_application", { p_applicant_id: applicant, p_decision: decision, p_revision: Number(revision) });
     failed = !!result.error;
   } catch { failed = true; }
   if (failed) redirect(`${destination}?error=unavailable`);
   revalidatePath(destination);
   redirect(destination);
+}
+
+export async function createSellerChallenge(locale: MarketplaceLocale, _state: SellerChallengeState, _form: FormData): Promise<SellerChallengeState> {
+  if (!isMarketplaceLocale(locale)) return { error: "unavailable" };
+  const account = await requireAccount(locale, `/${locale}/seller/apply`);
+  if (!account) return { error: "unavailable" };
+  try {
+    const result = await account.client.rpc("marketplace_create_seller_challenge", {});
+    if (result.error || typeof result.data !== "string" || !/^[0-9a-f]{64}$/.test(result.data)) return { error: "unavailable" };
+    return { code: result.data };
+  } catch { return { error: "unavailable" }; }
 }

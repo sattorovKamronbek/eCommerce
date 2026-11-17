@@ -1,13 +1,14 @@
 import { beforeEach, expect, it, vi } from "vitest";
 vi.mock("server-only", () => ({}));
-const mock = vi.hoisted(() => ({ available: true, getUser: vi.fn(), maybeSingle: vi.fn(), from: vi.fn() }));
+const mock = vi.hoisted(() => ({ available: true, getUser: vi.fn(), assurance: vi.fn(), maybeSingle: vi.fn(), from: vi.fn() }));
 vi.mock("next/navigation", () => ({ redirect: (path: string) => { throw new Error(`REDIRECT:${path}`); } }));
-vi.mock("@/lib/supabase/server", () => ({ createServerSupabaseClient: async () => mock.available ? { auth: { getUser: mock.getUser }, from: mock.from } : null }));
+vi.mock("@/lib/supabase/server", () => ({ createServerSupabaseClient: async () => mock.available ? { auth: { getUser: mock.getUser, mfa: { getAuthenticatorAssuranceLevel: mock.assurance } }, from: mock.from } : null }));
 import { requireAccount, requireAdmin } from "./access";
 beforeEach(() => {
   mock.available = true;
   vi.clearAllMocks();
-  mock.getUser.mockResolvedValue({ data: { user: { id: "verified-user", email_confirmed_at: "2026-11-11" } }, error: null });
+  mock.getUser.mockResolvedValue({ data: { user: { id: "verified-user", email_confirmed_at: "2026-11-11", factors: [{ status: "verified" }] } }, error: null });
+  mock.assurance.mockResolvedValue({ data: { currentLevel: "aal2" }, error: null });
   const query = { select: () => query, eq: () => query, maybeSingle: mock.maybeSingle };
   mock.from.mockReturnValue(query);
   mock.maybeSingle.mockResolvedValue({ data: null, error: null });
@@ -35,4 +36,17 @@ it("allows an explicitly assigned owner to access administrator pages", async ()
   const query = { select: () => query, eq: (column: string, value: string) => { if (column === "role" && value === "admin") onlyAdmin = true; return query; }, maybeSingle: async () => ({ data: onlyAdmin ? null : { role: "owner" }, error: null }) };
   mock.from.mockReturnValue(query);
   expect((await requireAdmin("en")).kind).toBe("admin");
+});
+
+it("requires MFA for enrolled users while allowing access to the security page", async () => {
+  mock.getUser.mockResolvedValue({ data: { user: { id: "verified-user", email_confirmed_at: "now", factors: [{ status: "verified" }] } }, error: null });
+  mock.assurance.mockResolvedValue({ data: { currentLevel: "aal1" }, error: null });
+  await expect(requireAccount("en", "/en/account")).rejects.toThrow("REDIRECT:/en/account/security?next=%2Fen%2Faccount");
+  expect(await requireAccount("en", "/en/account/security", { allowMfaPending: true })).not.toBeNull();
+});
+it("requires admins to step up even before they enroll MFA", async () => {
+  mock.maybeSingle.mockResolvedValue({ data: { role: "admin" }, error: null });
+  mock.getUser.mockResolvedValue({ data: { user: { id: "verified-user", email_confirmed_at: "now", factors: [] } }, error: null });
+  mock.assurance.mockResolvedValue({ data: { currentLevel: "aal1" }, error: null });
+  await expect(requireAdmin("en", "/en/admin/users")).rejects.toThrow("REDIRECT:/en/account/security?next=%2Fen%2Fadmin%2Fusers");
 });
