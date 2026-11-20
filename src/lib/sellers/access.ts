@@ -1,4 +1,5 @@
 import "server-only";
+import { isSellerSchemaMissing } from "@/lib/sellers/schema";
 import { requireAccount } from "@/lib/auth/access";
 import type { MarketplaceLocale } from "@/messages/marketplace";
 
@@ -11,6 +12,7 @@ export async function requireSeller(locale: MarketplaceLocale) {
       account.client.from("marketplace_seller_grants").select("application_revision").eq("seller_id", account.user.id).maybeSingle(),
       account.client.auth.mfa.getAuthenticatorAssuranceLevel(),
     ]);
+    if (isSellerSchemaMissing(application.error) || isSellerSchemaMissing(grant.error)) return { kind: "setup" } as const;
     if (application.error || grant.error || assurance.error) return { kind: "unavailable" } as const;
     if (!application.data || application.data.status !== "approved" || !grant.data || application.data.revision !== grant.data.application_revision) return { kind: "denied" } as const;
     if (assurance.data.currentLevel !== "aal2") return { kind: "mfa" } as const;

@@ -38,6 +38,10 @@ export function AccountUnavailable({ locale }: { locale: MarketplaceLocale }) {
   const copy = accountDictionaries[locale];
   return <AccountShell locale={locale} title={copy.unavailableTitle} intro={copy.unavailableBody} />;
 }
+export function SellerSetupRequired({ locale, admin = false }: { locale: MarketplaceLocale; admin?: boolean }) {
+  const copy = accountDictionaries[locale];
+  return <AccountShell locale={locale} title={copy.sellerSetupTitle} intro={admin ? copy.sellerSetupAdminBody : copy.sellerSetupBody} />;
+}
 export function AccountDenied({ locale }: { locale: MarketplaceLocale }) {
   const copy = accountDictionaries[locale];
   return <AccountShell locale={locale} title={copy.deniedTitle} intro={copy.deniedBody}>

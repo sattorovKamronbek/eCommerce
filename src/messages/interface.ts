@@ -2,7 +2,7 @@
 export const copy = {
   dokonEloni: "Do‘kon e’loni",
   checkoutHaqida: "Checkout haqida",
-  ishlabChiqishRejimi: "Ishlab chiqish rejimi",
+  ishlabChiqishRejimi: "Buyurtmalar qabul qilinmaydi",
   buyurtmaBerishTezOrada: "Buyurtma berish tez orada.",
   buDokonningDizaynVaKatalogBosqichi:
     "Bu do‘konning dizayn va katalog bosqichi. Hozir buyurtmalar qabul qilinmaydi va to‘lov olinmaydi.",
@@ -42,7 +42,7 @@ export const copy = {
     "Qidiruv so‘zini yoki filtrlarni o‘zgartirib ko‘ring.",
   filtrlarniTozalash: "Filtrlarni tozalash →",
   uyingizVaKundalikHayotingizUchunDid:
-    "Uyingiz va kundalik hayotingiz uchun did bilan tanlangan buyumlar. Ishlab chiqishdagi namunaviy do‘kon.",
+    "Uyingiz va kundalik hayotingiz uchun did bilan tanlangan buyumlar. Namunaviy do‘kon.",
   asosiyMazmungaOtish: "Asosiy mazmunga o‘tish",
   yuklanmoqda: "Yuklanmoqda",
   buyumlarTayyorlanmoqda: "Buyumlar tayyorlanmoqda…",

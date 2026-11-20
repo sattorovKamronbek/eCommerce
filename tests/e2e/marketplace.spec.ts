@@ -130,13 +130,14 @@ test("marketplace entry, both destinations, languages and theme preference", asy
   await expect(page.locator(".mp-sample-card")).toHaveCount(3);
   await expect(page.locator("h1")).toHaveText("Clothing");
   await page.emulateMedia({ colorScheme: "dark" });
-  await page.getByRole("link", { name: "Original storefront", exact: true }).click();
+  await expect(page.getByRole("link", { name: "Original storefront", exact: true })).toHaveCount(0);
+  await page.goto("/storefront-preview");
   await expect(page.locator("html")).toHaveClass(/dark/);
   await expect(page.locator("h1")).toContainText("Oddiy kunlar");
   await page.goto("/mahsulot/sokin-keramik-vaza");
   await page.getByRole("button", { name: "Savatga qo‘shish", exact: true }).click();
   await page.goto("/en/marketplace");
-  await page.getByRole("link", { name: "Original storefront", exact: true }).click();
+  await page.goto("/storefront-preview");
   await expect(page).toHaveURL(/\/storefront-preview$/);
   await expect(page.locator("h1")).toContainText("Oddiy kunlar");
   await page.goto("/savat");
@@ -165,7 +166,7 @@ test("detail, size choice, wrong-domain rejection and trading boundary", async (
   await page.goto("/en/marketplace/fashion/sand-overshirt");
   await page.getByRole("radio", { name: "L", exact: true }).check();
   await expect(page.getByRole("radio", { name: "L", exact: true })).toBeChecked();
-  await expect(page.getByText("Preview only · Not for sale", { exact: true })).toBeVisible();
+  await expect(page.getByText("Not for sale", { exact: true })).toBeVisible();
   await expect(page.getByRole("note")).toContainText("Payment and delivery are not available");
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
   await page.getByRole("link", { name: "Русский", exact: true }).click();

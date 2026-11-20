@@ -1,5 +1,75 @@
 # Project progress
 
+## Deployment diagnosis and storefront copy — 2026-11-20
+
+Fetched and fast-forwarded `main` to GitHub merge `9963fed`, preserving the
+pre-existing uncommitted work. The merged Vercel PR describes a deployment
+failure caused by a project-level `dist` output-directory override after the
+Next.js build and adds `vercel.json` with the Next.js framework preset. Local
+production build succeeds; no Vercel account or deployment logs are available
+here, so successful remote deployment and Vercel environment variables are not
+verified. GitHub's unauthenticated status API was rate-limited and the GitHub
+connector was not connected.
+
+The local environment points to the dedicated Supabase project and its Auth
+settings endpoint returned HTTP 200 using the public key. Anonymous access to
+`public_listings` returned HTTP 404 / `PGRST205`, indicating it is absent from
+PostgREST's schema cache, without proving whether underlying objects exist.
+No authenticated provider flow, remote migrations, settings, database writes or
+other project were tested or changed. The existing seller setup instructions
+remain in `docs/SUPABASE_SELLER_SETUP.md`.
+
+Removed the marketplace footer link to the preserved original storefront and
+reworded development-mode banners while retaining clear sample-product and
+unavailable-trading disclosures. The original route remains available as
+required by the approved migration strategy. Validation: `npm run check`
+passed (141 tests in 37 files, production build and TypeScript; lint had four
+existing unused-parameter warnings and no errors); `npm run test:e2e` passed all
+72 tests in Chromium across desktop, tablet and mobile. Browser plugin was not
+available, so the repository Playwright workflow was used. These local tests do
+not verify a deployed Vercel environment, real account login, email delivery or
+seller migrations.
+
+## Owner access diagnosis and seller setup — 2026-11-18
+
+The owner reports assigning their owner role and confirms seller migrations were
+not applied. An anonymous read-only probe of the dedicated project's API returned
+`PGRST205` for seller applications and the public listings view; this means the
+objects are absent from PostgREST's schema cache (it alone does not prove the
+underlying database objects are absent). Accounts/roles returned permission
+denied as expected for an anonymous caller. No personal records, privileged
+credentials or remote writes were accessed.
+
+The seller-review, moderation and application pages now distinguish missing
+seller schema from a general account outage. An account role-query failure is
+no longer mislabeled as a customer role. An atomic, preflight-guarded setup
+bundle and read-only diagnostics are documented in `docs/SUPABASE_SELLER_SETUP.md`.
+It retains existing owner grants and stops on partial seller setup, but cannot
+verify the Supabase project reference itself: the operator must verify the
+dashboard URL. It does not update Supabase CLI migration history. No setup SQL
+has been executed by this agent; actual authenticated flows and live migrations
+still require verification. MFA enrollment and step-up remain mandatory for
+admin operations. No Click contract or functioning purchase flow is implied.
+
+Verification: full local unit/PGlite suite passed 141 tests in 37 files; after
+the final admin copy change its three focused seller-review tests passed again.
+The account Playwright workflow passed 21 tests on desktop, tablet and mobile
+using a separate local port, with three private-route tests rerun after the
+seller-access change. Browser plugin unavailable; Playwright was used. These
+were not authenticated live-owner browser tests. Production build, typecheck
+and lint were also run locally; lint reported four existing unused-parameter
+warnings and no errors.
+
+The owner selected automatic cancellation after 48 hours without a payment report,
+manual evidence consisting of payment time/amount/transaction ID, and private
+clothing delivery details for buyer, seller and admin. These decisions have been
+recorded, but no order, scheduler, payment-report or address flow has been
+implemented. `supabase/drafts/202611180005_inventory_research.sql` is a non-deployed
+inventory research draft; it is deliberately outside migrations. It is not
+production-ready: cross-listing CS2 asset uniqueness, real concurrent PostgreSQL
+verification, price consent, account deletion/retention and complete order
+authorization remain unresolved. No user-facing purchase functionality exists.
+
 ## Seller catalog continuation — 2026-11-18
 
 Local, un-deployed work adds MFA setup and step-up, revision-bound seller

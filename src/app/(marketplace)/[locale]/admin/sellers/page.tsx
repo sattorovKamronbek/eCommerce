@@ -1,6 +1,7 @@
-import { AccountDenied, AccountUnavailable, accountLocale } from "@/components/account/shell";
+import { AccountDenied, AccountUnavailable, SellerSetupRequired, accountLocale } from "@/components/account/shell";
 import Link from "next/link";
 import { WorkspaceShell } from "@/components/account/workspace";
+import { isSellerSchemaMissing } from "@/lib/sellers/schema";
 import { requireAdmin } from "@/lib/auth/access";
 import { parseAdminPage } from "@/lib/auth/validation";
 import { sellerPageRange, sellerPageResults } from "@/lib/sellers/pagination";
@@ -21,7 +22,7 @@ export default async function SellerReviews({ params, searchParams }: {
   const page = parseAdminPage(query.page);
   const range = sellerPageRange(page);
   const applications = await access.client.from("marketplace_seller_applications").select("*").eq("status", status).order("created_at", { ascending: true }).order("applicant_id", { ascending: true }).range(range.from, range.to);
-  if (applications.error) return <AccountUnavailable locale={locale} />;
+  if (applications.error) return isSellerSchemaMissing(applications.error) ? <SellerSetupRequired locale={locale} admin /> : <AccountUnavailable locale={locale} />;
   const result = sellerPageResults(applications.data);
   const accountCopy = accountDictionaries[locale];
   const base = `/${locale}/admin/sellers`;

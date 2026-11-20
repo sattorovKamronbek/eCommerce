@@ -22,3 +22,10 @@ it("requires a current approved revision and an MFA-verified session", async () 
   mock.app.mockResolvedValueOnce({ data: null, error: { code: "network" } });
   expect((await requireSeller("en")).kind).toBe("unavailable");
 });
+
+it("distinguishes absent seller tables from ordinary service failures", async () => {
+  mock.app.mockResolvedValueOnce({ data: null, error: { code: "PGRST205" } });
+  expect((await requireSeller("en")).kind).toBe("setup");
+  mock.grant.mockResolvedValueOnce({ data: null, error: { code: "42P01" } });
+  expect((await requireSeller("en")).kind).toBe("setup");
+});

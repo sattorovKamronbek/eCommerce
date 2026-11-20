@@ -22,7 +22,7 @@ export default async function Account({ params }: { params: Promise<{ locale: st
     <section className="profile-summary" aria-label={copy.identity}>
       <div className="profile-avatar"><UserRound aria-hidden="true" /></div>
       <div><p className="profile-name">{profile.data?.display_name || copy.unnamed}</p><p className="account-email">{account.user.email}</p></div>
-      <dl><div><dt>{copy.accountType}</dt><dd>{role.data?.role === "owner" && !role.error ? copy.owner : admin ? copy.administrator : copy.customer}</dd></div></dl>
+      <dl><div><dt>{copy.accountType}</dt><dd>{role.error ? copy.roleUnavailable : role.data?.role === "owner" ? copy.owner : admin ? copy.administrator : copy.customer}</dd></div></dl>
     </section>
     <section className="profile-section">
       <div className="profile-section-heading"><h2>{copy.personalDetails}</h2><p>{copy.emailNote}</p></div>

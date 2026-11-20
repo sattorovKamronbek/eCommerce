@@ -6,6 +6,6 @@ export function MarketplaceFooter({ locale }: { locale: MarketplaceLocale }) {
   const copy = marketplaceDictionaries[locale];
   return <footer className="mp-footer">
     <div><Link className="mp-wordmark" translate="no" href={`/${locale}/marketplace`}>{storeConfig.name}</Link><p>{copy.tagline}</p></div>
-    <nav aria-label={copy.how}><Link href="/storefront-preview">{copy.legacy}</Link><Link href={`/${locale}/marketplace/how-it-works`}>{copy.how}</Link></nav>
+    <nav aria-label={copy.how}><Link href={`/${locale}/marketplace/how-it-works`}>{copy.how}</Link></nav>
   </footer>;
 }

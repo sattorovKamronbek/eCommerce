@@ -15,7 +15,7 @@ export const uz = {
     add: "Savatga qo‘shish",
     empty: "Hozircha mahsulot yo‘q",
     explore: "Katalogni ko‘rish",
-    demo: "Ishlab chiqish rejimi · Namunaviy katalog. Buyurtmalar qabul qilinmaydi.",
+    demo: "Namunaviy katalog · Buyurtmalar qabul qilinmaydi.",
   },
   home: {
     title: "Oddiy kunlar.\nAlohida buyumlar.",

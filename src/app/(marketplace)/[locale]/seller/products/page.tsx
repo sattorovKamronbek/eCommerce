@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { AccountUnavailable, accountLocale } from "@/components/account/shell";
+import { AccountUnavailable, SellerSetupRequired, accountLocale } from "@/components/account/shell";
 import { SellerAccessNotice } from "@/components/account/seller-access-notice";
 import { WorkspaceShell } from "@/components/account/workspace";
+import { isSellerSchemaMissing } from "@/lib/sellers/schema";
 import { requireSeller } from "@/lib/sellers/access";
 import { sellerPageRange, sellerPageResults } from "@/lib/sellers/pagination";
 import { parseAdminPage } from "@/lib/auth/validation";
@@ -20,7 +21,7 @@ export default async function SellerProducts({ params, searchParams }: {
   const page = parseAdminPage(query.page);
   const range = sellerPageRange(page);
   const result = await access.account.client.from("marketplace_listings").select("*").eq("seller_id", access.account.user.id).order("created_at", { ascending: false }).order("id", { ascending: false }).range(range.from, range.to);
-  if (result.error) return <AccountUnavailable locale={locale} />;
+  if (result.error) return isSellerSchemaMissing(result.error) ? <SellerSetupRequired locale={locale} /> : <AccountUnavailable locale={locale} />;
   const products = sellerPageResults(result.data);
   const base = `/${locale}/seller/products`;
   const common = accountDictionaries[locale];
