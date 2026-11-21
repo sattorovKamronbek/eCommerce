@@ -1,5 +1,18 @@
 # Project progress
 
+## Profile identity migration in production — 2026-11-21
+
+Applied `202611210007_profile_identity.sql` to the production Supabase project
+`xevzbtivteugbqbmmtyz` with Supabase CLI 3.2.0. A dry run identified one pending
+migration, and the five focused local PostgreSQL tests passed before deployment.
+
+A read-only production query verified the migration record, enabled RLS,
+restricted column access, all three RPCs and the unique pending-request index.
+Anonymous Data API requests for identity requests and account access events
+returned HTTP 401 with code `42501`. The public listing view returned HTTP 200.
+The owner role has yet to be assigned. Dashboard application deployment and an
+authenticated production check remain unverified. [Owner activation](docs/OWNER_BOOTSTRAP.md)
+
 ## Owner dashboard and targeted identity verification — 2026-11-21
 
 The owner dashboard at `/{locale}/admin` links to account access, recent CS2 and
@@ -31,8 +44,8 @@ in 39 files with one worker after parallel setup timed out in two database suite
 All 24 account Playwright scenarios passed on the production build across
 desktop, tablet and mobile Chromium, including direct admin sign-in redirects.
 
-The migration and application changes are local. Production still needs the
-reviewed migration, deployment and verification with an assigned owner account.
+The schema migration is now applied in the dedicated production database.
+The live application still needs verification with an assigned owner account.
 Email and SMS verification remain pending until delivery services are selected
 and configured. The owner selected the contact channel per request and
 confirmed verification should not suspend trading.

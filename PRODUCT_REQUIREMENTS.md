@@ -1,6 +1,6 @@
 # Product requirements — CS2 and Fashion marketplace
 
-Status: the seller catalog, manual direct-payment order flow and account administration have local implementations. The dedicated Supabase deployment and launch verification remain pending. Started 2026-11-11.
+Status: the seller catalog, manual direct-payment order flow and account administration have local implementations. The repository migrations are applied to the dedicated Supabase project. Authenticated production verification remains pending. Started 2026-11-11.
 
 ## Confirmed direction from the owner's transformation brief
 
