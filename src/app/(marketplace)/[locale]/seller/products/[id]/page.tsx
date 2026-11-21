@@ -35,7 +35,7 @@ export default async function EditListing({ params }: { params: Promise<{ locale
   return <AccountShell locale={locale} title={copy.edit} intro={copy.intro}>
     <ListingForm key={fashion?.key ?? item.updated_at} action={save} copy={copy} locale={locale}
       scope={access.scope} listing={item} fashion={fashion?.form} />
-    {terms ? <section className="order-summary">
+    {terms ? <section className="order-summary" id={item.ecosystem === "cs2" ? "reservation-settings" : undefined}>
       <h2>{orders.terms}</h2>
       {terms.error ? <p role="alert">{orders.unavailable}</p> : <>
         <p>{orders.termsIntro}</p>

@@ -7,7 +7,7 @@ export type SellerApplicationInput = {
   registration_details: string | null;
 };
 export type SellerChallengeState = { code?: string; error?: "unavailable" };
-export type SellerFormState = { error?: "invalid" | "unavailable" };
+export type SellerFormState = { error?: "invalid" | "unavailable" | "closed" };
 
 function requiredText(value: FormDataEntryValue | null, max: number): string | null {
   if (typeof value !== "string" || /[\u0000-\u001f\u007f]/.test(value)) return null;

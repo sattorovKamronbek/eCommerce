@@ -3,6 +3,7 @@ import { ArrowRight, ClipboardList, Package, ReceiptText, ShieldCheck, TriangleA
 import { AccountUnavailable, AccountDenied, accountLocale } from "@/components/account/shell";
 import { WorkspaceShell } from "@/components/account/workspace";
 import { requireAdmin } from "@/lib/auth/access";
+import { loadSellerIntake } from "@/lib/sellers/intake";
 import { dashboardDictionaries } from "@/messages/admin-dashboard";
 
 const sections = [
@@ -23,8 +24,9 @@ export default async function AdminDashboard({ params }: { params: Promise<{ loc
 
   const copy = dashboardDictionaries[locale];
   const owner = access.role === "owner";
+  const intake = await loadSellerIntake(access.client);
 
-  return <WorkspaceShell locale={locale} title={owner ? copy.ownerTitle : copy.adminTitle} intro={copy.intro} active="dashboard" admin>
+  return <WorkspaceShell locale={locale} title={owner ? copy.ownerTitle : copy.adminTitle} intro={copy.intro} active="dashboard" admin sellerIntake={intake}>
     <ul className="admin-dashboard" role="list">
       {sections.map(({ key, path, icon: Icon }) => <li key={key}>
         <Link href={`${base}${path}`} prefetch={false} className="admin-dashboard-link">

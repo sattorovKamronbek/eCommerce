@@ -1,5 +1,71 @@
 # Project progress
 
+## Administrator-controlled seller application intake — 2026-11-22
+
+The owner requested that the seller application appear only while an
+administrator has opened intake. Seller applications in the admin workspace
+now has explicit Open and Close controls. Intake defaults to closed for both
+ecosystems. When closed, workspace links for new applicants disappear and a
+direct form visit returns them to their account. Existing applicants can open
+their own status and pending verification. Submission and resubmission are
+available while intake is open.
+
+The [intake migration](supabase/migrations/202611220012_seller_application_intake.sql)
+stores the setting in a private RLS-enabled table. Only an active administrator
+or owner with a verified MFA session can change it. New inserts and resubmissions
+check the setting inside their transaction. They take a shared lock on the row
+that opens or closes intake, so a stale page cannot submit after closure takes
+effect. Admin review and pending verification continue through their existing
+authorization rules.
+
+Fixture-backed Playwright opened intake as an admin and submitted an application
+from a mobile customer view. After closing, a stale form was refused and the
+applicant could still open their status from Orders. It also checked the closed
+Uzbek labels, desktop intake accessibility, and the mobile layout. The suite
+passed 214 tests in 47 files. A fresh run of the affected tests after the final
+workspace changes passed 27 tests in seven files, including four PGlite cases.
+Typecheck, the production build and ESLint passed. ESLint reported four
+pre-existing warnings. Logs are in `/tmp/versax-seller-intake-qa/`.
+
+The migration and application release are pending in production.
+
+## CS2 production photos and reservations — 2026-11-22
+
+The dedicated VERSAX database had stored CS2 WebP objects and linked them to
+published variants. Hosted Storage nevertheless returned `NoSuchKey`, so the
+application's image route returned 404. A scoped hosted request identified
+`object.get_authenticated_info` as the read performed before download. The
+[photo migration](supabase/migrations/202611210010_cs2_photo_download.sql)
+allows that operation for published attached photos and authorized seller
+previews. The bucket stays private. The regression checks also cover draft
+visibility, forbidden listing and signing operations, and owner-only cleanup.
+
+On November 22, all ten CS2 photo references returned HTTP 200 and valid WebP
+bytes from both Storage and the live application. Chromium decoded all ten
+catalog covers and opened a detail gallery at desktop and mobile widths.
+[Supabase Storage access control](https://supabase.com/docs/guides/storage/security/access-control)
+
+The earlier production check found reservations paused, no CS2 checkout terms,
+and no expiration job. Installed Supabase Cron and scheduled the existing
+expiration function every minute. The production database confirmed a recent
+successful run and an active owner or administrator with verified MFA. The
+CLI ledger records `202611210010` and `202611210011`. Applied the
+[CS2 activation](supabase/setup/enable_cs2_reservations.sql) and confirmed the
+production setting is on with `cs2` as its sole ecosystem.
+
+The production database still has zero CS2 checkout terms, offers, or orders.
+Each seller must enter the variant's payment contact and real asset ID in its
+existing payment settings. The local app build adds a localized link directly
+to those settings on variants missing terms. The seller and buyer Playwright
+workflows passed through the local fixture, including saving and replacing
+photos, hiding a draft image, navigating to payment setup, and selecting the
+variant's reservation link. PGlite verified scoped checkout, reservation stock
+changes, and expiration, including the launch script's recent-Cron check.
+The repository suite passed 203 tests in 45 files. The latest direct-order
+suite passed all seven cases. Typecheck and the production build passed, and
+ESLint reported four pre-existing warnings and zero errors.
+[Launch procedure](docs/SUPABASE_SELLER_SETUP.md#direct-payments-and-account-administration)
+
 ## Clothing color and size variants — 2026-11-21
 
 Sellers can create and edit one clothing product with up to five colors, twelve

@@ -8,6 +8,7 @@ import { requireAccount, requireAdmin } from "@/lib/auth/access";
 import { parseAdminPage } from "@/lib/auth/validation";
 import { formatTiyin, orderStatuses, type OrderAction, type OrderRole, type OrderStatus } from "@/lib/orders/model";
 import { sellerPageRange, sellerPageResults } from "@/lib/sellers/pagination";
+import { loadSellerIntake } from "@/lib/sellers/intake";
 import type { DirectOrder, DirectOrderEvent } from "@/lib/supabase/database";
 import { accountDictionaries } from "@/messages/account";
 import { listingDictionaries } from "@/messages/seller-catalog";
@@ -56,10 +57,10 @@ export async function OrdersList({ locale, admin, search }: {
     .order("created_at", { ascending: false }).order("id", { ascending: false }).range(range.from, range.to);
   if (!admin) query = query.or(ownOrdersFilter(access.user.id));
   if (status) query = query.eq("status", status);
-  const result = await query;
+  const [result, intake] = await Promise.all([query, loadSellerIntake(access.client)]);
   const orders = sellerPageResults(result.data ?? []);
   return <WorkspaceShell locale={locale} title={admin ? copy.adminOrders : copy.orders}
-    intro={admin ? copy.adminIntro : copy.orderIntro} active={admin ? "adminOrders" : "orders"} admin={admin}>
+    intro={admin ? copy.adminIntro : copy.orderIntro} active={admin ? "adminOrders" : "orders"} admin={admin} sellerIntake={intake}>
     {result.error ? <p role="alert">{copy.unavailable}</p> : <>
       <form action={base} method="get" className="real-filters">
         <label>{copy.filter}<select name="status" defaultValue={status}>
@@ -201,10 +202,11 @@ export async function OrderDetail({ locale, admin, id, search }: {
   if (!admin) query = query.or(ownOrdersFilter(access.user.id));
   const page = parseAdminPage(search.page);
   const range = sellerPageRange(page);
-  const [result, log] = await Promise.all([
+  const [result, log, intake] = await Promise.all([
     query.maybeSingle(),
     access.client.from("marketplace_order_events").select("*").eq("order_id", id)
       .order("id", { ascending: false }).range(range.from, range.to),
+    loadSellerIntake(access.client),
   ]);
   if (result.error) return <AccountUnavailable locale={locale} />;
   if (!result.data) notFound();
@@ -214,7 +216,7 @@ export async function OrderDetail({ locale, admin, id, search }: {
   const actions = admin && viewer !== "admin" ? [] : availableActions(order, viewer);
   const history = sellerPageResults(log.data ?? []);
 
-  return <WorkspaceShell locale={locale} title={order.title} intro={order.id} active={admin ? "adminOrders" : "orders"} admin={admin}>
+  return <WorkspaceShell locale={locale} title={order.title} intro={order.id} active={admin ? "adminOrders" : "orders"} admin={admin} sellerIntake={intake}>
     <Link className="mp-text-link" href={base}>{copy.back}</Link>
     <OrderDetails order={order} locale={locale} copy={copy} />
     {order.status === "disputed" || (order.status === "cancelled" && order.payment_reference) ? <p className="order-note">{copy.noRefund}</p> : null}

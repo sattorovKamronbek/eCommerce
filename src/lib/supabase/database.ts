@@ -8,6 +8,7 @@ export type SellerApplication = {
   region: string; requested_scope: "cs2" | "fashion" | "both"; registration_details: string | null;
   status: "pending" | "approved" | "rejected"; revision: number; created_at: string; reviewed_at: string | null;
 };
+export type SellerIntakeStatus = { is_open: boolean; has_application: boolean };
 export type SellerListing = {
   id: string; seller_id: string; seller_revision: number; ecosystem: "cs2" | "fashion"; title: string;
   description: string; category: string; variant: string; price_tiyin: number; quantity: number;
@@ -141,6 +142,8 @@ export type Database = {
         Returns: undefined;
       };
       marketplace_review_seller_application: { Args: { p_applicant_id: string; p_decision: string; p_revision: number }; Returns: undefined };
+      marketplace_seller_intake_status: { Args: Record<string, never>; Returns: SellerIntakeStatus[] };
+      marketplace_set_seller_intake: { Args: { p_is_open: boolean }; Returns: undefined };
       marketplace_resubmit_seller_application: { Args: { p_type: string; p_name: string; p_contact: string; p_region: string; p_scope: string; p_registration: string | null }; Returns: undefined };
       marketplace_create_seller_challenge: { Args: Record<string, never>; Returns: string };
       marketplace_verify_seller: { Args: { p_applicant_id: string; p_revision: number; p_code: string }; Returns: undefined };

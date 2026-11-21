@@ -75,6 +75,11 @@ The owner requested the ability to add sellers, with three permitted scopes:
 CS2 only, clothing only, or both. Sellers need a capable product-entry experience.
 All sellers apply and require administrator approval, regardless of category.
 Both individuals and companies may apply.
+On 2026-11-22 the owner requested that customers see the seller application
+only while an administrator has opened intake. A verified administrator can
+open or close intake from Seller applications. Intake starts closed. During a
+closure applicants can view their existing application and complete pending
+verification. New submissions and resubmissions wait until intake reopens.
 The owner requested all important application information, but did not specify
 individual fields or identity-document collection and verification procedures.
 The owner confirmed applicants may correct and resubmit rejected or mistaken

@@ -4,6 +4,7 @@ import Dashboard from "@/app/(marketplace)/[locale]/admin/page";
 
 const { requireAdmin } = vi.hoisted(() => ({ requireAdmin: vi.fn() }));
 vi.mock("@/lib/auth/access", () => ({ requireAdmin }));
+vi.mock("@/lib/sellers/intake", () => ({ loadSellerIntake: async () => null }));
 
 afterEach(() => {
   cleanup();

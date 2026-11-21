@@ -17,6 +17,8 @@ const en = {
   photoLimit: "Choose up to four photos per wear. Remove a photo to make room.",
   photoFormat: "Choose JPEG, PNG or WebP files up to 12 MB each.",
   photoPrepare: "A photo couldn’t be prepared. Choose another image and try again.",
+  reservationSetup: "Set up reservations",
+  reservationSetupRequired: "Buyers can’t reserve this variant yet. Add a payment contact number and this item’s CS2 asset ID.",
 };
 
 export const cs2SellerDictionaries: Record<MarketplaceLocale, typeof en> = {
@@ -38,6 +40,8 @@ export const cs2SellerDictionaries: Record<MarketplaceLocale, typeof en> = {
     photoLimit: "Har bir variant uchun to‘rttagacha rasm tanlang. Joy bo‘shatish uchun rasmni olib tashlang.",
     photoFormat: "Har biri 12 MB gacha bo‘lgan JPEG, PNG yoki WebP fayllarni tanlang.",
     photoPrepare: "Rasmni tayyorlab bo‘lmadi. Boshqa rasm tanlab, qayta urining.",
+    reservationSetup: "Band qilishni sozlash",
+    reservationSetupRequired: "Xaridorlar bu variantni hozircha band qila olmaydi. To‘lov uchun aloqa raqamini va shu buyumning CS2 asset ID’sini kiriting.",
   },
   ru: {
     model: "Модель",
@@ -56,5 +60,7 @@ export const cs2SellerDictionaries: Record<MarketplaceLocale, typeof en> = {
     photoLimit: "Выберите до четырёх фото на вариант. Удалите фото, чтобы освободить место.",
     photoFormat: "Выберите файлы JPEG, PNG или WebP размером до 12 МБ каждый.",
     photoPrepare: "Не удалось подготовить фото. Выберите другое изображение и повторите попытку.",
+    reservationSetup: "Настроить резервирование",
+    reservationSetupRequired: "Покупатели пока не могут зарезервировать этот вариант. Укажите номер для связи по оплате и ID этого предмета CS2.",
   },
 };

@@ -8,6 +8,9 @@ const en = {
   adminTitle: "Seller applications", adminIntro: "Contact the applicant and verify their identity separately. Approval requires their one-time site code and enables the reviewed seller scope.",
   empty: "No applications in this status.", approve: "Approve", reject: "Reject", reopen: "Reopen for review", reviewFailed: "The review could not be saved. Refresh and try again.",
   applicationLink: "Seller application", adminLink: "Seller applications",
+  intakeTitle: "Application intake", intakeOpen: "Seller applications are open.", intakeClosed: "Seller applications are currently closed.",
+  intakeUnavailable: "Application intake is unavailable.", openIntake: "Open applications", closeIntake: "Close applications",
+  intakeSaving: "Saving…", intakeSaved: "Application intake updated.",
   challengeTitle: "Verify control of your account", challengeIntro: "After enabling this site's two-step verification, generate a one-time code and give it to the administrator during your identity check. It expires after 10 minutes and is not a Steam code.", challengeButton: "Generate verification code", challengeError: "The code could not be generated. Verify this session with two-step verification and try again.", challengeCode: "One-time site verification code", securityLink: "Verify this session",
   adminCode: "One-time site verification code", adminAttestation: "I checked the applicant's identity separately and received this code from that person.", adminSecurity: "Seller reviews require this site's two-step verification.",
 };
@@ -21,6 +24,9 @@ const uz: typeof en = {
   adminTitle: "Seller arizalari", adminIntro: "Arizachi bilan bog‘lanib, shaxsini alohida tekshiring. Tasdiqlash uchun uning sayt kodi kerak; faqat tekshirilgan seller yo‘nalishi faollashadi.",
   empty: "Bu holatda arizalar yo‘q.", approve: "Tasdiqlash", reject: "Rad etish", reopen: "Qayta ko‘rib chiqish", reviewFailed: "Qarorni saqlab bo‘lmadi. Sahifani yangilab qayta urinib ko‘ring.",
   applicationLink: "Seller arizasi", adminLink: "Seller arizalari",
+  intakeTitle: "Ariza qabuli", intakeOpen: "Sotuvchilik arizalari qabuli ochiq.", intakeClosed: "Sotuvchilik arizalari qabuli hozir yopiq.",
+  intakeUnavailable: "Ariza qabuli holatini aniqlab bo‘lmadi.", openIntake: "Ariza qabulini ochish", closeIntake: "Ariza qabulini yopish",
+  intakeSaving: "Saqlanmoqda…", intakeSaved: "Ariza qabuli yangilandi.",
   challengeTitle: "Akkaunt nazoratini tasdiqlash", challengeIntro: "Saytning ikki bosqichli himoyasini yoqqach, bir martalik kod yarating va shaxsingiz tekshirilayotganda adminga ayting. Kod 10 daqiqa amal qiladi; bu Steam kodi emas.", challengeButton: "Tasdiqlash kodini yaratish", challengeError: "Kod yaratilmadi. Avval bu seansni ikki bosqichli himoya bilan tasdiqlab, qayta urining.", challengeCode: "Saytning bir martalik tasdiqlash kodi", securityLink: "Seansni tasdiqlash",
   adminCode: "Saytning bir martalik tasdiqlash kodi", adminAttestation: "Arizachining shaxsini alohida tekshirdim va ushbu kodni undan oldim.", adminSecurity: "Seller arizalarini ko‘rib chiqish uchun saytning ikki bosqichli himoyasi talab qilinadi.",
 };
@@ -34,6 +40,9 @@ const ru: typeof en = {
   adminTitle: "Заявки продавцов", adminIntro: "Свяжитесь с заявителем и отдельно проверьте личность. Для одобрения нужен одноразовый код сайта; активируется проверенное направление продавца.",
   empty: "В этом статусе заявок нет.", approve: "Одобрить", reject: "Отклонить", reopen: "Вернуть на рассмотрение", reviewFailed: "Не удалось сохранить решение. Обновите страницу и повторите попытку.",
   applicationLink: "Заявка продавца", adminLink: "Заявки продавцов",
+  intakeTitle: "Приём заявок", intakeOpen: "Приём заявок продавцов открыт.", intakeClosed: "Приём заявок продавцов закрыт.",
+  intakeUnavailable: "Не удалось проверить состояние приёма заявок.", openIntake: "Открыть приём заявок", closeIntake: "Закрыть приём заявок",
+  intakeSaving: "Сохранение…", intakeSaved: "Настройки приёма заявок обновлены.",
   challengeTitle: "Подтвердите контроль аккаунта", challengeIntro: "После включения двухэтапной защиты сайта создайте одноразовый код и сообщите его администратору при проверке личности. Код действует 10 минут; это не код Steam.", challengeButton: "Создать код подтверждения", challengeError: "Не удалось создать код. Подтвердите этот сеанс двухэтапной защитой и повторите попытку.", challengeCode: "Одноразовый код подтверждения сайта", securityLink: "Подтвердить сеанс",
   adminCode: "Одноразовый код подтверждения сайта", adminAttestation: "Я отдельно проверил личность заявителя и получил этот код от него.", adminSecurity: "Для рассмотрения заявок нужна двухэтапная защита сайта.",
 };

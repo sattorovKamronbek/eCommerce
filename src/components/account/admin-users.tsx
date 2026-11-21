@@ -10,14 +10,17 @@ import { accessDictionaries } from "@/messages/admin-access";
 import { accountDictionaries } from "@/messages/account";
 import { localeNames, type MarketplaceLocale } from "@/messages/marketplace";
 import { adminUsersHref, type AdminFilters, type AdminProfiles } from "@/lib/auth/admin-users";
+import type { SellerIntakeStatus } from "@/lib/supabase/database";
 
-export function AdminUsersView({ locale, filters, result, manage = false }: { locale: MarketplaceLocale; filters: AdminFilters; result: AdminProfiles; manage?: boolean }) {
+export function AdminUsersView({ locale, filters, result, manage = false, sellerIntake }: {
+  locale: MarketplaceLocale; filters: AdminFilters; result: AdminProfiles; manage?: boolean; sellerIntake?: SellerIntakeStatus | null;
+}) {
   const copy = accountDictionaries[locale];
   const accessCopy = accessDictionaries[locale];
   const filtered = !!(filters.q || filters.language);
   const base = `/${locale}/admin/users`;
   const date = new Intl.DateTimeFormat(locale === "uz" ? "uz-UZ" : locale === "ru" ? "ru-RU" : "en-US", { dateStyle: "medium", timeZone: "UTC" });
-  return <WorkspaceShell locale={locale} title={copy.users} intro={copy.usersIntro} active="users" admin>
+  return <WorkspaceShell locale={locale} title={copy.users} intro={copy.usersIntro} active="users" admin sellerIntake={sellerIntake}>
     <form className="workspace-filters" action={base}>
       <Field><FieldLabel htmlFor="profile-search">{copy.searchName}</FieldLabel>
         <Input id="profile-search" type="search" name="q" defaultValue={filters.q} maxLength={80} placeholder={copy.searchPlaceholder} />

@@ -5,6 +5,7 @@ import { WorkspaceShell } from "@/components/account/workspace";
 import { ActionForm } from "@/components/account/action-form";
 import { AdminProfileIdentity } from "@/components/account/profile-identity";
 import { requireAdmin } from "@/lib/auth/access";
+import { loadSellerIntake } from "@/lib/sellers/intake";
 import { isUuid } from "@/lib/uuid";
 import type { AccessAction } from "@/lib/supabase/database";
 import { accountDictionaries } from "@/messages/account";
@@ -20,10 +21,11 @@ export default async function UserAccessPage({ params }: { params: Promise<{ loc
   const access = await requireAdmin(locale, `${base}/${id}`);
   if (access.kind === "denied") return <AccountDenied locale={locale} />;
   if (access.kind === "unavailable") return <AccountUnavailable locale={locale} />;
-  const [profile, account, audit] = await Promise.all([
+  const [profile, account, audit, intake] = await Promise.all([
     access.client.from("marketplace_profiles").select("display_name").eq("id", id).maybeSingle(),
     access.client.rpc("marketplace_admin_user_access", { p_user_id: id }).maybeSingle(),
     access.client.from("marketplace_user_access_events").select("id, actor_id, action, reason, created_at").eq("target_id", id).order("id", { ascending: false }).limit(20),
+    loadSellerIntake(access.client),
   ]);
   if (profile.error || account.error) return <AccountUnavailable locale={locale} />;
   if (!profile.data || !account.data) notFound();
@@ -40,7 +42,7 @@ export default async function UserAccessPage({ params }: { params: Promise<{ loc
   }
   const dates = new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Tashkent" });
 
-  return <WorkspaceShell locale={locale} title={profile.data.display_name || common.unnamed} intro={copy.intro} admin active="users">
+  return <WorkspaceShell locale={locale} title={profile.data.display_name || common.unnamed} intro={copy.intro} admin active="users" sellerIntake={intake}>
     <Link className="mp-text-link" href={base}>{common.users}</Link>
     <dl className="order-facts order-summary">
       <div><dt>{common.identifier}</dt><dd>{id}</dd></div>

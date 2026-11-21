@@ -26,6 +26,7 @@ const extraPath = `${withPhotos}/${extraPhoto}`;
 const bucket = "marketplace-cs2-images";
 const upload = "storage.object.upload";
 const download = "storage.object.get_authenticated";
+const downloadInfo = "object.get_authenticated_info";
 const remove = "storage.object.delete_many";
 
 function asUser<T extends Record<string, unknown> = Record<string, unknown>>(
@@ -119,6 +120,7 @@ beforeAll(async () => {
     ($1, $3, 'cs2', 'Legacy skin', 'Details', 100, 1, 'published'),
     ($2, $3, 'fashion', 'Legacy shirt', 'Details', 250, 2, 'published')`, [legacy, legacyFashion, seller]);
   await db.exec(await readFile(new URL("202611210008_cs2_listing_variants.sql", directory), "utf8"));
+  await db.exec(await readFile(new URL("202611210010_cs2_photo_download.sql", directory), "utf8"));
 }, 45000);
 
 afterAll(async () => { await db.close(); });
@@ -236,11 +238,16 @@ it("uses listing visibility to authorize photo downloads and limits cleanup to u
     "draft", photosGroup, "pistol", "USP-S", "WW", [photo, extraPhoto]]);
   expect((await readObject(null, primaryPath)).rows).toEqual([]);
   expect((await readObject(seller, primaryPath)).rows).toEqual([{ name: primaryPath }]);
+  expect((await readObject(null, primaryPath, { operation: downloadInfo })).rows).toEqual([]);
+  expect((await readObject(seller, primaryPath, { operation: downloadInfo })).rows).toEqual([{ name: primaryPath }]);
+  expect((await readObject(otherSeller, primaryPath, { operation: downloadInfo })).rows).toEqual([]);
   expect((await readObject(seller, primaryPath, { aal: "aal1" })).rows).toEqual([]);
   expect((await readObject(otherSeller, primaryPath)).rows).toEqual([]);
   await asUser(seller, "update public.marketplace_listings set state = 'published' where id = $1", [visibilityListing]);
   expect((await readObject(null, primaryPath)).rows).toEqual([{ name: primaryPath }]);
+  expect((await readObject(null, primaryPath, { operation: downloadInfo })).rows).toEqual([{ name: primaryPath }]);
   expect((await readObject(null, primaryPath, { operation: "storage.object.list" })).rows).toEqual([]);
+  expect((await readObject(null, primaryPath, { operation: "storage.object.sign" })).rows).toEqual([]);
   expect((await readObject(null, unreferencedPath)).rows).toEqual([]);
   expect((await deleteObject(seller, primaryPath)).rows).toEqual([]);
   await asUser(seller, updateImages, [visibilityListing, [photo]]);
