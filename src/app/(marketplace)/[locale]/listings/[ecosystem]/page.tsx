@@ -38,7 +38,7 @@ export default async function PublicListings({ params, searchParams }: {
   if (!isMarketplaceLocale(locale) || (ecosystem !== "cs2" && ecosystem !== "fashion")) notFound();
 
   const copy = listingDictionaries[locale];
-  const filters = parsePublicListingQuery(query);
+  const filters = parsePublicListingQuery(query, ecosystem);
   const base = `/${locale}/listings/${ecosystem}`;
 
   return <div className="mp-catalog real-catalog">
@@ -47,7 +47,7 @@ export default async function PublicListings({ params, searchParams }: {
       <p>{copy.publicNotice}</p>
       {ecosystem === "cs2" && <p>{copy.unverifiedCs2}</p>}
     </div>
-    <ListingFilters action={base} filters={filters} locale={locale} />
+    <ListingFilters action={base} filters={filters} locale={locale} cs2={ecosystem === "cs2"} />
     <Suspense key={base + publicListingQueryString(filters)} fallback={<ListingResultsLoading locale={locale} />}>
       <CatalogResults locale={locale} ecosystem={ecosystem} filters={filters} />
     </Suspense>

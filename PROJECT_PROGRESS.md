@@ -1,5 +1,44 @@
 # Project progress
 
+## CS2 wear variants and photos — 2026-11-21
+
+Add a listing now lets a CS2 seller select a category and model, enter the skin
+name, select the wears they offer and set each price in UZS. Nine categories
+cover 63 models. The painted wear options are FN, MW, FT, WW and BS. The form
+also offers Not Painted as an independent condition. Each variant supports
+up to four photos, with the first as its cover. The owner selected separate
+photos per wear. [CS2 listing design](docs/superpowers/specs/2026-11-21-cs2-listing-variants.md)
+
+The app validates the uploaded WebP and saves the selected variants as one
+database batch. Each variant retains its own price, stock, moderation status
+and checkout terms. The public catalog filters by category, model and wear.
+The detail page shows the selected variant's photo gallery and links to other
+published wears from the seller's submission.
+
+On a local production build, Chromium created FN and MW offers with different
+prices and photos, edited the MW offer separately, and confirmed that anonymous
+requests could not open a draft's photo. The buyer flow covered filtering,
+keyboard gallery controls, wear switching, per-variant reservation links
+and return navigation at 1440px and 320px. Axe passed on the tested forms and
+catalog/detail views. Search and language switching were checked in English
+and Russian, with a separate Uzbek catalog filter check. These workflows used
+a local provider fixture. Eight PGlite scenarios checked the migration,
+permissions, image policies, duplicate submissions and stock independence.
+
+Strict typecheck and production build passed. Vitest passed all 181 tests
+in 41 files. ESLint reported four existing warnings and zero errors.
+Playwright reported 24 passing account and marketplace regressions across
+desktop, tablet and mobile Chromium. The runner received SIGTERM after
+reporting the results. Two mobile regressions reran with a separately
+started server and exited successfully. Logs and seller captures are in
+`/tmp/versax-cs2-qa/`. Buyer captures are in `/tmp/versax-cs2-buyer-*.png`.
+
+Release order is migration `202611210008_cs2_listing_variants.sql` on the
+dedicated project, followed by the app deployment. The private Storage bucket
+uses the existing seller and listing-access rules. Interrupted Storage requests
+can leave unattached objects private if cleanup cannot reach the provider.
+Hosted Storage and the release are pending.
+
 ## Marketplace responsiveness — 2026-11-21
 
 The deployed catalog and search took about 1–2 seconds on the initial normal

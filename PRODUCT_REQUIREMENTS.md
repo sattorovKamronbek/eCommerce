@@ -157,6 +157,18 @@ page. Real commerce must not be presented as already available.
 Trading, payments, seller operations and the full administration contract still
 depend on the unresolved business decisions listed below.
 
+## CS2 seller listing variants — 2026-11-21
+
+The owner requested CS2 category and model selection inspired by LIS-SKINS,
+including the Five-SeveN and Desert Eagle pistol models. Sellers select the
+wears they offer, set a separate price for each, and can upload multiple photos.
+The owner selected separate photos per variant. A buyer can switch between
+the published wears for a seller's skin and compare their prices.
+
+Each wear uses the existing listing-level checkout and inventory. The form
+supports optional photo uploads, with up to four photos per variant in the
+implementation. [CS2 listing variants design](docs/superpowers/specs/2026-11-21-cs2-listing-variants.md)
+
 ## Backup sign-in methods — 2026-11-21
 
 The owner wants to sign in from another device while their primary authenticator

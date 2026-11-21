@@ -1,7 +1,10 @@
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { formatTiyin } from "@/lib/orders/model";
+import { cs2PhotoHref, isCs2Wear } from "@/lib/sellers/cs2";
 import type { PublicListing } from "@/lib/supabase/database";
+import { formatCs2Wear } from "@/messages/cs2-catalog";
 import type { MarketplaceLocale } from "@/messages/marketplace";
 import { listingDictionaries } from "@/messages/seller-catalog";
 
@@ -13,9 +16,15 @@ export function PublicListingCard({ listing, locale, heading: Heading, detailQue
 }) {
   const copy = listingDictionaries[locale];
   const href = `/${locale}/listings/${listing.ecosystem}/${listing.id}${detailQuery}`;
-  const details = [listing.category, listing.variant].filter(Boolean).join(" · ");
+  const cs2 = listing.ecosystem === "cs2";
+  const cover = cs2 ? listing.cs2_images?.[0] : undefined;
+  const wear = cs2 && isCs2Wear(listing.cs2_wear) ? formatCs2Wear(locale, listing.cs2_wear) : listing.variant;
+  const details = [cs2 ? listing.cs2_model ?? listing.category : listing.category, wear].filter(Boolean).join(" · ");
   return <article className="real-listing-card">
-    <Link href={href} className="real-listing-link">
+    <Link href={href} className="real-listing-link" data-cover={cover ? "true" : undefined}>
+      {cover && <div className="real-listing-cover">
+        <Image src={cs2PhotoHref(listing.id, cover)} alt="" fill unoptimized loading="lazy" />
+      </div>}
       <Heading>{listing.title}</Heading>
       <ArrowUpRight aria-hidden="true" />
     </Link>

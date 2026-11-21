@@ -7,7 +7,7 @@ import { ListingForm } from "@/components/account/listing-form";
 import { isSellerSchemaMissing } from "@/lib/sellers/schema";
 import { requireSeller } from "@/lib/sellers/access";
 import { listingDictionaries } from "@/messages/seller-catalog";
-import { updateListing } from "../actions";
+import { updateCs2Listing, updateListing } from "../actions";
 import { saveCheckoutTerms } from "../checkout-actions";
 
 export default async function EditListing({ params }: { params: Promise<{ locale: string; id: string }> }) {
@@ -19,10 +19,11 @@ export default async function EditListing({ params }: { params: Promise<{ locale
   if (listing.error) return isSellerSchemaMissing(listing.error) ? <SellerSetupRequired locale={locale} /> : <AccountUnavailable locale={locale} />;
   if (!listing.data || listing.data.moderation_status === "blocked") notFound();
   const item = listing.data;
+  const update = item.cs2_group_id ? updateCs2Listing : updateListing;
   const orders = orderDictionaries[locale];
   const terms = await access.account.client.from("marketplace_checkout_terms").select("*").eq("listing_id", item.id).maybeSingle();
   return <AccountShell locale={locale} title={copy.edit} intro={copy.intro}>
-    <ListingForm key={item.updated_at} action={updateListing.bind(null, locale, item.id, item.updated_at)} copy={copy} scope={access.scope} listing={item} />
+    <ListingForm key={item.updated_at} action={update.bind(null, locale, item.id, item.updated_at)} copy={copy} locale={locale} scope={access.scope} listing={item} />
     {item.state !== "archived" ? <section className="order-summary">
       <h2>{orders.terms}</h2>
       {terms.error ? <p role="alert">{orders.unavailable}</p> : <>

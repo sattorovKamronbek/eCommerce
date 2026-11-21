@@ -1,4 +1,5 @@
 import type { OrderEvent, OrderRole, OrderStatus } from "@/lib/orders/model";
+import type { Cs2Category, Cs2Wear } from "@/lib/sellers/cs2";
 
 export type Profile = { id: string; display_name: string; preferred_locale: "uz" | "ru" | "en"; created_at: string; updated_at: string };
 export type SellerApplication = {
@@ -10,8 +11,11 @@ export type SellerListing = {
   id: string; seller_id: string; seller_revision: number; ecosystem: "cs2" | "fashion"; title: string;
   description: string; category: string; variant: string; price_tiyin: number; quantity: number;
   state: "draft" | "published" | "archived"; moderation_status: "allowed" | "blocked"; created_at: string; updated_at: string;
+  cs2_group_id: string | null; cs2_category: Cs2Category | null; cs2_model: string | null;
+  cs2_wear: Cs2Wear | null; cs2_images: string[]; cs2_group_primary: boolean;
 };
-export type PublicListing = Pick<SellerListing, "id" | "ecosystem" | "title" | "description" | "category" | "variant" | "price_tiyin" | "created_at"> & { available: boolean };
+export type PublicListing = Pick<SellerListing, "id" | "ecosystem" | "title" | "description" | "category" | "variant" | "price_tiyin" | "created_at" |
+  "cs2_category" | "cs2_model" | "cs2_wear" | "cs2_images"> & { available: boolean; cs2_group_key: string | null };
 export type CheckoutTerms = {
   listing_id: string; revision: string; seller_phone: string; shipping_tiyin: number; cs2_asset_id: string | null;
 };
@@ -73,8 +77,10 @@ export type Database = {
       };
       marketplace_listings: {
         Row: SellerListing;
-        Insert: Pick<SellerListing, "seller_id" | "ecosystem" | "title" | "description" | "price_tiyin" | "quantity"> & Partial<Pick<SellerListing, "id" | "category" | "variant" | "state">>;
-        Update: Partial<Pick<SellerListing, "ecosystem" | "title" | "description" | "category" | "variant" | "price_tiyin" | "quantity" | "state">>;
+        Insert: Pick<SellerListing, "seller_id" | "ecosystem" | "title" | "description" | "price_tiyin" | "quantity">
+          & Partial<Pick<SellerListing, "id" | "category" | "variant" | "state" | "cs2_group_id" | "cs2_category" | "cs2_model" |
+            "cs2_wear" | "cs2_images" | "cs2_group_primary">>;
+        Update: Partial<Pick<SellerListing, "ecosystem" | "title" | "description" | "category" | "variant" | "price_tiyin" | "quantity" | "state" | "cs2_images">>;
         Relationships: [];
       };
     };

@@ -9,5 +9,7 @@ export default async function NewListing({ params }: { params: Promise<{ locale:
   const locale = await accountLocale(params); const copy = listingDictionaries[locale];
   const access = await requireSeller(locale);
   if (access.kind !== "seller") return <SellerAccessNotice locale={locale} kind={access.kind} />;
-  return <AccountShell locale={locale} title={copy.newListing} intro={copy.intro}><ListingForm action={createListing.bind(null, locale)} copy={copy} scope={access.scope} /></AccountShell>;
+  return <AccountShell locale={locale} title={copy.newListing} intro={copy.intro}>
+    <ListingForm action={createListing.bind(null, locale)} copy={copy} locale={locale} scope={access.scope} submissionId={crypto.randomUUID()} />
+  </AccountShell>;
 }

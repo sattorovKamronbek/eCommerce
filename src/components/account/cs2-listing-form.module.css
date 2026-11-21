@@ -1,0 +1,145 @@
+.modelFields,
+.identity {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr));
+  gap: 12px;
+}
+
+.identity {
+  padding: 14px;
+  border: 1px solid var(--border);
+  background: var(--muted);
+}
+
+.identity dt,
+.hint {
+  color: var(--muted-foreground);
+  font-size: 0.8125rem;
+}
+
+.identity dd {
+  margin-top: 2px;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+.wearGroup,
+.wearList,
+.wearDetails,
+.photoPicker {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.wearGroup legend {
+  padding-block-end: 4px;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.wearList,
+.photos {
+  padding: 0;
+  list-style: none;
+}
+
+.wearRow {
+  border: 1px solid var(--border);
+  background: var(--card);
+}
+
+:global(.seller-form) .wearLabel {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+:global(.seller-form) .wearLabel input {
+  width: 1rem;
+  height: 1rem;
+  min-height: 0;
+  padding: 0;
+  accent-color: var(--foreground);
+  flex: 0 0 auto;
+}
+
+.wearRow .wearDetails {
+  padding: 12px;
+  border-top: 1px solid var(--border);
+  background: var(--background);
+}
+
+.photoPicker {
+  margin-top: 4px;
+}
+
+:global(.seller-form) .fileInput {
+  padding: 4px 8px 4px 4px;
+  font-size: 0.875rem;
+}
+
+.fileInput::file-selector-button {
+  min-height: 34px;
+  margin-inline-end: 8px;
+  padding-inline: 8px;
+  border: 1px solid var(--border);
+  background: var(--muted);
+  color: var(--foreground);
+}
+
+.photos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.photo {
+  position: relative;
+  width: min(100%, 112px);
+}
+
+.thumbnail {
+  display: block;
+  width: 100%;
+  height: 84px;
+  object-fit: cover;
+  border: 1px solid var(--border);
+  background: var(--muted);
+}
+
+.cover {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.8125rem;
+}
+
+:global(.seller-form) .removePhoto {
+  position: absolute;
+  inset: 0 0 auto auto;
+  display: grid;
+  width: 44px;
+  padding: 0;
+  place-items: center;
+  background: var(--background);
+  color: var(--foreground);
+}
+
+:global(.seller-form) .removePhoto:hover {
+  background: var(--muted);
+}
+
+:global(.seller-form) .removePhoto:focus-visible {
+  z-index: 1;
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+:global(.seller-form) .removePhoto:disabled,
+:global(.seller-form) .fileInput:disabled,
+:global(.seller-form) .submit:disabled {
+  opacity: 0.6;
+}
