@@ -1,6 +1,6 @@
 # Product requirements — CS2 and Fashion marketplace
 
-Status: the seller catalog, manual direct-payment order flow and account administration have local implementations. The repository migrations are applied to the dedicated Supabase project. Authenticated production verification remains pending. Started 2026-11-11.
+Status: the seller catalog, manual direct-payment order flow and account administration have local implementations. The dedicated Supabase project has the earlier marketplace schema. The seller intake and admin activity migrations and application release are pending in production. Started 2026-11-11.
 
 ## Confirmed direction from the owner's transformation brief
 
@@ -18,6 +18,25 @@ Status: the seller catalog, manual direct-payment order flow and account adminis
 ## Existing implementation facts — not new marketplace launch decisions
 
 The original store uses temporary ORO branding, Uzbek, UZS, local development products and browser persistence. It has no production checkout, account system, seller backend, Steam integration or payment provider. The former single-vendor roadmap is preserved in docs and historical PROJECT_PROGRESS.md sections. These historical settings were not automatically transformation decisions; UZS was subsequently explicitly selected by the owner, and the preview retains Uzbek as its default entry. The owner later selected VERSAX as the marketplace brand and supplied the logo.
+
+## Administrator activity and site operations — 2026-11-22
+
+The owner requested account details, site operations in the admin dashboard,
+and visibility into how many items each user bought. They selected a history
+of every successful sign-in.
+
+The admin workspace reads account data and the last sign-in from Supabase
+Auth. History starts when the migration is installed and records successful
+password sign-ins. If the account requires MFA, the entry records when MFA
+succeeds. The admin view displays the timestamp for the selected account.
+Account detail and this history require the existing verified admin or owner
+access. The overview counts currently completed orders, sums their item
+quantities, and shows their total including delivery in UZS. Admins can open
+purchase and sales order lists filtered to the selected account.
+
+The dashboard shows account and listing counts, pending seller applications
+and payment reports, disputes, all orders and completed orders. Reservation
+availability is shown per ecosystem using the existing settings.
 
 ## Owner dashboard and profile verification — 2026-11-21
 

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, ClipboardList, Package, ReceiptText, ShieldCheck, TriangleAlert, UsersRound } from "lucide-react";
+import { ArrowRight, CircleCheck, ClipboardList, Package, ReceiptText, ShieldCheck, TriangleAlert, UsersRound } from "lucide-react";
 import { AccountUnavailable, AccountDenied, accountLocale } from "@/components/account/shell";
 import { WorkspaceShell } from "@/components/account/workspace";
 import { requireAdmin } from "@/lib/auth/access";
@@ -13,6 +13,7 @@ const sections = [
   { key: "orders", path: "/orders", icon: ClipboardList },
   { key: "payments", path: "/orders?status=reported", icon: ReceiptText },
   { key: "disputes", path: "/orders?status=disputed", icon: TriangleAlert },
+  { key: "completed", path: "/orders?status=completed", icon: CircleCheck },
 ] as const;
 
 export default async function AdminDashboard({ params }: { params: Promise<{ locale: string }> }) {
@@ -24,14 +25,24 @@ export default async function AdminDashboard({ params }: { params: Promise<{ loc
 
   const copy = dashboardDictionaries[locale];
   const owner = access.role === "owner";
-  const intake = await loadSellerIntake(access.client);
+  const [intake, overview] = await Promise.all([
+    loadSellerIntake(access.client),
+    access.client.rpc("marketplace_admin_dashboard", {}).maybeSingle(),
+  ]);
+  const statistics = overview.error ? null : overview.data;
+  const numbers = new Intl.NumberFormat(locale);
 
   return <WorkspaceShell locale={locale} title={owner ? copy.ownerTitle : copy.adminTitle} intro={copy.intro} active="dashboard" admin sellerIntake={intake}>
+    {statistics ? <dl className="order-facts order-summary">
+      <div><dt>{copy.cs2Reservations}</dt><dd>{statistics.cs2_reservations ? copy.open : copy.closed}</dd></div>
+      <div><dt>{copy.fashionReservations}</dt><dd>{statistics.fashion_reservations ? copy.open : copy.closed}</dd></div>
+    </dl> : <p role="alert">{copy.unavailable}</p>}
     <ul className="admin-dashboard" role="list">
       {sections.map(({ key, path, icon: Icon }) => <li key={key}>
         <Link href={`${base}${path}`} prefetch={false} className="admin-dashboard-link">
           <Icon aria-hidden="true" className="admin-dashboard-icon" />
           <h2>{copy[key].title}</h2>
+          {statistics ? <strong className="admin-dashboard-count">{numbers.format(statistics[key])}</strong> : null}
           <p>{key === "users" && owner ? copy.ownerUsers : copy[key].description}</p>
           <ArrowRight aria-hidden="true" className="admin-dashboard-arrow" />
         </Link>

@@ -86,6 +86,7 @@
 .admin-dashboard-link:hover { border-color: var(--foreground); }
 .admin-dashboard-link:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
 .admin-dashboard-link h2 { font: 600 1.25rem/1.2 var(--editorial-display); }
+.admin-dashboard-count { font-size: 1.5rem; font-variant-numeric: tabular-nums; }
 .admin-dashboard-link p { color: var(--muted-foreground); font-size: 14px; line-height: 1.5; }
 .admin-dashboard-icon, .admin-dashboard-arrow { width: 20px; height: 20px; }
 .admin-dashboard-icon { margin-bottom: 6px; }

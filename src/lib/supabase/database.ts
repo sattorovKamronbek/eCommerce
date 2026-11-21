@@ -56,6 +56,14 @@ export type DirectOrderEvent = {
 export type AccessRole = "customer" | "admin" | "owner";
 export type AccessAction = "suspend" | "unsuspend" | "grant_admin" | "revoke_admin";
 export type UserAccess = { account_role: AccessRole; suspended: boolean; provider_restricted: boolean; viewer_is_owner: boolean; can_manage_roles: boolean };
+export type AdminUserOverview = {
+  email: string | null; registered_at: string | null; confirmed_at: string | null; last_sign_in_at: string | null;
+  mfa_enabled: boolean; completed_orders: number; purchased_units: number; completed_total_uzs: `${number}`;
+};
+export type AdminDashboard = {
+  users: number; sellers: number; listings: number; orders: number; payments: number; disputes: number; completed: number;
+  cs2_reservations: boolean; fashion_reservations: boolean;
+};
 export type UserAccessEvent = {
   id: number; target_id: string | null; actor_id: string | null; action: AccessAction; reason: string; created_at: string;
 };
@@ -66,6 +74,7 @@ export type ProfileIdentityRequest = {
 export type Database = {
   public: {
     Tables: {
+      marketplace_sign_in_events: { Row: { id: number; user_id: string; signed_in_at: string }; Insert: never; Update: never; Relationships: [] };
       marketplace_profile_identity_requests: { Row: ProfileIdentityRequest; Insert: never; Update: never; Relationships: [] };
       marketplace_user_access_events: { Row: UserAccessEvent; Insert: never; Update: never; Relationships: [] };
       marketplace_checkout_terms: { Row: CheckoutTerms; Insert: never; Update: never; Relationships: [] };
@@ -115,6 +124,8 @@ export type Database = {
       marketplace_review_profile_identity: { Args: { p_request_id: string; p_subject_id: string; p_decision: ProfileIdentityDecision; p_code: string | null }; Returns: undefined };
       marketplace_account_is_active: { Args: Record<string, never>; Returns: boolean };
       marketplace_admin_user_access: { Args: { p_user_id: string }; Returns: UserAccess[] };
+      marketplace_admin_user_overview: { Args: { p_user_id: string }; Returns: AdminUserOverview[] };
+      marketplace_admin_dashboard: { Args: Record<string, never>; Returns: AdminDashboard[] };
       marketplace_manage_user_access: {
         Args: { p_user_id: string; p_action: AccessAction; p_reason: string; p_expected_role: AccessRole; p_expected_suspended: boolean };
         Returns: undefined;

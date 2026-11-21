@@ -10,6 +10,12 @@ const en = {
   orders: { title: "Orders", description: "Review direct-payment orders and delivery confirmations." },
   payments: { title: "Payment review", description: "Review payments reported by buyers or sellers." },
   disputes: { title: "Disputes", description: "Review cases that need an administrator’s decision." },
+  completed: { title: "Completed orders", description: "See orders with confirmed delivery." },
+  unavailable: "Dashboard statistics are unavailable.",
+  cs2Reservations: "CS2 reservations",
+  fashionReservations: "Clothing reservations",
+  open: "Open",
+  closed: "Closed",
 };
 
 const uz: typeof en = {
@@ -24,6 +30,12 @@ const uz: typeof en = {
   orders: { title: "Buyurtmalar", description: "Bevosita to‘lovli buyurtmalar va yetkazib berish tasdiqlarini ko‘ring." },
   payments: { title: "To‘lovni tekshirish", description: "Xaridor yoki sotuvchi bildirgan to‘lovlarni ko‘rib chiqing." },
   disputes: { title: "Nizolar", description: "Administrator qarorini kutayotgan buyurtmalarni ko‘rib chiqing." },
+  completed: { title: "Yakunlangan buyurtmalar", description: "Yetkazib berilishi tasdiqlangan buyurtmalarni ko‘ring." },
+  unavailable: "Panel ko‘rsatkichlarini yuklab bo‘lmadi.",
+  cs2Reservations: "CS2 bandlovlari",
+  fashionReservations: "Kiyim bandlovlari",
+  open: "Ochiq",
+  closed: "Yopiq",
 };
 
 const ru: typeof en = {
@@ -38,6 +50,12 @@ const ru: typeof en = {
   orders: { title: "Заказы", description: "Просматривайте заказы с прямой оплатой и подтверждения доставки." },
   payments: { title: "Проверка оплаты", description: "Рассматривайте платежи, о которых сообщили покупатели или продавцы." },
   disputes: { title: "Споры", description: "Рассматривайте заказы, требующие решения администратора." },
+  completed: { title: "Завершённые заказы", description: "Просматривайте заказы с подтверждённой доставкой." },
+  unavailable: "Не удалось загрузить показатели панели.",
+  cs2Reservations: "Бронирование скинов CS2",
+  fashionReservations: "Бронирование одежды",
+  open: "Открыто",
+  closed: "Закрыто",
 };
 
 export const dashboardDictionaries = { en, uz, ru };

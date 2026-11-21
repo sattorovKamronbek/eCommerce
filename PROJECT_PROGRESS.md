@@ -1,5 +1,45 @@
 # Project progress
 
+## Administrator activity and operations — 2026-11-22
+
+The overview now shows profile, listing and order counts, pending seller
+applications and payment reports, disputes, completed orders, and the
+reservation setting for each ecosystem. The existing management pages open
+from the counts. An admin user profile displays account details, MFA status,
+the provider's last sign-in, completed orders, purchased item quantities
+and UZS totals including delivery. It links to paginated purchases and sales
+for that account. Admin order details link back to the buyer and seller.
+
+The [activity migration](supabase/migrations/202611220013_admin_activity.sql)
+uses the existing verified administrator or owner access. It records a
+successful password sign-in from the provider's authentication method claim.
+A session for an account with verified MFA enters the history after MFA
+succeeds. Password recovery and token refresh do not create sign-in records.
+Sign-out preserves the entry. The admin API projects the sign-in timestamp
+and prevents reading the session identifier. The history begins with the
+migration. The provider's existing last sign-in remains available separately.
+[Supabase Auth sessions](https://supabase.com/docs/guides/auth/sessions)
+[Password grant source](https://github.com/supabase/auth/blob/master/internal/api/token.go)
+
+The suite passed 220 tests across 48 files before the code review. After
+filtering recovery-only sessions, 17 targeted tests passed, including all
+five activity migration cases. They cover admin and customer isolation, MFA
+completion, deduplication, completed purchase arithmetic and operational counts.
+Typecheck and the production build passed. ESLint reported four existing
+warnings and zero errors. All 16 account regressions passed on desktop and mobile
+Chromium.
+Fixture-backed Playwright opened the dashboard, paginated through sign-ins,
+followed the buyer and seller order filters and checked the restricted route
+from a customer account. The Uzbek mobile profile fit the viewport and its
+sign-in section passed axe. Logs and screenshots are in
+`/tmp/versax-admin-activity-qa/`. Playwright was used because the Browser plugin
+was unavailable.
+
+A read-only check of the dedicated VERSAX project found existing last sign-in
+values and no rows in the stored Auth audit log. It confirmed the session
+columns, password method claims and trigger permissions. The activity migration
+and this app release remain pending in production.
+
 ## Administrator-controlled seller application intake — 2026-11-22
 
 The owner requested that the seller application appear only while an
