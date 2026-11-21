@@ -1,5 +1,21 @@
 # Project progress
 
+## Production owner activation — 2026-11-21
+
+Verified the designated owner's active account, TOTP authenticator and MFA
+session in the dedicated Supabase project `xevzbtivteugbqbmmtyz`. Assigned the
+`owner` role to the verified account UUID in a guarded transaction. A fresh
+read-only query confirmed that this account holds the project's only owner
+assignment. The deployed Uzbek admin route redirected a signed-out request to
+sign-in and preserved the admin destination. The owner can verify the rendered
+dashboard in their own authenticated session.
+
+The production seller-review diagnostic found one pending application with no
+verified seller authenticator or issued challenge. Approval requires the seller
+to verify their session and generate the ten-minute code from the seller
+application page. The owner records the code and identity-check attestation
+when reviewing the application.
+
 ## Profile identity migration in production — 2026-11-21
 
 Applied `202611210007_profile_identity.sql` to the production Supabase project
@@ -10,8 +26,8 @@ A read-only production query verified the migration record, enabled RLS,
 restricted column access, all three RPCs and the unique pending-request index.
 Anonymous Data API requests for identity requests and account access events
 returned HTTP 401 with code `42501`. The public listing view returned HTTP 200.
-The owner role has yet to be assigned. Dashboard application deployment and an
-authenticated production check remain unverified. [Owner activation](docs/OWNER_BOOTSTRAP.md)
+The owner role was unassigned at migration time. See the production owner
+activation above for the subsequent role grant.
 
 ## Owner dashboard and targeted identity verification — 2026-11-21
 
