@@ -1,5 +1,18 @@
 # Project progress
 
+## Backup sign-in options — 2026-11-21
+
+The owner selected a backup authenticator, one-time backup codes and SMS
+verification. Reviewed the existing second-authenticator setup and the database
+policy requiring recent TOTP for administrator-role changes. The dedicated
+Supabase Auth API recognizes the recovery-code route, and the production schema
+contains the recovery-code factor type. Hosted enrollment and verification flags
+remain unverified. The pinned SDK has no recovery-code methods, and the reviewed
+later SDK release requires Node.js 22. SMS delivery remains unconfigured.
+
+Recorded the proposed flow for owner review. This step was read-only for
+production. [Backup sign-in design](docs/superpowers/specs/2026-11-21-sign-in-backup-options.md)
+
 ## Production owner activation — 2026-11-21
 
 Verified the designated owner's active account, TOTP authenticator and MFA

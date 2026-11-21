@@ -157,6 +157,14 @@ page. Real commerce must not be presented as already available.
 Trading, payments, seller operations and the full administration contract still
 depend on the unresolved business decisions listed below.
 
+## Backup sign-in methods — 2026-11-21
+
+The owner wants to sign in from another device while their primary authenticator
+is unavailable. They selected a second authenticator, one-time backup codes and
+SMS verification alongside the existing sign-in method. The design describes
+the effect on privileged operations and the provider settings that need to be
+verified. [Backup sign-in design](docs/superpowers/specs/2026-11-21-sign-in-backup-options.md)
+
 ## Accounts and administration follow-up — 2026-11-11
 
 The owner requested a functional application beyond the completed frontend,
@@ -246,6 +254,7 @@ For each owner answer, record date, decision ID, the answer, scope and remaining
 
 | Date | Decision IDs | Owner statement and scope | Remaining conditions |
 | --- | --- | --- | --- |
+| 2026-11-21 | D15 | Preserve authenticator sign-in and add a backup authenticator, one-time backup codes and SMS verification. | Review the sign-in design, verify native recovery-code settings and select an SMS delivery provider. |
 | 2026-11-21 | D04, D10, D15 | Owner dashboard for users and roles, listing and sales management, identity and contact verification, and account suspensions. The owner contacts the user directly for identity checks and records the outcome with the one-time code from their profile. The owner chooses email or SMS for contact verification. Buying and selling remain available during checks. | Email and SMS services are unconfigured. Select and verify code delivery services before enabling contact verification. |
 | 2026-11-21 | D01, D03, D07, D10 | Start with direct seller payments in both CS2 and clothing. Administrators review payment evidence and decide disputes case by case. Retire the original storefront homepage and use seller listings in the marketplace navigation. | Before switching on reservations, verify the dedicated schema, seller flows, expiration job and the people and procedures responsible for payment review, refunds and fulfillment. Click settlement remains pending. |
 | 2026-11-18 | D03, D07, D09, D14 | A reservation without a payment report is automatically cancelled after 48 hours; a direct-payment report may store payment time, amount and transaction ID; clothing orders may store the buyer's name, phone and address, visible to the relevant seller and admin. | The buyer also needs access to their own order. Payment reports are unverified until admin review; scheduler operation, payment evidence review, personal-data retention, refunds and provider support remain unresolved. |
