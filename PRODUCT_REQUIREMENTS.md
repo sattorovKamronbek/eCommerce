@@ -17,7 +17,7 @@ Status: the seller catalog, manual direct-payment order flow and account adminis
 
 ## Existing implementation facts — not new marketplace launch decisions
 
-The original store uses temporary ORO branding, Uzbek, UZS, local development products and browser persistence. It has no production checkout, account system, seller backend, Steam integration or payment provider. The former single-vendor roadmap is preserved in docs and historical PROJECT_PROGRESS.md sections. These historical settings were not automatically transformation decisions; UZS was subsequently explicitly selected by the owner, while ORO remains temporary and the preview retains Uzbek as its default entry.
+The original store uses temporary ORO branding, Uzbek, UZS, local development products and browser persistence. It has no production checkout, account system, seller backend, Steam integration or payment provider. The former single-vendor roadmap is preserved in docs and historical PROJECT_PROGRESS.md sections. These historical settings were not automatically transformation decisions; UZS was subsequently explicitly selected by the owner, and the preview retains Uzbek as its default entry. The owner later selected VERSAX as the marketplace brand and supplied the logo.
 
 ## Latest owner request — 2026-11-11
 
@@ -195,7 +195,7 @@ Potential item/category fields, seller metrics, payouts, reviews, promotions, st
 | D08 | Payout timing, reserves, reversal exposure, refund/dispute responsibility | Defines accounting and settlement; no wallet/escrow approved | CS2 platform funds: seller payout after both delivery confirmations, otherwise admin review; provider, execution and reversals remain open |
 | D09 | Fashion shipping regions, carrier responsibility, returns and customer support | Defines logistics/state transitions | Seller sets shipping price; owner delegated a common return policy to research; see docs/FASHION_RETURNS_POLICY.md. Regions, carrier and operational workflow remain open |
 | D10 | Seller Center/Admin modules and action permissions at launch | Limits privileged scope and defines role matrix | Initial admin users list selected with accounts; seller modules and other privileged actions still require decisions |
-| D11 | Brand name, visual references and shared versus distinct identity | Gates design generation and navigation decisions | Follow-up; ORO remains temporary |
+| D11 | Brand name, visual references and shared versus distinct identity | Gates design generation and navigation decisions | Confirmed VERSAX with an owner-supplied logo |
 | D12 | Expected sellers, listings, daily users, order volume and launch timeline/budget constraints | Grounds query, operational and performance design | Large-scale ambition reconfirmed; numeric targets, timeline and budget remain follow-up |
 | D13 | Steam/item/price/image data sources, permitted commercial use and verification confidence | Prevents unsupported capabilities and misleading market/ownership claims | Research + owner gate |
 | D14 | Mixed-ecosystem/multi-seller baskets, split payments/orders and customer-facing totals | Determines checkout boundaries and refund/fulfillment grouping | Separate order for each seller and ecosystem; checkout and payment implementation remain open |

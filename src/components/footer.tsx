@@ -1,5 +1,6 @@
 import { copy } from "@/messages";
 import Link from "next/link";
+import { BrandLogo } from "@/components/brand-logo";
 import { ArrowUpRight } from "lucide-react";
 import { storeConfig } from "@/lib/config";
 import { messages as uz } from "@/messages";
@@ -8,15 +9,15 @@ export function Footer() {
     <footer className="footer">
       <div className="newsletter">
         <div>
-          <p className="eyebrow">{copy.oroOlami}</p>
+          <p className="eyebrow">{copy.brendOlami}</p>
           <h2>{uz.footer.newsletter}</h2>
         </div>
         <p>{uz.footer.newsletterNote}</p>
       </div>
       <div className="footer-main">
         <div>
-          <Link href="/" className="wordmark">
-            {storeConfig.name}
+          <Link href="/" className="wordmark" translate="no">
+            <BrandLogo />
           </Link>
           <p>{uz.footer.tagline}</p>
         </div>

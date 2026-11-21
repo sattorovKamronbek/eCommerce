@@ -36,9 +36,9 @@
   --primary-foreground: var(--editorial-paper);
   --accent: #ebebe9;
   --accent-foreground: var(--editorial-ink);
-  --editorial-mark: var(--editorial-brick);
+  --editorial-mark: var(--brand-ink-accent);
   --destructive: var(--editorial-brick);
-  --ring: #9c281e;
+  --ring: var(--brand-ink-accent);
   --radius: 0;
   color-scheme: light;
 }
@@ -56,8 +56,8 @@
   --primary-foreground: var(--editorial-dark);
   --accent: #303030;
   --accent-foreground: #f8f8f6;
-  --editorial-mark: #f3a298;
+  --editorial-mark: var(--brand-accent);
   --destructive: #f3a298;
-  --ring: #f3a298;
+  --ring: var(--brand-accent);
   color-scheme: dark;
 }

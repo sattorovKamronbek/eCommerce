@@ -185,7 +185,7 @@ for (const locale of ["uz", "ru", "en"] as const) {
     const copy = marketplaceDictionaries[locale];
     for (const section of ["", "/cs2", "/fashion"]) {
       await page.goto(`/${locale}/marketplace${section}`);
-      await expect(page).toHaveTitle(/ORO/);
+      await expect(page).toHaveTitle(/VERSAX/);
       await expect(page.locator("html")).toHaveAttribute("lang", locale);
       await expect(page.locator("h1")).toContainText(section === "" ? editorialDictionaries[locale].outerwear : section === "/cs2" ? copy.cs2 : copy.fashion);
       await page.evaluate(async () => {
@@ -215,4 +215,26 @@ test("editorial entry links search and the sample cart without conflating them",
   await expect(page).toHaveURL(/\/ru\/search\?q=winter\+coat/);
   await page.locator("footer").getByRole("link", { name: "Демонстрационная корзина", exact: true }).click();
   await expect(page).toHaveURL(/\/savat$/);
+});
+
+test("VERSAX branding appears in both storefront layouts", async ({ page }, testInfo) => {
+  await page.goto("/en/marketplace");
+  await expect(page).toHaveTitle(/VERSAX/);
+  await expect(page.locator('meta[name="application-name"]')).toHaveAttribute("content", "VERSAX");
+  await expect(page.getByText("The VERSAX Edit", { exact: true })).toBeVisible();
+  const headerLogo = page.locator("header").getByRole("img", { name: "VERSAX", exact: true });
+  await expect(headerLogo).toBeVisible();
+  const smallViewport = page.viewportSize()!.width <= 660;
+  await expect.poll(() => headerLogo.evaluate((img: HTMLImageElement) => new URL(img.currentSrc).pathname))
+    .toBe(smallViewport ? "/images/brand/versax-compact.webp" : "/images/brand/versax.webp");
+  await expect(page.locator("footer").getByRole("img", { name: "VERSAX", exact: true })).toBeVisible();
+  await expect(page.locator('link[rel="icon"][href^="/icon.png"]').first()).toHaveCount(1);
+  for (const path of ["/favicon.ico", "/icon.png"]) {
+    expect((await page.request.get(path)).ok()).toBe(true);
+  }
+  await page.screenshot({ path: testInfo.outputPath("versax-home.png") });
+  await page.goto("/savat");
+  await expect(page).toHaveTitle(/VERSAX/);
+  await expect(page.locator("header").getByRole("img", { name: "VERSAX", exact: true })).toBeVisible();
+  await expect(page.locator("footer").getByRole("img", { name: "VERSAX", exact: true })).toBeVisible();
 });

@@ -1,8 +1,14 @@
-# ORO design system
+# VERSAX design system
 
 Historical storefront guidance/delivery. The approved marketplace frontend now has separate route-group layouts and locale routes; the old home is at `/storefront-preview` and other original public routes remain. See [current progress](../PROJECT_PROGRESS.md), [requirements](../PRODUCT_REQUIREMENTS.md) and [marketplace scope](MARKETPLACE_PHASE1_PROPOSAL.md). Historical phase numbers and source paths below do not describe marketplace completion.
 
-Temporary identity: ORO, configured in src/lib/config.ts. The design concept is saved in docs/design/concept.png; differences from the implementation are documented in ARCHITECTURE.md.
+The VERSAX identity uses the owner-supplied logo. The shared brand component
+displays the full lockup on larger screens and in the footer, and the compact
+wordmark in narrow mastheads. The favicon uses the logo’s monogram. The
+marketplace uses a dark green editorial accent on light backgrounds and the
+logo’s lime accent in dark mode. Brand configuration is in `src/lib/config.ts`.
+
+The original storefront concept is saved in `docs/design/concept.png`.
 
 ## Semantic palette
 

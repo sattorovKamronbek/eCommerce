@@ -11,8 +11,10 @@ export const metadata: Metadata = {
     template: `%s | ${storeConfig.name}`,
   },
   description: copy.uyingizVaKundalikHayotingizUchunDid,
+  applicationName: storeConfig.name,
+  openGraph: { siteName: storeConfig.name },
   robots: { index: false, follow: false },
-  icons: { icon: "/icon.svg" },
+  icons: { icon: storeConfig.brand.icon },
 };
 export default function RootLayout({
   children,

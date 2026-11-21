@@ -64,7 +64,7 @@ export default async function ProductDetail({
               <dd>{p.material}</dd>
               <dt>{copy.artikul}</dt>
               <dd>
-                {copy.oro}
+                {copy.artikulPrefiksi}
                 {p.id.toUpperCase()}
               </dd>
             </dl>

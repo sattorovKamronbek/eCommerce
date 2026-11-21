@@ -39,3 +39,11 @@ the collection theme. Seller inventory uses the listing records supplied by the
 catalog. The generated PNG was resized and encoded as WebP for the application.
 
 Display type uses the locally bundled [Oswald variable font license](licenses/Oswald-OFL.txt).
+
+
+## VERSAX logo
+
+The owner supplied the VERSAX logo as a PNG. The full lockup and compact
+wordmark are locally served as optimized WebP files in
+`public/images/brand/`. The favicon and PNG browser icon use the monogram
+from the same source artwork.

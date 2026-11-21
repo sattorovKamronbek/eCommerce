@@ -1,5 +1,7 @@
+import { storeConfig } from "@/lib/config";
+
 const en = {
-  edition: "The ORO Edit",
+  edition: `The ${storeConfig.name} Edit`,
   collection: "The Outerwear Edit",
   outerwear: "Room to layer",
   outerwearBody: "Roomy cuts, brushed cotton and structured shells for wearing in layers.",
@@ -27,7 +29,7 @@ const en = {
 };
 
 const uz: typeof en = {
-  edition: "ORO tanlovi",
+  edition: `${storeConfig.name} tanlovi`,
   collection: "Ustki kiyimlar to‘plami",
   outerwear: "Qavatlab kiyish uchun",
   outerwearBody: "Keng bichimlar, yumshoq paxta va qavatlab kiyishga mos ustki kiyimlar.",
@@ -55,7 +57,7 @@ const uz: typeof en = {
 };
 
 const ru: typeof en = {
-  edition: "Выбор ORO",
+  edition: `Выбор ${storeConfig.name}`,
   collection: "Подборка верхней одежды",
   outerwear: "Простор для слоёв",
   outerwearBody: "Свободный крой, мягкий хлопок и плотные куртки для многослойных образов.",

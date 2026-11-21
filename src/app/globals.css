@@ -7,13 +7,16 @@
 @import "@fontsource/cormorant-garamond/500.css";
 @import "@fontsource/dm-sans/700.css";
 :root {
+  --brand-plate: #030303;
+  --brand-accent: #c0ff2d;
+  --brand-ink-accent: #426000;
   --background: #f8f7f4;
   --foreground: #262b24;
   --card: #fff;
   --card-foreground: #262b24;
   --popover: #fff;
   --popover-foreground: #262b24;
-  --primary: #9a5335;
+  --primary: var(--brand-ink-accent);
   --primary-foreground: #fff;
   --secondary: #eeeae3;
   --secondary-foreground: #262b24;
@@ -24,7 +27,7 @@
   --destructive: #b12e29;
   --border: #dfdfd7;
   --input: #d5d5cc;
-  --ring: #9a5335;
+  --ring: var(--brand-ink-accent);
   --radius: 0rem;
   --surface: #eeece6;
   --font-body: "DM Sans", sans-serif;
@@ -37,7 +40,7 @@
   --card-foreground: #f4f3ef;
   --popover: #202422;
   --popover-foreground: #f4f3ef;
-  --primary: #d4a184;
+  --primary: var(--brand-accent);
   --primary-foreground: #151817;
   --secondary: #2a302c;
   --secondary-foreground: #f4f3ef;
@@ -48,7 +51,7 @@
   --destructive: #fa8d85;
   --border: #3c423d;
   --input: #555e56;
-  --ring: #d4a184;
+  --ring: var(--brand-accent);
   --surface: #202422;
   color-scheme: dark;
 }
@@ -152,7 +155,7 @@ img {
   object-fit: cover;
 }
 .announcement {
-  background: #343a30;
+  background: var(--brand-plate);
   color: #faf9f5;
   text-align: center;
   font-size: 11px;
@@ -181,19 +184,14 @@ img {
   gap: 30px;
 }
 .wordmark {
-  font-family: var(--font-display);
-  font-weight: 500;
-  font-size: 48px;
-  letter-spacing: -3px;
-  line-height: 0.8;
   display: inline-flex;
-  flex-direction: column;
+  align-items: center;
+  width: min(100%, 10rem);
+  min-height: 2.75rem;
+  flex-shrink: 0;
 }
-.wordmark span {
-  font: 9px var(--font-body);
-  letter-spacing: 1px;
-  margin-top: 10px;
-}
+.brand-logo { display: block; width: 100%; }
+.brand-logo img { display: block; width: 100%; height: auto; }
 .desktop-nav {
   display: flex;
   gap: 30px;
@@ -444,7 +442,7 @@ img {
   min-height: 340px;
   position: relative;
   overflow: hidden;
-  background: #343a30;
+  background: var(--brand-plate);
 }
 .category-tile img {
   transition: transform 0.5s;
@@ -1086,15 +1084,7 @@ dd {
   .desktop-nav {
     display: none;
   }
-  .wordmark {
-    font-size: 39px;
-    letter-spacing: -2px;
-  }
-  .wordmark span {
-    font-size: 7px;
-    margin-top: 8px;
-    letter-spacing: 0.5px;
-  }
+  .header .wordmark { width: 6.25rem; }
   .header-actions {
     margin-left: auto;
     gap: 1px;

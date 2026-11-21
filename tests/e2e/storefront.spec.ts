@@ -11,7 +11,7 @@ test("legacy catalog theme, images, console and accessibility", async ({
     if (m.type() === "error") errors.push(m.text());
   });
   await page.goto("/katalog");
-  await expect(page).toHaveTitle(/ORO/);
+  await expect(page).toHaveTitle(/VERSAX/);
   await expect(page.locator("h1")).toContainText("Katalog");
   await page.evaluate(() => document.fonts.ready);
   await page.evaluate(async () => {

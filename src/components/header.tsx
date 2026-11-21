@@ -1,6 +1,7 @@
 "use client";
 import { copy } from "@/messages";
 import Link from "next/link";
+import { BrandLogo } from "@/components/brand-logo";
 import {
   Search,
   UserRound,
@@ -63,10 +64,10 @@ export function Header() {
           <Link
             className="wordmark"
             href="/"
-            aria-label={`${storeConfig.name} — bosh sahifa`}
+            translate="no"
+            aria-label={copy.brendBoshSahifa}
           >
-            {storeConfig.name}
-            <span>{copy.hayotgaDidBilan}</span>
+            <BrandLogo presentation="masthead" />
           </Link>
           <nav className="desktop-nav" aria-label={copy.asosiyNavigatsiya}>
             <Link href="/katalog">{uz.nav.catalog}</Link>

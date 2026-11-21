@@ -43,10 +43,9 @@ body:has(.storefront-commerce) {
   --font-display: var(--editorial-display);
 }
 body:has(.storefront-commerce) > .announcement {
-  background: var(--editorial-ink);
+  background: var(--brand-plate);
   color: var(--editorial-paper);
 }
 body:has(.storefront-commerce) .header { border-bottom: var(--editorial-rule); }
-body:has(.storefront-commerce) .wordmark { font-weight: 700; }
 body:has(.storefront-commerce) .footer { border-top: var(--editorial-rule); }
 body:has(.storefront-commerce) .footer h2 { font-weight: 600; }

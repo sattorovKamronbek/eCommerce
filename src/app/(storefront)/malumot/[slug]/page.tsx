@@ -4,7 +4,7 @@ import Link from "next/link";
 const pages: Record<string, { title: string; body: string }> = {
   "biz-haqimizda": {
     title: copy.kamroqAmmoYaxshiroq,
-    body: copy.oroKundalikHayotdagiOddiyBuyumlargaYangicha,
+    body: copy.namunaviyDokonHaqida,
   },
   "yetkazib-berish": {
     title: copy.yetkazibBerish,
@@ -42,7 +42,7 @@ export default async function Info({
   if (!p) notFound();
   return (
     <div className="section page-section info-page">
-      <p className="eyebrow">{copy.oroMalumot}</p>
+      <p className="eyebrow">{copy.brendMalumoti}</p>
       <h1>{p.title}</h1>
       <p>{p.body}</p>
       <Link href="/katalog" className="text-link">

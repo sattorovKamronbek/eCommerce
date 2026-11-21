@@ -1,5 +1,8 @@
 // Uzbek interface dictionary; product copy stays with catalog records.
+import { storeConfig } from "@/lib/config";
+
 export const copy = {
+  brendBoshSahifa: `${storeConfig.name} — bosh sahifa`,
   dokonEloni: "Do‘kon e’loni",
   checkoutHaqida: "Checkout haqida",
   ishlabChiqishRejimi: "Buyurtmalar qabul qilinmaydi",
@@ -48,14 +51,14 @@ export const copy = {
   buyumlarTayyorlanmoqda: "Buyumlar tayyorlanmoqda…",
   mahsulotTopilmadi: "Mahsulot topilmadi",
   artikul: "Artikul",
-  oro: "ORO-",
+  artikulPrefiksi: `${storeConfig.name}-`,
   yetkazibBerishVaQaytarish: "Yetkazib berish va qaytarish",
   dokonIshlabChiqilmoqdaYetkazibBerishHududlari:
     "Do‘kon ishlab chiqilmoqda. Yetkazib berish hududlari, tariflar va qaytarish siyosati sotuv boshlanishidan oldin e’lon qilinadi.",
   katalog2: "Katalog →",
   kamroqAmmoYaxshiroq: "Kamroq, ammo yaxshiroq.",
-  oroKundalikHayotdagiOddiyBuyumlargaYangicha:
-    "ORO — kundalik hayotdagi oddiy buyumlarga yangicha qarash. Biz tabiiy ranglar, aniq shakllar va o‘ylangan detallarni qadrlaymiz. Hozirgi brend vaqtinchalik, katalog esa ishlab chiqish uchun namunaviy ma’lumotlardan iborat.",
+  namunaviyDokonHaqida:
+    `Bu ${storeConfig.name}’ning namunaviy do‘koni. Katalogdan mahsulot sahifalari, savat va sevimlilar qanday ishlashini ko‘rishingiz mumkin.`,
   yetkazibBerish: "Yetkazib berish",
   sotuvHaliBoshlanmaganYetkazibBerishHududlari:
     "Sotuv hali boshlanmagan. Yetkazib berish hududlari, usullari, muddatlari va narxlari haqiqiy checkout ishga tushishidan oldin shu sahifada ko‘rsatiladi. Hozir bepul yetkazib berish yoki aniq muddat va’da qilinmaydi.",
@@ -69,11 +72,10 @@ export const copy = {
   ushbuVersiyaHisobYokiBuyurtmaMalumotlarini:
     "Hisob yaratishda email va parol Supabase autentifikatsiya xizmatiga yuboriladi. Tasdiqlangan hisobning ko‘rinadigan ismi, afzal tili va profil sanalari ilova bazasida saqlanadi. Kirish sessiyasi cookie orqali, savat, sevimlilar va rang mavzusi esa brauzeringizda saqlanadi. Buyurtma va to‘lov qabul qilinmaydi; analitika va newsletter xizmatlari ulanmagan. Ommaviy ishga tushirishdan oldin to‘liq maxfiylik siyosati e’lon qilinadi.",
   sahifaTopilmadi: "Sahifa topilmadi",
-  oroMalumot: "ORO · Ma’lumot",
+  brendMalumoti: `${storeConfig.name} · Ma’lumot`,
   manzilOzgarganYokiBundayMahsulotMavjud:
     "Manzil o‘zgargan yoki bunday mahsulot mavjud emas.",
   kataloggaQaytish: "Katalogga qaytish →",
-  oro01: "ORO / 01",
   tabiiylikSoddalikMuvozanat: "Tabiiylik. Soddalik. Muvozanat.",
   quyoshNuriTushganXonadaYumshoqKreslo:
     "Quyosh nuri tushgan xonada yumshoq kreslo, yog‘och stol va keramik vaza",
@@ -96,7 +98,6 @@ export const copy = {
   sizBilanHarKuni: "Siz bilan har kuni",
   yashashXonasidagiTabiiyMateriallarVaSokin:
     "Yashash xonasidagi tabiiy materiallar va sokin ranglar",
-  oroFalsafasi: "ORO falsafasi",
   bizningHikoyamiz: "Bizning hikoyamiz",
   yangiKelganlar: "Yangi kelganlar",
   xaridHaqidaMalumot: "Xarid haqida ma’lumot",
@@ -119,7 +120,7 @@ export const copy = {
   miqdorniKamaytirish: "Miqdorni kamaytirish",
   miqdorniOshirish: "Miqdorni oshirish",
   savatniOchish: "Savatni ochish →",
-  oroOlami: "ORO olami",
+  brendOlami: `${storeConfig.name} olami`,
   bizBilanTanishing: "Biz bilan tanishing",
   maxfiylik: "Maxfiylik",
   ozbekistonUzs: "O‘zbekiston · UZS",

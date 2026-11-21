@@ -35,13 +35,13 @@
   column-gap: 1rem;
   padding: 0.25rem var(--editorial-gutter);
   color: var(--editorial-paper);
-  background: var(--editorial-ink);
+  background: var(--brand-plate);
   text-align: center;
   font-size: 0.75rem;
   letter-spacing: 0.035em;
 }
 .mp-announcement a { display: inline-flex; align-items: center; min-height: 2.125rem; text-decoration: underline; text-underline-offset: 0.2em; }
-.mp-announcement a:focus-visible, .mp-footer a:focus-visible { outline-color: #f3a298; }
+.mp-announcement a:focus-visible, .mp-footer a:focus-visible { outline-color: var(--brand-accent); }
 .mp-header, .mp-home, .mp-catalog, .mp-footer-inner {
   width: min(100%, var(--editorial-measure));
   padding-inline: var(--editorial-gutter);
@@ -56,12 +56,13 @@
 }
 .mp-wordmark {
   justify-self: start;
-  display: inline-block;
-  padding-inline-end: 0.08em;
-  font: 700 clamp(2.5rem, 4.3vw, 3.75rem)/1 var(--editorial-display);
-  letter-spacing: -0.085em;
-  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  width: min(100%, 15rem);
+  min-height: 2.75rem;
+  flex-shrink: 0;
 }
+.mp-header .mp-wordmark { width: clamp(10rem, 17vw, 15rem); }
 .mp-navigation, .mp-tools, .mp-languages { display: flex; align-items: center; }
 .mp-navigation { gap: clamp(0.75rem, 2.4vw, 2rem); }
 .mp-navigation a {
@@ -171,7 +172,7 @@
 .mp-home-about-note { max-width: 85ch; margin-top: 1.25rem; }
 .mp-feed-status { padding-block: 1.125rem; border-top: var(--editorial-divider); }
 
-.mp-footer { background: var(--editorial-ink); color: var(--editorial-paper); }
+.mp-footer { background: var(--brand-plate); color: var(--editorial-paper); }
 .mp-footer-inner {
   display: grid;
   grid-template-columns: minmax(0, 2fr) repeat(2, minmax(0, 1fr));
@@ -308,6 +309,7 @@
   .mp-results { margin-block: 0.5rem; }
 }
 @media (max-width: 660px) {
+  .mp-header .mp-wordmark { width: 6.25rem; }
   .mp-header { gap: 0.375rem 0; }
   .mp-announcement span { padding-block-start: 0.25rem; }
   .mp-tools { gap: 0; }
@@ -343,6 +345,10 @@
   .mp-languages a { min-width: 1.625rem; }
   .mp-theme select { font-size: 0.75rem; }
   .mp-sample-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 360px) {
+  .mp-header { grid-template-columns: 1fr; }
+  .mp-navigation { justify-content: space-between; }
 }
 @media (prefers-reduced-motion: reduce) {
   html:has(.mp) { scroll-behavior: auto; }

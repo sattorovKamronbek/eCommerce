@@ -2,10 +2,11 @@
 
 import { Suspense, useSyncExternalStore } from "react";
 import Link from "next/link";
+import { BrandLogo } from "@/components/brand-logo";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useTheme } from "next-themes";
 import { ArrowLeft, Search, UserRound } from "lucide-react";
-import { marketplaceConfig, storeConfig } from "@/lib/config";
+import { marketplaceConfig } from "@/lib/config";
 import { localeNames, type MarketplaceLocale, type MarketplaceMessages } from "@/messages/marketplace";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 
@@ -50,7 +51,7 @@ export function MarketplaceFrame({ locale, copy, children, footer }: { locale: M
         <Link href={`${base}/how-it-works`}>{copy.how}</Link>
       </div>
       <div className="mp-header">
-        <Link href={base} className="mp-wordmark" translate="no">{storeConfig.name}</Link>
+        <Link href={base} className="mp-wordmark" translate="no"><BrandLogo presentation="masthead" /></Link>
         <nav className="mp-navigation" aria-label={copy.navigation}>
           {[[base, copy.discover], [`${catalogs}/cs2`, copy.cs2], [`${catalogs}/fashion`, copy.fashion]].map(([href, label]) => <Link key={href} href={href} aria-current={href === base ? path === href ? "page" : undefined : (path === href || path.startsWith(`${href}/`)) ? "page" : undefined}>{label}</Link>)}
         </nav>

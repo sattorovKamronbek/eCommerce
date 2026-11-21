@@ -1,5 +1,26 @@
 # Project progress
 
+## VERSAX brand rollout — 2026-11-21
+
+The owner selected VERSAX and supplied the logo. The marketplace and sample
+storefront use the full logo in their footers and larger mastheads, with a
+compact wordmark for narrow screens. The monogram replaces the browser icons.
+The VERSAX name comes from the shared configuration in page and social
+metadata, the editorial and checkout copy, and the sample information pages.
+Light mode uses a dark green accent for readability. Dark mode uses the logo’s
+lime accent.
+
+Existing routes, account and seller flows, and the browser cart and wishlist
+storage key were preserved. The site serves optimized copies of the supplied
+artwork. [Asset sources](docs/ASSETS.md)
+
+Verification passed strict TypeScript and the production build. ESLint
+reported four existing unused-parameter warnings. Vitest reported 148 passing
+tests in 38 files. Playwright reported 27 passing Chromium cases across
+desktop, tablet and mobile, covering the brand, browser icons, translated
+layouts, account entry, accessibility, and cart persistence. Reviewed the
+three production captures in `/tmp/versax-rebrand-qa/`.
+
 ## ORO editorial marketplace redesign — 2026-11-21
 
 The localized homepage now uses an original ORO masthead, a featured outerwear

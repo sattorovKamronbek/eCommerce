@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { storeConfig } from "@/lib/config";
+import { BrandLogo } from "@/components/brand-logo";
 import { accountDictionaries } from "@/messages/account";
 import { editorialDictionaries } from "@/messages/editorial";
 import { marketplaceDictionaries, type MarketplaceLocale } from "@/messages/marketplace";
@@ -11,7 +11,7 @@ export function MarketplaceFooter({ locale }: { locale: MarketplaceLocale }) {
   return <footer className="mp-footer">
     <div className="mp-footer-inner">
       <div className="mp-footer-brand">
-        <Link className="mp-wordmark" translate="no" href={`/${locale}/marketplace`}>{storeConfig.name}</Link>
+        <Link className="mp-wordmark" translate="no" href={`/${locale}/marketplace`}><BrandLogo /></Link>
         <p>{copy.subtitle}</p>
       </div>
       <nav aria-label={editorial.browse}>

@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const { locale } = await params;
   if (!isMarketplaceLocale(locale)) notFound();
   const copy = marketplaceDictionaries[locale];
-  return { title: { default: `${storeConfig.name} — ${copy.subtitle}`, template: `%s | ${storeConfig.name}` }, description: copy.subtitle, robots: { index: false, follow: false }, icons: { icon: "/icon.svg" } };
+  return { title: { default: `${storeConfig.name} — ${copy.subtitle}`, template: `%s | ${storeConfig.name}` }, description: copy.subtitle, applicationName: storeConfig.name, openGraph: { siteName: storeConfig.name }, robots: { index: false, follow: false }, icons: { icon: storeConfig.brand.icon } };
 }
 
 export default async function MarketplaceLayout({ children, params }: { children: React.ReactNode; params: Promise<{ locale: string }> }) {

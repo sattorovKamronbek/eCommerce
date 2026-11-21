@@ -1,4 +1,4 @@
-# ORO — CS2 and clothing marketplace
+# VERSAX — CS2 and clothing marketplace
 
 Three-language marketplace for CS2 and clothing. The homepage opens the seller catalogs. Supabase provides email/password accounts, seller listings, manual direct-payment orders and an MFA-protected admin workspace. Deployment and live commerce status are tracked in [project progress](PROJECT_PROGRESS.md).
 
