@@ -45,3 +45,5 @@ next-env.d.ts
 playwright-report/
 test-results/
 *.tsbuildinfo
+# Playwright CLI output (may contain credentials)
+.playwright-cli/

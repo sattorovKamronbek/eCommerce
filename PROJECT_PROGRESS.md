@@ -1,5 +1,28 @@
 # Project progress
 
+## Production Supabase migrations — 2026-11-21
+
+Applied the six pending repository migrations to the dedicated eCommerce
+project `xevzbtivteugbqbmmtyz` using Supabase CLI 3.2.0. The accounts migration
+`202611110001` was already present in PostgreSQL, with an empty CLI migration
+history. Its tables, columns, constraints, indexes, policies, triggers, functions
+and grants matched a fresh local application. Recorded that version as applied
+and checked the CLI dry run before applying the six remaining files.
+
+Read-only checks confirmed all seven versions in the remote migration history,
+RLS and anonymous access denial for private orders and events, the seller,
+reservation, expiration and account-administration functions, and a profile for
+every confirmed account. The public listing and checkout-offer views returned
+HTTP 200. Anonymous requests for profiles, seller applications, orders, events
+and access audit records returned HTTP 401 with PostgreSQL code 42501. The
+focused local migration suite passed six tests in two files.
+
+The schema now supports the owner role. The production database has no assigned
+owner role, and reservations remain disabled. The migration task did not change
+Cron, Auth configuration, permissions for any individual account, or the other
+application. Authenticated owner, seller and checkout testing remains part of
+the [production setup](docs/SUPABASE_SELLER_SETUP.md).
+
 ## Direct seller orders and account administration — 2026-11-21
 
 The owner retired the original storefront homepage and selected direct seller

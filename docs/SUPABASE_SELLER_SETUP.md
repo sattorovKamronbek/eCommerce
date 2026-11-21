@@ -1,5 +1,9 @@
 # Owner and seller setup in Supabase
 
+As of 2026-11-21, the production migration history includes all seven repository
+versions. Use this guide for remaining setup and for recovery after checking the
+actual migration history. [Production verification](../PROJECT_PROGRESS.md#production-supabase-migrations--2026-11-21)
+
 The site uses project **xevzbtivteugbqbmmtyz**. Do not run these instructions in the owner's other application. No role or schema is changed automatically by the app.
 
 1. In the Supabase dashboard, verify the project reference in the URL is exactly `xevzbtivteugbqbmmtyz`. Open its SQL Editor.
