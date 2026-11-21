@@ -43,7 +43,7 @@ export async function requireAdmin(locale: MarketplaceLocale, destination = `/${
       // Redirect outside the catch block, since Next.js redirects by throwing.
       needsStepUp = true;
     } else {
-      return { kind: "admin", ...account } as const;
+      return { kind: "admin", role: result.data.role, ...account } as const;
     }
   } catch { return { kind: "unavailable" } as const; }
   if (needsStepUp) redirect(`/${locale}/account/security?next=${encodeURIComponent(safeReturnPath(destination, locale))}`);

@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { AccountDenied, AccountUnavailable, accountLocale } from "@/components/account/shell";
 import { WorkspaceShell } from "@/components/account/workspace";
 import { ActionForm } from "@/components/account/action-form";
+import { AdminProfileIdentity } from "@/components/account/profile-identity";
 import { requireAdmin } from "@/lib/auth/access";
 import { isUuid } from "@/lib/uuid";
 import type { AccessAction } from "@/lib/supabase/database";
@@ -52,6 +53,7 @@ export default async function UserAccessPage({ params }: { params: Promise<{ loc
       <label>{copy.reason}<input name="reason" required maxLength={1000} /></label>
       {action === "grant_admin" ? <p className="order-note">{copy.verify}</p> : null}
     </ActionForm>)}</div> : null}
+    {access.role === "owner" && id !== access.user.id ? <AdminProfileIdentity client={access.client} locale={locale} subject={id} canRequest={!restricted && !suspended} /> : null}
     {audit.error ? <p role="alert">{common.usersUnavailable}</p> : audit.data.length ? <section className="order-summary">
       <h2>{copy.history}</h2>
       <ol className="order-timeline">{audit.data.map(event => <li key={event.id}>

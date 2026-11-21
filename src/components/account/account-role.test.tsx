@@ -11,9 +11,12 @@ afterEach(cleanup);
 it("does not label a user as customer when their role lookup failed", async () => {
   const client = createClient<Database>("https://example.supabase.co", "sb_publishable_example", {
     auth: { persistSession: false, autoRefreshToken: false, storageKey: "test-role-error" },
-    global: { fetch: async input => String(input).includes("marketplace_user_roles")
-      ? new Response(JSON.stringify({ code: "42501", message: "private details" }), { status: 400, headers: { "Content-Type": "application/json" } })
-      : new Response(JSON.stringify({ id: "user", display_name: "Ali", preferred_locale: "en", created_at: "2026-01-01", updated_at: "2026-01-01" }), { status: 200, headers: { "Content-Type": "application/json" } }) },
+    global: { fetch: async input => {
+      const path = new URL(String(input)).pathname;
+      if (path.endsWith("/marketplace_user_roles")) return Response.json({ code: "42501", message: "private details" }, { status: 400 });
+      if (path.endsWith("/marketplace_profile_identity_requests")) return Response.json([]);
+      return Response.json({ id: "user", display_name: "Ali", preferred_locale: "en", created_at: "2026-01-01", updated_at: "2026-01-01" });
+    } },
   });
   mocks.requireAccount.mockResolvedValue({ client, user: { id: "user", email: "user@example.test" } });
   render(await Account({ params: Promise.resolve({ locale: "en" }) }));

@@ -1,20 +1,22 @@
 import Link from "next/link";
-import { ArrowLeft, Package, Store, UserRound, UsersRound } from "lucide-react";
+import { ArrowLeft, LayoutDashboard, Package, Store, UserRound, UsersRound } from "lucide-react";
 import { accountDictionaries } from "@/messages/account";
+import { dashboardDictionaries } from "@/messages/admin-dashboard";
 import { sellerDictionaries } from "@/messages/seller";
 import { listingDictionaries } from "@/messages/seller-catalog";
 import { orderDictionaries } from "@/messages/orders";
 import type { MarketplaceLocale } from "@/messages/marketplace";
 
 export function WorkspaceShell({ locale, title, intro, active, admin, children }: {
-  locale: MarketplaceLocale; title: string; intro: string; active: "profile" | "users" | "sellers" | "products" | "moderation" | "orders" | "adminOrders";
+  locale: MarketplaceLocale; title: string; intro: string; active: "profile" | "dashboard" | "users" | "sellers" | "products" | "moderation" | "orders" | "adminOrders";
   admin: boolean; children: React.ReactNode;
 }) {
   const copy = accountDictionaries[locale];
   return <section className="account-workspace">
     <aside className="workspace-sidebar">
-      <div className="workspace-label"><p>{active === "users" || active === "sellers" || active === "moderation" || active === "adminOrders" ? copy.admin : copy.account}</p><span>{copy.workspace}</span></div>
+      <div className="workspace-label"><p>{active === "dashboard" || active === "users" || active === "sellers" || active === "moderation" || active === "adminOrders" ? copy.admin : copy.account}</p><span>{copy.workspace}</span></div>
       <nav aria-label={copy.workspaceNavigation}>
+        {admin ? <Link href={`/${locale}/admin`} aria-current={active === "dashboard" ? "page" : undefined}><LayoutDashboard aria-hidden="true" />{dashboardDictionaries[locale].navigation}</Link> : null}
         {admin ? <Link href={`/${locale}/admin/users`} aria-current={active === "users" ? "page" : undefined}><UsersRound aria-hidden="true" />{copy.users}</Link> : null}
         {admin ? <Link href={`/${locale}/admin/sellers`} aria-current={active === "sellers" ? "page" : undefined}><Store aria-hidden="true" />{sellerDictionaries[locale].adminLink}</Link> : null}
         {admin ? <Link href={`/${locale}/admin/listings`} aria-current={active === "moderation" ? "page" : undefined}><Store aria-hidden="true" />{listingDictionaries[locale].adminListings}</Link> : null}

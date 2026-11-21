@@ -1,5 +1,43 @@
 # Project progress
 
+## Owner dashboard and targeted identity verification — 2026-11-21
+
+The owner dashboard at `/{locale}/admin` links to account access, recent CS2 and
+clothing listings, pending seller applications, orders, payment reports and
+disputes. Owners and administrators see their own titles. Owner-only role
+changes still use the existing recent authenticator check. Account suspensions
+remain a separate operation.
+
+The owner can request a manual identity check from a user’s admin profile. The
+recipient sees a one-time code in their account. After contacting the recipient
+and checking identity directly, the owner records the outcome with that code.
+The migration limits open requests to one per profile and clears the code on a
+decision or cancellation. RLS and RPC checks restrict the code to the intended
+account and writes to an authenticated owner with MFA. The request stores the
+actor, subject, timestamps and outcome. Documents stay outside VERSAX. Requests
+have no effect on buying, selling or account access.
+[Manual identity migration](supabase/migrations/202611210007_profile_identity.sql)
+
+Local PostgreSQL tests exercised owner and MFA authorization, profile isolation,
+duplicate requests, unchanged account access, invalid or mismatched codes,
+decision history, cancellation and code reuse. Playwright used a local provider
+fixture to check desktop, tablet and mobile Chromium dashboards, accessibility,
+the filtered payment queue and the owner-to-recipient verification flow.
+Captures are in `/tmp/versax-owner-dashboard.AseJZT/`.
+
+Strict TypeScript and the production build passed. ESLint completed with four
+existing unused-parameter warnings. The full Vitest suite passed all 155 tests
+in 39 files with one worker after parallel setup timed out in two database suites.
+All 24 account Playwright scenarios passed on the production build across
+desktop, tablet and mobile Chromium, including direct admin sign-in redirects.
+
+The migration and application changes are local. Production still needs the
+reviewed migration, deployment and verification with an assigned owner account.
+Email and SMS verification remain pending until delivery services are selected
+and configured. The owner selected the contact channel per request and
+confirmed verification should not suspend trading.
+[Owner activation](docs/OWNER_BOOTSTRAP.md)
+
 ## VERSAX account deployment and transparent logo — 2026-11-21
 
 The deployed VERSAX login and registration routes showed the unavailable-account

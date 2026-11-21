@@ -51,7 +51,7 @@ beforeAll(async () => {
     create function auth.jwt() returns jsonb language sql stable as $$ select coalesce(nullif(current_setting('request.jwt.claims', true), '')::jsonb, '{}'::jsonb) $$;
     grant usage on schema auth to anon, authenticated;`);
   for (const id of [seller, buyer, outsider, admin, owner]) await db.query("insert into auth.users(id, raw_user_meta_data, email_confirmed_at) values ($1, '{}', now())", [id]);
-  for (const name of ["202611110001_accounts.sql", "202611160001_seller_applications.sql", "202611160002_owner_role.sql", "202611160003_seller_catalog.sql", "202611180004_enforce_mfa.sql", migration]) {
+  for (const name of ["202611110001_accounts.sql", "202611160001_seller_applications.sql", "202611160002_owner_role.sql", "202611160003_seller_catalog.sql", "202611180004_enforce_mfa.sql", migration, "202611210006_admin_accounts.sql"]) {
     await db.exec(await readFile(new URL(`../migrations/${name}`, import.meta.url), "utf8"));
   }
   await db.query("insert into auth.mfa_factors values ($1, 'verified'), ($2, 'verified'), ($3, 'verified')", [seller, admin, owner]);
@@ -141,7 +141,6 @@ it("expires unreported reservations but leaves reported orders for administrator
 });
 
 it("restricts suspensions and administrator assignment to the correct roles", async () => {
-  await db.exec(await readFile(new URL("../migrations/202611210006_admin_accounts.sql", import.meta.url), "utf8"));
   const manage = "select public.marketplace_manage_user_access($1,$2,$3,$4,$5)";
   const query = (actor: string, target: string, event: string, role: string, suspended = false, claims: Record<string, unknown> = {}) =>
     asUser(actor, manage, [target, event, "Local review fixture", role, suspended], "aal2", claims);
@@ -172,4 +171,42 @@ it("restricts suspensions and administrator assignment to the correct roles", as
   expect((await asUser(owner, "select action from public.marketplace_user_access_events order by id")).rows).toEqual([
     { action: "suspend" }, { action: "unsuspend" }, { action: "grant_admin" }, { action: "revoke_admin" },
   ]);
+});
+
+it("binds manual identity decisions to the selected profile and consumes the owner's proof once", async () => {
+  await db.exec(await readFile(new URL("../migrations/202611210007_profile_identity.sql", import.meta.url), "utf8"));
+  const request = "select public.marketplace_request_profile_identity($1) as id";
+  const proof = "select public.marketplace_own_profile_identity_code($1) as code";
+  const review = "select public.marketplace_review_profile_identity($1,$2,$3,$4)";
+  const visible = "select id, status from public.marketplace_profile_identity_requests";
+
+  await expect(asUser(admin, request, [buyer])).rejects.toThrow(/owner access required/);
+  await expect(asUser(owner, request, [buyer], "aal1")).rejects.toThrow(/owner access required/);
+  await expect(asUser(owner, request, [owner])).rejects.toThrow();
+  const { rows } = await asUser(owner, request, [buyer]);
+  const { id } = rows[0] as { id: string };
+  await expect(asUser(owner, request, [buyer])).rejects.toThrow(/duplicate key/);
+  await expect(asUser(null, visible)).rejects.toThrow(/permission denied/);
+  expect((await asUser(outsider, visible)).rows).toEqual([]);
+  expect((await asUser(admin, visible)).rows).toEqual([]);
+  expect((await asUser(buyer, visible)).rows).toEqual([{ id, status: "pending" }]);
+  expect((await asUser(owner, visible)).rows).toEqual([{ id, status: "pending" }]);
+  expect((await asUser(buyer, "select public.marketplace_account_is_active() as active")).rows).toEqual([{ active: true }]);
+  await expect(asUser(owner, "select code from public.marketplace_profile_identity_requests")).rejects.toThrow(/permission denied/);
+  expect((await asUser(owner, proof, [id])).rows).toEqual([{ code: null }]);
+  expect((await asUser(outsider, proof, [id])).rows).toEqual([{ code: null }]);
+  const { code } = (await asUser(buyer, proof, [id])).rows[0] as { code: string };
+  expect(code).toMatch(/^[a-f\d-]{36}$/);
+  await expect(asUser(buyer, review, [id, buyer, "verified", code])).rejects.toThrow(/owner access required/);
+  await expect(asUser(owner, review, [id, outsider, "verified", code])).rejects.toThrow();
+  await expect(asUser(owner, review, [id, buyer, "verified", null])).rejects.toThrow();
+  await asUser(owner, review, [id, buyer, "verified", code]);
+  expect((await asUser(buyer, proof, [id])).rows).toEqual([{ code: null }]);
+  await expect(asUser(owner, review, [id, buyer, "verified", code])).rejects.toThrow();
+  expect((await db.query("select created_by, reviewed_by, status, code from public.marketplace_profile_identity_requests where id = $1", [id])).rows)
+    .toEqual([{ created_by: owner, reviewed_by: owner, status: "verified", code: null }]);
+  const secondRequest = await asUser(owner, request, [buyer]);
+  const secondId = (secondRequest.rows[0] as { id: string }).id;
+  await asUser(owner, review, [secondId, buyer, "cancelled", null]);
+  expect((await asUser(buyer, proof, [secondId])).rows).toEqual([{ code: null }]);
 });

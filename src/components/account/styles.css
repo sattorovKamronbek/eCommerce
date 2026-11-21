@@ -81,6 +81,17 @@
 .workspace-sidebar .workspace-back { margin-top: auto; padding-top: 16px; font-size: 13px; }
 .workspace-content { min-width: 0; padding: clamp(1.75rem, 4vw, 3.5rem); }
 .workspace-content > .account-heading { padding-top: 1rem; border-top: var(--editorial-rule); }
+.admin-dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr)); gap: 12px; }
+.admin-dashboard-link { position: relative; display: grid; align-content: start; gap: 8px; height: 100%; padding: 20px; border: 1px solid var(--border); background: var(--card); }
+.admin-dashboard-link:hover { border-color: var(--foreground); }
+.admin-dashboard-link:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+.admin-dashboard-link h2 { font: 600 1.25rem/1.2 var(--editorial-display); }
+.admin-dashboard-link p { color: var(--muted-foreground); font-size: 14px; line-height: 1.5; }
+.admin-dashboard-icon, .admin-dashboard-arrow { width: 20px; height: 20px; }
+.admin-dashboard-icon { margin-bottom: 6px; }
+.admin-dashboard-arrow { position: absolute; inset: 20px 20px auto auto; }
+.profile-identity code { overflow-wrap: anywhere; user-select: all; }
+.profile-identity .workspace-action-form { margin-top: 12px; }
 .workspace-filters { display: flex; flex-wrap: wrap; align-items: end; gap: 18px; margin-bottom: 28px; }
 .workspace-filters [data-slot="field"] { flex: 1 1 200px; gap: 8px; min-width: 0; }
 .workspace-filters [data-slot="field"]:first-child { flex-grow: 1.6; }

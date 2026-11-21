@@ -37,9 +37,14 @@ export type UserAccess = { account_role: AccessRole; suspended: boolean; provide
 export type UserAccessEvent = {
   id: number; target_id: string | null; actor_id: string | null; action: AccessAction; reason: string; created_at: string;
 };
+export type ProfileIdentityDecision = "verified" | "not_verified" | "cancelled";
+export type ProfileIdentityRequest = {
+  id: string; subject_id: string; status: "pending" | ProfileIdentityDecision; created_at: string; reviewed_at: string | null;
+};
 export type Database = {
   public: {
     Tables: {
+      marketplace_profile_identity_requests: { Row: ProfileIdentityRequest; Insert: never; Update: never; Relationships: [] };
       marketplace_user_access_events: { Row: UserAccessEvent; Insert: never; Update: never; Relationships: [] };
       marketplace_checkout_terms: { Row: CheckoutTerms; Insert: never; Update: never; Relationships: [] };
       marketplace_orders: { Row: DirectOrder; Insert: never; Update: never; Relationships: [] };
@@ -78,6 +83,9 @@ export type Database = {
       marketplace_checkout_offers: { Row: CheckoutOffer; Relationships: [] };
     };
     Functions: {
+      marketplace_request_profile_identity: { Args: { p_subject_id: string }; Returns: string };
+      marketplace_own_profile_identity_code: { Args: { p_request_id: string }; Returns: string | null };
+      marketplace_review_profile_identity: { Args: { p_request_id: string; p_subject_id: string; p_decision: ProfileIdentityDecision; p_code: string | null }; Returns: undefined };
       marketplace_account_is_active: { Args: Record<string, never>; Returns: boolean };
       marketplace_admin_user_access: { Args: { p_user_id: string }; Returns: UserAccess[] };
       marketplace_manage_user_access: {

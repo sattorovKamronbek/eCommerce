@@ -1,0 +1,70 @@
+const en = {
+  title: "Identity verification",
+  request: "Request identity verification",
+  code: "One-time verification code",
+  pending: "Awaiting identity review",
+  verified: "Identity verified by the owner",
+  not_verified: "Identity could not be verified",
+  cancelled: "Request cancelled",
+  instructions: "Share this verification code when the owner contacts you for the identity check. You can continue using the marketplace while the request is open.",
+  ownerInstructions: "Contact the user directly to check their identity. Enter the code they share from their profile and record the outcome.",
+  decision: "Identity review outcome",
+  choose: "Select an outcome",
+  submit: "Record decision",
+  cancel: "Cancel request",
+  unavailable: "Identity verification is temporarily unavailable.",
+  pendingAction: "Saving…",
+  errors: {
+    invalid: "Check that the request is still open and the verification code and outcome are correct.",
+    changed: "The request has changed. Reload the page and try again.",
+    failed: "Could not save the request. Try again later.",
+  },
+};
+
+const uz: typeof en = {
+  title: "Shaxsni tasdiqlash",
+  request: "Shaxsni tasdiqlashni so‘rash",
+  code: "Bir martalik tasdiqlash kodi",
+  pending: "Shaxs tekshiruvi kutilmoqda",
+  verified: "Shaxs sayt egasi tomonidan tasdiqlandi",
+  not_verified: "Shaxsni tasdiqlab bo‘lmadi",
+  cancelled: "So‘rov bekor qilindi",
+  instructions: "Sayt egasi shaxsingizni tekshirish uchun bog‘langanda, shu tasdiqlash kodini bering. So‘rov ochiq turganda ham marketplace’dan foydalanishingiz mumkin.",
+  ownerInstructions: "Foydalanuvchi bilan bevosita bog‘lanib, shaxsini tekshiring. U profilidan bergan kodni kiriting va natijani qayd eting.",
+  decision: "Shaxsni tekshirish natijasi",
+  choose: "Natijani tanlang",
+  submit: "Qarorni qayd etish",
+  cancel: "So‘rovni bekor qilish",
+  unavailable: "Shaxsni tasdiqlash vaqtincha ishlamayapti.",
+  pendingAction: "Saqlanmoqda…",
+  errors: {
+    invalid: "So‘rov ochiqligini, tasdiqlash kodi va natija to‘g‘riligini tekshiring.",
+    changed: "So‘rov holati o‘zgardi. Sahifani yangilab, qayta urinib ko‘ring.",
+    failed: "So‘rovni saqlab bo‘lmadi. Keyinroq qayta urinib ko‘ring.",
+  },
+};
+
+const ru: typeof en = {
+  title: "Проверка личности",
+  request: "Запросить проверку личности",
+  code: "Одноразовый код проверки",
+  pending: "Ожидает проверки личности",
+  verified: "Личность подтверждена владельцем",
+  not_verified: "Личность не удалось подтвердить",
+  cancelled: "Запрос отменён",
+  instructions: "Сообщите этот код, когда владелец свяжется с вами для проверки личности. Пока запрос открыт, маркетплейс доступен в обычном режиме.",
+  ownerInstructions: "Свяжитесь с пользователем и проверьте его личность. Введите полученный от него код и запишите результат.",
+  decision: "Результат проверки личности",
+  choose: "Выберите результат",
+  submit: "Записать решение",
+  cancel: "Отменить запрос",
+  unavailable: "Проверка личности временно недоступна.",
+  pendingAction: "Сохранение…",
+  errors: {
+    invalid: "Проверьте, что запрос открыт, код и результат указаны верно.",
+    changed: "Запрос изменился. Обновите страницу и попробуйте снова.",
+    failed: "Не удалось сохранить запрос. Попробуйте позже.",
+  },
+};
+
+export const profileIdentityDictionaries = { en, uz, ru };

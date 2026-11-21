@@ -108,7 +108,7 @@ test("public seller catalog explains purchase availability", async ({ page }) =>
 
 test("checkout, private orders and admin pages preserve the destination through sign-in", async ({ page }) => {
   const id = "12345678-1234-4000-8000-123456789abc";
-  for (const destination of [`/en/account/checkout/fashion/${id}`, `/en/account/orders/${id}`, `/en/admin/orders/${id}`, `/en/admin/users/${id}`]) {
+  for (const destination of ["/en/admin", `/en/account/checkout/fashion/${id}`, `/en/account/orders/${id}`, `/en/admin/orders/${id}`, `/en/admin/users/${id}`]) {
     await page.goto(destination);
     const url = new URL(page.url());
     expect(url.pathname).toBe("/en/account/login");

@@ -19,6 +19,37 @@ Status: the seller catalog, manual direct-payment order flow and account adminis
 
 The original store uses temporary ORO branding, Uzbek, UZS, local development products and browser persistence. It has no production checkout, account system, seller backend, Steam integration or payment provider. The former single-vendor roadmap is preserved in docs and historical PROJECT_PROGRESS.md sections. These historical settings were not automatically transformation decisions; UZS was subsequently explicitly selected by the owner, and the preview retains Uzbek as its default entry. The owner later selected VERSAX as the marketplace brand and supplied the logo.
 
+## Owner dashboard and profile verification — 2026-11-21
+
+The owner requested a dashboard for managing users and roles, new CS2 and
+clothing listings, sales, verification and account suspensions. The owner
+confirmed that they should be able to select a specific profile and request
+either a manual identity check or contact verification. For a contact check,
+the owner chooses whether the user receives the code by email or SMS.
+The owner confirmed that requesting verification does not automatically limit
+buying or selling. The owner manages account suspensions separately.
+
+The dashboard uses the existing administration workspace. It links to profiles
+and access management, recent seller listings, seller applications, direct-payment
+orders, payment reports and disputes. Role grants and revocations are limited to
+administrator access under the current owner and recent MFA requirements.
+Suspension and restoration use the existing audited marketplace access controls.
+
+The owner approved the manual identity workflow. The owner sends a request from
+a specific user’s admin profile. The user sees a one-time code in their account
+and shares it when the owner contacts them directly. The owner independently
+checks the person’s identity and records the decision with that code. Documents
+stay outside the site. The request and decision retain their history and neither
+changes account roles or seller approval. The existing seller identity review
+has its own account-control check.
+
+For the contact workflow, the proposed interaction is to verify the code from the
+same signed-in profile. The owner confirmed that email and SMS services are
+currently unconfigured. Select and verify the delivery services and agree on the
+source of customers’ phone numbers before enabling this workflow. Email and SMS
+should verify control of the contact destination. Supabase Auth auto-confirmation
+does not establish that proof.
+
 ## Latest owner request — 2026-11-11
 
 The owner reiterated in Uzbek that the existing site should become a complete, large-scale site selling both CS2 skins and clothing, and requested work on that transformation now. In the first discovery answers, the owner confirmed:
@@ -194,7 +225,7 @@ Potential item/category fields, seller metrics, payouts, reviews, promotions, st
 | D07 | Payment methods/provider and money flow: direct seller, provider split or platform collection | Requires provider support and country/model review | Click Business selected as target; business registration, contract, support for CS2 and settlement, asset/network and operating rules remain open |
 | D08 | Payout timing, reserves, reversal exposure, refund/dispute responsibility | Defines accounting and settlement; no wallet/escrow approved | CS2 platform funds: seller payout after both delivery confirmations, otherwise admin review; provider, execution and reversals remain open |
 | D09 | Fashion shipping regions, carrier responsibility, returns and customer support | Defines logistics/state transitions | Seller sets shipping price; owner delegated a common return policy to research; see docs/FASHION_RETURNS_POLICY.md. Regions, carrier and operational workflow remain open |
-| D10 | Seller Center/Admin modules and action permissions at launch | Limits privileged scope and defines role matrix | Initial admin users list selected with accounts; seller modules and other privileged actions still require decisions |
+| D10 | Seller Center/Admin modules and action permissions at launch | Limits privileged scope and defines role matrix | Owner dashboard, user access, listing and direct-order management, seller review and targeted profile verification requested. Contact verification channel chosen per request. Profile verification operating rules remain open |
 | D11 | Brand name, visual references and shared versus distinct identity | Gates design generation and navigation decisions | Confirmed VERSAX with an owner-supplied logo |
 | D12 | Expected sellers, listings, daily users, order volume and launch timeline/budget constraints | Grounds query, operational and performance design | Large-scale ambition reconfirmed; numeric targets, timeline and budget remain follow-up |
 | D13 | Steam/item/price/image data sources, permitted commercial use and verification confidence | Prevents unsupported capabilities and misleading market/ownership claims | Research + owner gate |
@@ -215,6 +246,7 @@ For each owner answer, record date, decision ID, the answer, scope and remaining
 
 | Date | Decision IDs | Owner statement and scope | Remaining conditions |
 | --- | --- | --- | --- |
+| 2026-11-21 | D04, D10, D15 | Owner dashboard for users and roles, listing and sales management, identity and contact verification, and account suspensions. The owner contacts the user directly for identity checks and records the outcome with the one-time code from their profile. The owner chooses email or SMS for contact verification. Buying and selling remain available during checks. | Email and SMS services are unconfigured. Select and verify code delivery services before enabling contact verification. |
 | 2026-11-21 | D01, D03, D07, D10 | Start with direct seller payments in both CS2 and clothing. Administrators review payment evidence and decide disputes case by case. Retire the original storefront homepage and use seller listings in the marketplace navigation. | Before switching on reservations, verify the dedicated schema, seller flows, expiration job and the people and procedures responsible for payment review, refunds and fulfillment. Click settlement remains pending. |
 | 2026-11-18 | D03, D07, D09, D14 | A reservation without a payment report is automatically cancelled after 48 hours; a direct-payment report may store payment time, amount and transaction ID; clothing orders may store the buyer's name, phone and address, visible to the relevant seller and admin. | The buyer also needs access to their own order. Payment reports are unverified until admin review; scheduler operation, payment evidence review, personal-data retention, refunds and provider support remain unresolved. |
 | 2026-11-18 | D09, D14 | Seller sets delivery price; orders are separated by seller and ecosystem. Owner asked us to derive one clothing return rule from other stores. | Selected customer-facing draft in docs/FASHION_RETURNS_POLICY.md; legal review, seller implementation and checkout remain outstanding. |

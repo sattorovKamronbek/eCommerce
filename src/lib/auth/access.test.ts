@@ -28,7 +28,7 @@ it("fails closed without configuration or on provider/database errors", async ()
 });
 it("reads current admin assignments on every request and denies a revoked role", async () => {
   mock.maybeSingle.mockResolvedValueOnce({ data: { role: "admin" }, error: null });
-  expect((await requireAdmin("en")).kind).toBe("admin");
+  expect(await requireAdmin("en")).toMatchObject({ kind: "admin", role: "admin" });
   expect((await requireAdmin("en")).kind).toBe("denied");
   expect(mock.maybeSingle).toHaveBeenCalledTimes(2);
 });
@@ -36,7 +36,7 @@ it("allows an explicitly assigned owner to access administrator pages", async ()
   let onlyAdmin = false;
   const query = { select: () => query, eq: (column: string, value: string) => { if (column === "role" && value === "admin") onlyAdmin = true; return query; }, maybeSingle: async () => ({ data: onlyAdmin ? null : { role: "owner" }, error: null }) };
   mock.from.mockReturnValue(query);
-  expect((await requireAdmin("en")).kind).toBe("admin");
+  expect(await requireAdmin("en")).toMatchObject({ kind: "admin", role: "owner" });
 });
 
 it("requires MFA for enrolled users while allowing access to the security page", async () => {

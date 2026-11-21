@@ -1,0 +1,43 @@
+const en = {
+  navigation: "Overview",
+  ownerTitle: "Owner dashboard",
+  adminTitle: "Administration dashboard",
+  intro: "Manage users, seller listings and direct-payment orders.",
+  ownerUsers: "View profiles, manage administrator roles and account access, and request identity checks.",
+  users: { title: "Users", description: "View profiles and suspend or restore customer access." },
+  sellers: { title: "Seller applications", description: "Verify seller identity and review pending applications." },
+  listings: { title: "Listings", description: "Review the newest CS2 and clothing listings, and hide or restore listings." },
+  orders: { title: "Orders", description: "Review direct-payment orders and delivery confirmations." },
+  payments: { title: "Payment review", description: "Review payments reported by buyers or sellers." },
+  disputes: { title: "Disputes", description: "Review cases that need an administrator’s decision." },
+};
+
+const uz: typeof en = {
+  navigation: "Umumiy ko‘rinish",
+  ownerTitle: "Sayt egasi paneli",
+  adminTitle: "Administrator paneli",
+  intro: "Foydalanuvchilar, sotuvchi e’lonlari va bevosita to‘lovli buyurtmalarni boshqaring.",
+  ownerUsers: "Profillarni ko‘ring, admin rollari va hisobga kirishni boshqaring, shaxsni tekshirishni so‘rang.",
+  users: { title: "Foydalanuvchilar", description: "Profillarni ko‘ring, mijoz kirishini bloklang yoki tiklang." },
+  sellers: { title: "Sotuvchi arizalari", description: "Sotuvchi shaxsini tasdiqlang va kutilayotgan arizalarni ko‘rib chiqing." },
+  listings: { title: "E’lonlar", description: "Yangi CS2 va kiyim e’lonlarini ko‘ring, ularni yashiring yoki tiklang." },
+  orders: { title: "Buyurtmalar", description: "Bevosita to‘lovli buyurtmalar va yetkazib berish tasdiqlarini ko‘ring." },
+  payments: { title: "To‘lovni tekshirish", description: "Xaridor yoki sotuvchi bildirgan to‘lovlarni ko‘rib chiqing." },
+  disputes: { title: "Nizolar", description: "Administrator qarorini kutayotgan buyurtmalarni ko‘rib chiqing." },
+};
+
+const ru: typeof en = {
+  navigation: "Обзор",
+  ownerTitle: "Панель владельца",
+  adminTitle: "Панель администратора",
+  intro: "Управляйте пользователями, объявлениями продавцов и заказами с прямой оплатой.",
+  ownerUsers: "Просматривайте профили, управляйте ролями и доступом, запрашивайте проверку личности.",
+  users: { title: "Пользователи", description: "Просматривайте профили, блокируйте и восстанавливайте доступ клиентов." },
+  sellers: { title: "Заявки продавцов", description: "Проверяйте личность продавцов и рассматривайте новые заявки." },
+  listings: { title: "Объявления", description: "Просматривайте, скрывайте и восстанавливайте объявления о скинах CS2 и одежде." },
+  orders: { title: "Заказы", description: "Просматривайте заказы с прямой оплатой и подтверждения доставки." },
+  payments: { title: "Проверка оплаты", description: "Рассматривайте платежи, о которых сообщили покупатели или продавцы." },
+  disputes: { title: "Споры", description: "Рассматривайте заказы, требующие решения администратора." },
+};
+
+export const dashboardDictionaries = { en, uz, ru };
