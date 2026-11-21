@@ -9,35 +9,11 @@ import { requireSeller } from "./access";
 import { CS2_PHOTO_BUCKET } from "./cs2";
 import { parseCs2Creation, parseCs2Edit } from "./cs2-input";
 import type { ListingActionState } from "./listing";
+import { prepareListingPhotos, removeListingPhotos, uploadListingPhotos } from "./listing-photo-writes";
 
-type Photo = { file: File; name: string; path: string };
-
-function preparePhotos(id: string, files: File[]): Photo[] {
-  return files.map(file => {
-    const name = `${randomUUID()}.webp`;
-    return { file, name, path: `${id}/${name}` };
-  });
-}
-
-async function removePhotos(client: SupabaseClient<Database>, paths: string[]) {
-  if (!paths.length) return;
-  // Storage RLS rejects removal of a photo that is still attached to a listing.
-  try { await client.storage.from(CS2_PHOTO_BUCKET).remove(paths); } catch { /* Unattached files remain private. */ }
-}
-
-async function uploadPhotos(client: SupabaseClient<Database>, photos: Photo[]) {
-  if (!photos.length) return true;
-  const bucket = client.storage.from(CS2_PHOTO_BUCKET);
-  for (let index = 0; index < photos.length; index += 6) {
-    const uploads = await Promise.allSettled(photos.slice(index, index + 6).map(({ path, file }) =>
-      bucket.upload(path, file, { contentType: "image/webp", cacheControl: "0", upsert: false })));
-    if (uploads.some(upload => upload.status === "rejected" || upload.value.error)) {
-      await removePhotos(client, photos.slice(0, index + 6).map(photo => photo.path));
-      return false;
-    }
-  }
-  return true;
-}
+const removePhotos = (client: SupabaseClient<Database>, paths: string[]) => removeListingPhotos(client, CS2_PHOTO_BUCKET, paths);
+const uploadPhotos = (client: SupabaseClient<Database>, photos: ReturnType<typeof prepareListingPhotos>) =>
+  uploadListingPhotos(client, CS2_PHOTO_BUCKET, photos);
 
 function finishSave(locale: MarketplaceLocale): never {
   const destination = `/${locale}/seller/products`;
@@ -57,7 +33,7 @@ export async function createCs2Listings(locale: MarketplaceLocale, form: FormDat
     .eq("cs2_group_id", input.group).eq("cs2_group_primary", true).limit(1).maybeSingle();
   const variants = input.variants.map(variant => {
     const id = randomUUID();
-    return { ...variant, id, photos: preparePhotos(id, variant.files) };
+    return { ...variant, id, photos: prepareListingPhotos(id, variant.files) };
   });
   const photos = variants.flatMap(variant => variant.photos);
   try {
@@ -91,14 +67,14 @@ export async function saveCs2Variant(locale: MarketplaceLocale, id: string, expe
   const listings = client.from("marketplace_listings");
   const readVariant = () => listings.select("cs2_group_id, cs2_wear, cs2_images, updated_at, description, quantity, state, price_tiyin")
     .eq("id", id).eq("seller_id", user.id).eq("moderation_status", "allowed").maybeSingle();
-  let pendingPhotos: Photo[] = [];
+  let pendingPhotos: ReturnType<typeof prepareListingPhotos> = [];
   try {
     const existing = await readVariant();
     if (existing.error || !existing.data?.cs2_group_id || !existing.data.cs2_wear) return { error: "unavailable" };
     if (existing.data.updated_at !== expectedUpdatedAt) return { error: "changed" };
     const input = await parseCs2Edit(form, existing.data.cs2_wear, existing.data.cs2_images);
     if (!input) return { error: "invalid" };
-    pendingPhotos = preparePhotos(id, input.files);
+    pendingPhotos = prepareListingPhotos(id, input.files);
     if (!await uploadPhotos(client, pendingPhotos)) return { error: "photo" };
     const changes = {
       description: input.description, state: input.state, price_tiyin: input.price, quantity: input.quantity,

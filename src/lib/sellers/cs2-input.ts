@@ -1,23 +1,7 @@
-import sharp from "sharp";
 import { isUuid } from "@/lib/uuid";
-import { CS2_MAX_PHOTO_BYTES, CS2_MAX_PHOTO_DIMENSION, CS2_MAX_PHOTOS, CS2_WEAR, isCs2Category, isCs2Model, isCs2PhotoName, isCs2Wear, type Cs2Wear } from "./cs2";
+import { CS2_MAX_PHOTOS, CS2_WEAR, isCs2Category, isCs2Model, isCs2PhotoName, isCs2Wear, type Cs2Wear } from "./cs2";
 import { listingText, parseUzsTiyin } from "./listing";
-
-async function isWebp(file: File) {
-  if (file.type !== "image/webp" || file.size < 20 || file.size > CS2_MAX_PHOTO_BYTES) return false;
-  try {
-    const bytes = await file.arrayBuffer();
-    const header = new DataView(bytes);
-    if (header.getUint32(0) !== 0x52494646 || header.getUint32(8) !== 0x57454250
-      || header.getUint32(4, true) !== bytes.byteLength - 8) return false;
-    const image = sharp(bytes, { limitInputPixels: CS2_MAX_PHOTO_DIMENSION ** 2, failOn: "warning" });
-    const { width, height, pages } = await image.metadata();
-    if (width > CS2_MAX_PHOTO_DIMENSION || height > CS2_MAX_PHOTO_DIMENSION || (pages ?? 1) > 1) return false;
-    // Header metadata alone does not detect a truncated or undecodable image.
-    await image.raw().toBuffer();
-    return true;
-  } catch { return false; }
-}
+import { validateListingPhoto } from "./listing-photo-input";
 
 async function readVariant(form: FormData, wear: Cs2Wear, existing: readonly string[] = []) {
   const price = parseUzsTiyin(form.get(`cs2Price-${wear}`));
@@ -29,7 +13,7 @@ async function readVariant(form: FormData, wear: Cs2Wear, existing: readonly str
     || files.length !== newEntries.length || kept.length + files.length > CS2_MAX_PHOTOS
     || new Set(kept).size !== kept.length || kept.some(file => !existing.includes(file))) return null;
   for (const file of files) {
-    if (!await isWebp(file)) return null;
+    if (!await validateListingPhoto(file)) return null;
   }
   return { wear, price, kept, files };
 }

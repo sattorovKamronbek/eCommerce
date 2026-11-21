@@ -13,7 +13,8 @@ export async function loadPublicListings(
   const start = (filters.page - 1) * size;
   try {
     // A retry with provider backoff keeps the visitor waiting on the same view.
-    let query = client.from("marketplace_public_listings").select("*").eq("ecosystem", ecosystem).retry(false);
+    const view = ecosystem === "fashion" ? "marketplace_public_fashion_catalog" : "marketplace_public_listings";
+    let query = client.from(view).select("*").eq("ecosystem", ecosystem).retry(false);
     if (filters.q) query = query.regexIMatch("title", literalNamePattern(filters.q));
     if (ecosystem === "cs2" && filters.cs2) {
       const { category, model, wear } = filters.cs2;
@@ -28,6 +29,24 @@ export async function loadPublicListings(
     const rows = result.data ?? [];
     return { rows: rows.slice(0, size), hasNext: rows.length > size && filters.page < 10000, error: false };
   } catch { return { rows: [], hasNext: false, error: true }; }
+}
+
+export async function loadPublicFashionVariants(
+  client: SupabaseClient<Database>,
+  listing: Pick<PublicListing, "id" | "fashion_product_id">,
+) {
+  if (!listing.fashion_product_id) return [];
+  try {
+    const result = await client.from("marketplace_public_listings")
+      .select("id, fashion_color_id, fashion_color, fashion_size, available")
+      .eq("ecosystem", "fashion")
+      .eq("fashion_product_id", listing.fashion_product_id)
+      .neq("id", listing.id)
+      .retry(false);
+    return result.data ?? [];
+  } catch {
+    return [];
+  }
 }
 
 type PublicCs2Variant = Pick<PublicListing, "id" | "price_tiyin" | "cs2_wear">;

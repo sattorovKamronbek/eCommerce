@@ -5,12 +5,14 @@ import { revalidatePath } from "next/cache";
 import { requireAccount } from "@/lib/auth/access";
 import { parseListing, type ListingActionState } from "@/lib/sellers/listing";
 import { createCs2Listings, saveCs2Variant } from "@/lib/sellers/cs2-writes";
+import { saveFashionProduct, type FashionEditVersion } from "@/lib/sellers/fashion-writes";
 import { isUuid } from "@/lib/uuid";
 import { isMarketplaceLocale, type MarketplaceLocale } from "@/messages/marketplace";
 
 export async function createListing(locale: MarketplaceLocale, _state: ListingActionState, form: FormData): Promise<ListingActionState> {
   if (!isMarketplaceLocale(locale)) return { error: "unavailable" };
   if (form.get("ecosystem") === "cs2") return createCs2Listings(locale, form);
+  if (form.has("fashionPayload")) return saveFashionProduct(locale, form);
   const account = await requireAccount(locale, `/${locale}/seller/products`);
   if (!account) return { error: "unavailable" };
   const item = parseListing(form);
@@ -21,6 +23,14 @@ export async function createListing(locale: MarketplaceLocale, _state: ListingAc
   } catch { return { error: "unavailable" }; }
   revalidatePath(`/${locale}/seller/products`);
   redirect(`/${locale}/seller/products`);
+}
+
+export async function updateFashionProduct(locale: MarketplaceLocale, expected: FashionEditVersion,
+  _state: ListingActionState, form: FormData): Promise<ListingActionState> {
+  if (!isMarketplaceLocale(locale) || !isUuid(expected.productId) || !Number.isFinite(Date.parse(expected.updatedAt))) {
+    return { error: "unavailable" };
+  }
+  return saveFashionProduct(locale, form, expected);
 }
 
 export async function updateCs2Listing(locale: MarketplaceLocale, id: string, expectedUpdatedAt: string, _state: ListingActionState, form: FormData): Promise<ListingActionState> {

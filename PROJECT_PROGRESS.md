@@ -1,5 +1,43 @@
 # Project progress
 
+## Clothing color and size variants — 2026-11-21
+
+Sellers can create and edit one clothing product with up to five colors, twelve
+sizes per color, and four photos per color. The seller controls stock per color
+and size, a default price in UZS, and optional overrides. The form supports
+brand, fabric composition, fit, care, and an optional centimeter guide. It can
+save a draft or publish the card. Contact and delivery settings apply to all
+current combinations and carry over to newly added or reactivated sizes.
+
+The public catalog and search show one card per product. On the detail page,
+the selected color controls the gallery and available size choices. Price and
+reservation follow the selected combination. Each combination uses its own
+listing ID and the existing reservation transaction. The editor reads product
+fields and listing versions together. A reservation that changes stock makes
+an earlier edit stale. [Approved design](docs/superpowers/specs/2026-11-21-clothing-listing-variants.md)
+
+Nine PGlite tests passed on the completed migration. They cover seller and
+MFA access, private draft photos, authorization when editing, catalog grouping,
+atomic writes, price overrides, stale stock and checkout terms. The integrated
+Vitest run passed 197 tests in 44 files. After the final transaction and editor
+changes, 37 focused tests passed in six files, including the migration tests.
+Strict TypeScript and the production build passed. ESLint reported four
+existing warnings and zero errors.
+
+Fixture-backed Playwright exercised desktop seller creation, editing, gallery
+replacement, shared delivery settings and stock refresh after a reservation.
+Mobile Chromium passed the seller flow, including no horizontal overflow, axe,
+and draft photo access. Desktop and 320 px buyer tests covered gallery keyboard
+controls, size measurements, search return links, and selected-variant checkout.
+All 18 selected Playwright regressions passed across desktop, tablet and mobile
+Chromium. Local logs and seller screenshots are in `/tmp/versax-fashion-qa/`.
+Buyer QA logs are in
+`/tmp/versax-fashion-buyer-browser.log`.
+
+Release requires applying pending migrations through
+`202611210009_fashion_listing_variants.sql` to the dedicated VERSAX project
+before deploying the application. Hosted storage and deployment are pending.
+
 ## CS2 wear variants and photos — 2026-11-21
 
 Add a listing now lets a CS2 seller select a category and model, enter the skin

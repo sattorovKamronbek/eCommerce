@@ -169,6 +169,31 @@ Each wear uses the existing listing-level checkout and inventory. The form
 supports optional photo uploads, with up to four photos per variant in the
 implementation. [CS2 listing variants design](docs/superpowers/specs/2026-11-21-cs2-listing-variants.md)
 
+## Clothing product entry — 2026-11-21
+
+The owner requested multiple sizes, multiple photos and additional product
+details when a seller adds clothing. The owner suggested Uzum Market, Polo and
+other clothing sites as references. At the time of the request, the seller form
+had one free-text variant field and one stock count for clothing. Photo upload
+was available on CS2 listings.
+
+The seller creates one product with a category, title and description. They
+choose sizes for each color, upload a gallery per color and set stock for each
+offered color and size combination. The shared price applies unless the seller
+sets an override. The form offers an optional size chart in centimeters and
+fields for brand, fabric composition, fit and care instructions. The public
+product page shows the selected color's photos, the size chart and availability
+for the selected combination. Reservations use that combination's listing and
+stock. Legacy clothing listings still use their existing purchase path.
+
+The owner confirmed a single product card with color, fabric composition, fit
+and care details. They approved a separate gallery per color, stock per color
+and size, an overridable default price and an optional measurement guide in
+centimeters. [Clothing listing design](docs/superpowers/specs/2026-11-21-clothing-listing-variants.md)
+[Uzum seller guide](https://seller.uzum.uz/manual/uz/5.product-creation/)
+[Polo Ralph Lauren product page](https://www.ralphlauren.com/men-clothing-polo-shirts/custom-slim-fit-mesh-polo-shirt/582999.html)
+[Shopify variant inventory](https://help.shopify.com/en/manual/products/variants/)
+
 ## Backup sign-in methods — 2026-11-21
 
 The owner wants to sign in from another device while their primary authenticator

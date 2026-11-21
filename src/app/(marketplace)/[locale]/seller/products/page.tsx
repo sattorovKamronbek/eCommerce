@@ -32,6 +32,7 @@ export default async function SellerProducts({ params, searchParams }: {
     {products.rows.length ? <div className="seller-reviews">{products.rows.map(item => <article className="seller-review" key={item.id}>
       <h2>{item.title}</h2><p>{copy[item.ecosystem]} · {item.moderation_status === "blocked" ? copy.blocked : copy[item.state]}</p>
       {item.cs2_wear && <p>{CS2_WEAR_NAMES[item.cs2_wear]} ({item.cs2_wear})</p>}
+      {item.fashion_product_id && <p>{item.variant}</p>}
       <p>{new Intl.NumberFormat(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(item.price_tiyin / 100)} UZS · {copy.quantity}: {item.quantity}</p>
       {item.moderation_status === "allowed" ? <><Link className="mp-text-link" href={`${base}/${item.id}`}>{copy.edit}</Link>{item.state !== "archived" ? <form action={archiveListing.bind(null, locale)}><input type="hidden" name="id" value={item.id} /><button>{copy.archive}</button></form> : null}</> : null}
     </article>)}</div> : <p>{copy.empty}</p>}

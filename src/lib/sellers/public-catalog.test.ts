@@ -35,12 +35,16 @@ it("matches category, model and wear as exact CS2 fields without affecting Fashi
 
   await loadPublicListings(client, "cs2", filters, 3);
   await loadPublicListings(client, "fashion", filters, 3);
-  const cs2 = new URL(fetch.mock.calls[0][0]).searchParams;
+  const cs2Request = new URL(fetch.mock.calls[0][0]);
+  expect(cs2Request.pathname).toBe("/rest/v1/marketplace_public_listings");
+  const cs2 = cs2Request.searchParams;
   expect(cs2.get("cs2_category")).toBe("eq.pistol");
   expect(cs2.get("cs2_model")).toBe("eq.Desert Eagle");
   expect(cs2.get("cs2_wear")).toBe("eq.FT");
   expect(cs2.get("offset")).toBe("3");
-  const fashion = new URL(fetch.mock.calls[1][0]).searchParams;
+  const fashionRequest = new URL(fetch.mock.calls[1][0]);
+  expect(fashionRequest.pathname).toBe("/rest/v1/marketplace_public_fashion_catalog");
+  const fashion = fashionRequest.searchParams;
   expect([...fashion.keys()].some(key => key.startsWith("cs2_"))).toBe(false);
 });
 

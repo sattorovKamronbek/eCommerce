@@ -1,14 +1,14 @@
 import { useCallback, useId } from "react";
 import { X } from "lucide-react";
-import { CS2_MAX_PHOTOS, cs2PhotoHref } from "@/lib/sellers/cs2";
 import type { cs2SellerDictionaries } from "@/messages/cs2-seller";
 import { cs2PhotoAccept } from "./cs2-photo-preparation";
 import styles from "./cs2-listing-form.module.css";
 
-export type Cs2DraftPhoto = { id: string; file?: File };
-export type Cs2PhotoError = "photoLimit" | "photoFormat" | "photoPrepare";
+export type ListingDraftPhoto = { id: string; file?: File };
+export type ListingPhotoError = "photoLimit" | "photoFormat" | "photoPrepare";
+type PhotoCopy = Pick<typeof cs2SellerDictionaries.en, "photos" | "photoHint" | "cover" | "removePhoto" | "preparingPhotos" | ListingPhotoError>;
 
-function Thumbnail({ photo, listingId }: { photo: Cs2DraftPhoto; listingId?: string }) {
+function Thumbnail({ photo, src }: { photo: ListingDraftPhoto; src?: string }) {
   const attachPreview = useCallback((image: HTMLImageElement | null) => {
     if (!image || !photo.file) return;
     const url = URL.createObjectURL(photo.file);
@@ -16,18 +16,18 @@ function Thumbnail({ photo, listingId }: { photo: Cs2DraftPhoto; listingId?: str
     return () => URL.revokeObjectURL(url);
   }, [photo.file]);
 
-  const src = listingId && !photo.file ? cs2PhotoHref(listingId, photo.id, true) : undefined;
   // eslint-disable-next-line @next/next/no-img-element -- Editor previews use local blob URLs and authenticated image responses.
   return <img ref={attachPreview} src={src} width={112} height={84} alt="" className={styles.thumbnail} />;
 }
 
-export function Cs2PhotoPicker({ photos, listingId, disabled, preparing, error, copy, onAdd, onRemove }: {
-  photos: Cs2DraftPhoto[];
-  listingId?: string;
+export function ListingPhotoPicker({ photos, maxPhotos, photoHref, disabled, preparing, error, copy, onAdd, onRemove }: {
+  photos: ListingDraftPhoto[];
+  maxPhotos: number;
+  photoHref: (fileName: string) => string | undefined;
   disabled: boolean;
   preparing: boolean;
-  error?: Cs2PhotoError;
-  copy: typeof cs2SellerDictionaries.en;
+  error?: ListingPhotoError;
+  copy: PhotoCopy;
   onAdd: (files: File[]) => void;
   onRemove: (id: string) => void;
 }) {
@@ -40,7 +40,7 @@ export function Cs2PhotoPicker({ photos, listingId, disabled, preparing, error, 
           accept={cs2PhotoAccept}
           multiple
           aria-describedby={hintId}
-          disabled={disabled || photos.length >= CS2_MAX_PHOTOS}
+          disabled={disabled || photos.length >= maxPhotos}
           className={styles.fileInput}
           onChange={event => {
             const files = Array.from(event.currentTarget.files ?? []);
@@ -56,7 +56,7 @@ export function Cs2PhotoPicker({ photos, listingId, disabled, preparing, error, 
         <ol className={styles.photos}>
           {photos.map((photo, index) => (
             <li key={photo.id} className={styles.photo}>
-              <Thumbnail photo={photo} listingId={listingId} />
+              <Thumbnail photo={photo} src={photo.file ? undefined : photoHref(photo.id)} />
               {index === 0 && <span className={styles.cover}>{copy.cover}</span>}
               <button
                 type="button"

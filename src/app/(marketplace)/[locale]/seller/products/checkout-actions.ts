@@ -11,6 +11,17 @@ import { isMarketplaceLocale, type MarketplaceLocale } from "@/messages/marketpl
 
 export async function saveCheckoutTerms(locale: MarketplaceLocale, id: string, ecosystem: ListingEcosystem,
   _state: ActionFormState, form: FormData): Promise<ActionFormState> {
+  return updateTerms(locale, id, ecosystem, form);
+}
+
+export async function saveFashionCheckoutTerms(locale: MarketplaceLocale, listingId: string, productId: string,
+  _state: ActionFormState, form: FormData): Promise<ActionFormState> {
+  if (!isUuid(productId)) return { error: "invalid" };
+  return updateTerms(locale, listingId, "fashion", form, productId);
+}
+
+async function updateTerms(locale: MarketplaceLocale, id: string, ecosystem: ListingEcosystem,
+  form: FormData, productId?: string): Promise<ActionFormState> {
   if (!isMarketplaceLocale(locale) || !isUuid(id) || (ecosystem !== "fashion" && ecosystem !== "cs2")) return { error: "invalid" };
   const phone = orderPhone(form.get("phone"));
   const asset = ecosystem === "cs2" ? orderText(form.get("asset"), 20) : null;
@@ -20,9 +31,13 @@ export async function saveCheckoutTerms(locale: MarketplaceLocale, id: string, e
 
   const access = await requireSeller(locale);
   if (access.kind !== "seller") return { error: "failed" };
-  const result = await access.account.client.rpc("marketplace_set_checkout_terms", {
-    p_listing_id: id, p_seller_phone: phone, p_shipping_tiyin: shipping, p_cs2_asset_id: asset,
-  });
+  const result = productId
+    ? await access.account.client.rpc("marketplace_set_fashion_checkout_terms", {
+      p_product_id: productId, p_seller_phone: phone, p_shipping_tiyin: shipping,
+    })
+    : await access.account.client.rpc("marketplace_set_checkout_terms", {
+      p_listing_id: id, p_seller_phone: phone, p_shipping_tiyin: shipping, p_cs2_asset_id: asset,
+    });
   if (result.error) {
     if (result.error.code === "23505" || result.error.code === "23514" || result.error.code === "22023") return { error: "invalid" };
     return { error: "failed" };

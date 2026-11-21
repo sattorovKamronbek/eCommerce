@@ -18,7 +18,7 @@ async function SearchResults({ locale, filters }: { locale: MarketplaceLocale; f
     const result = client ? await loadPublicListings(client, ecosystem, filters, 6) : { rows: [], hasNext: false, error: true };
     return { ecosystem, result };
   }));
-  const detailQuery = `${publicListingQueryString(filters)}&from=search`;
+  const detailQuery = publicListingQueryString(filters, true);
 
   return <div className="mp-search-results">
     {results.map(({ ecosystem, result }) => <section key={ecosystem} aria-labelledby={`search-${ecosystem}`}>

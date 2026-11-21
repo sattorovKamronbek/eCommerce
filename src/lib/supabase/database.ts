@@ -1,5 +1,6 @@
 import type { OrderEvent, OrderRole, OrderStatus } from "@/lib/orders/model";
 import type { Cs2Category, Cs2Wear } from "@/lib/sellers/cs2";
+import type { FashionListingVersion, FashionSizeGuideRow } from "@/lib/sellers/fashion";
 
 export type Profile = { id: string; display_name: string; preferred_locale: "uz" | "ru" | "en"; created_at: string; updated_at: string };
 export type SellerApplication = {
@@ -13,9 +14,25 @@ export type SellerListing = {
   state: "draft" | "published" | "archived"; moderation_status: "allowed" | "blocked"; created_at: string; updated_at: string;
   cs2_group_id: string | null; cs2_category: Cs2Category | null; cs2_model: string | null;
   cs2_wear: Cs2Wear | null; cs2_images: string[]; cs2_group_primary: boolean;
+  fashion_product_id?: string | null; fashion_color_id?: string | null; fashion_size?: string | null;
+  fashion_price_override?: boolean | null;
 };
 export type PublicListing = Pick<SellerListing, "id" | "ecosystem" | "title" | "description" | "category" | "variant" | "price_tiyin" | "created_at" |
-  "cs2_category" | "cs2_model" | "cs2_wear" | "cs2_images"> & { available: boolean; cs2_group_key: string | null };
+  "cs2_category" | "cs2_model" | "cs2_wear" | "cs2_images" | "fashion_product_id" | "fashion_color_id" | "fashion_size"> & {
+  available: boolean; cs2_group_key: string | null;
+  fashion_color?: string | null; fashion_images?: string[] | null;
+  fashion_brand?: string | null; fashion_material?: string | null; fashion_fit?: string | null; fashion_care?: string | null;
+  fashion_size_guide?: FashionSizeGuideRow[] | null;
+};
+export type FashionProductDetails = {
+  title: string; description: string; category: string; brand: string; material: string; fit: string; care: string;
+  price_tiyin: number; state: "draft" | "published"; size_guide: FashionSizeGuideRow[];
+};
+export type FashionProduct = FashionProductDetails & { id: string; seller_id: string; updated_at: string };
+export type FashionColor = { id: string; product_id: string; name: string; images: string[] };
+export type FashionColorInput = Pick<FashionColor, "id" | "name" | "images"> & {
+  variants: { size: string; price_tiyin: number | null; quantity: number }[];
+};
 export type CheckoutTerms = {
   listing_id: string; revision: string; seller_phone: string; shipping_tiyin: number; cs2_asset_id: string | null;
 };
@@ -53,6 +70,8 @@ export type Database = {
       marketplace_checkout_terms: { Row: CheckoutTerms; Insert: never; Update: never; Relationships: [] };
       marketplace_orders: { Row: DirectOrder; Insert: never; Update: never; Relationships: [] };
       marketplace_order_events: { Row: DirectOrderEvent; Insert: never; Update: never; Relationships: [] };
+      marketplace_fashion_products: { Row: FashionProduct; Insert: never; Update: never; Relationships: [] };
+      marketplace_fashion_colors: { Row: FashionColor; Insert: never; Update: never; Relationships: [] };
       marketplace_profiles: {
         Row: Profile;
         Insert: { id: string; display_name?: string; preferred_locale?: "uz" | "ru" | "en"; created_at?: string; updated_at?: string };
@@ -86,6 +105,7 @@ export type Database = {
     };
     Views: {
       marketplace_public_listings: { Row: PublicListing; Relationships: [] };
+      marketplace_public_fashion_catalog: { Row: PublicListing; Relationships: [] };
       marketplace_checkout_offers: { Row: CheckoutOffer; Relationships: [] };
     };
     Functions: {
@@ -100,6 +120,17 @@ export type Database = {
       };
       marketplace_set_checkout_terms: {
         Args: { p_listing_id: string; p_seller_phone: string; p_shipping_tiyin: number; p_cs2_asset_id: string | null }; Returns: undefined;
+      };
+      marketplace_save_fashion_product: {
+        Args: { p_product_id: string; p_expected_updated_at: string | null; p_details: FashionProductDetails;
+          p_colors: FashionColorInput[]; p_versions: FashionListingVersion[] };
+        Returns: string;
+      };
+      marketplace_fashion_draft: {
+        Args: { p_product_id: string }; Returns: { product: FashionProduct; colors: FashionColor[]; listings: SellerListing[] } | null;
+      };
+      marketplace_set_fashion_checkout_terms: {
+        Args: { p_product_id: string; p_seller_phone: string; p_shipping_tiyin: number }; Returns: undefined;
       };
       marketplace_reserve_order: {
         Args: { p_id: string; p_listing_id: string; p_quote: string; p_quantity: number; p_delivery_name: string | null; p_delivery_phone: string | null; p_delivery_address: string | null };

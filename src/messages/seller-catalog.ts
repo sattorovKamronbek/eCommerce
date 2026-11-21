@@ -1,7 +1,7 @@
 const en = {
   products: "My listings", intro: "Manage your own CS2 and clothing listings.", newListing: "Add a listing", edit: "Edit", archive: "Archive", empty: "You have no listings yet.",
   requireApproval: "An administrator must verify your seller application before you can manage listings.", requireMfa: "Verify this session using two-step verification to manage your listings.", verify: "Two-step verification", apply: "Seller application",
-  ecosystem: "Marketplace", cs2: "CS2 skins", fashion: "Clothing", titleField: "Item title", description: "Description", category: "Category", variant: "Size / colour / variant", variantHint: "For clothing, create one listing for each stocked variant.",
+  ecosystem: "Marketplace", cs2: "CS2 skins", fashion: "Clothing", titleField: "Item title", description: "Description", category: "Category", variant: "Size / colour / variant", variantHint: "Enter the size, colour or other variant for this listing.",
   price: "Price in UZS", priceHint: "Use a dot for up to two decimal places.", quantity: "Quantity", state: "Listing state", draft: "Draft", published: "Published", archived: "Archived", blocked: "Restricted by administrator",
   changed: "The listing or available stock changed. Reload before saving your edits.",
   photo: "The photos could not be uploaded. Try saving again.",
@@ -15,7 +15,7 @@ const en = {
 const uz: typeof en = {
   products: "Mening e’lonlarim", intro: "O‘zingizning CS2 va kiyim e’lonlaringizni boshqaring.", newListing: "E’lon qo‘shish", edit: "Tahrirlash", archive: "Arxivlash", empty: "Hozircha e’lonlaringiz yo‘q.",
   requireApproval: "E’lonlarni boshqarishdan oldin admin seller arizangizni tekshirishi kerak.", requireMfa: "E’lonlarni boshqarish uchun bu seansni ikki bosqichli himoya bilan tasdiqlang.", verify: "Ikki bosqichli himoya", apply: "Seller arizasi",
-  ecosystem: "Yo‘nalish", cs2: "CS2 skinlar", fashion: "Kiyimlar", titleField: "Mahsulot nomi", description: "Tavsif", category: "Toifa", variant: "O‘lcham / rang / variant", variantHint: "Kiyimning har bir mavjud varianti uchun alohida e’lon yarating.",
+  ecosystem: "Yo‘nalish", cs2: "CS2 skinlar", fashion: "Kiyimlar", titleField: "Mahsulot nomi", description: "Tavsif", category: "Toifa", variant: "O‘lcham / rang / variant", variantHint: "Bu e’lon uchun o‘lcham, rang yoki boshqa variantni kiriting.",
   price: "Narx, so‘mda", priceHint: "Kasr uchun nuqtadan foydalaning; ko‘pi bilan ikki xona.", quantity: "Miqdor", state: "E’lon holati", draft: "Qoralama", published: "E’lon qilingan", archived: "Arxivlangan", blocked: "Admin tomonidan cheklangan",
   changed: "E’lon yoki mavjud zaxira o‘zgardi. Saqlashdan oldin sahifani yangilang.",
   photo: "Rasmlarni yuklab bo‘lmadi. Qayta saqlab ko‘ring.",
@@ -29,7 +29,7 @@ const uz: typeof en = {
 const ru: typeof en = {
   products: "Мои объявления", intro: "Управляйте своими объявлениями CS2 и одежды.", newListing: "Добавить объявление", edit: "Изменить", archive: "Архивировать", empty: "У вас пока нет объявлений.",
   requireApproval: "Прежде чем управлять объявлениями, дождитесь проверки заявки администратором.", requireMfa: "Для управления объявлениями подтвердите этот сеанс двухэтапной защитой.", verify: "Двухэтапная защита", apply: "Заявка продавца",
-  ecosystem: "Направление", cs2: "Скины CS2", fashion: "Одежда", titleField: "Название товара", description: "Описание", category: "Категория", variant: "Размер / цвет / вариант", variantHint: "Для одежды создавайте отдельное объявление для каждого варианта в наличии.",
+  ecosystem: "Направление", cs2: "Скины CS2", fashion: "Одежда", titleField: "Название товара", description: "Описание", category: "Категория", variant: "Размер / цвет / вариант", variantHint: "Укажите размер, цвет или другой вариант для этого объявления.",
   price: "Цена в сумах", priceHint: "Используйте точку и не более двух знаков после неё.", quantity: "Количество", state: "Статус объявления", draft: "Черновик", published: "Опубликовано", archived: "В архиве", blocked: "Ограничено администратором",
   changed: "Объявление или остаток изменились. Обновите страницу перед сохранением.",
   photo: "Не удалось загрузить фотографии. Повторите сохранение.",
