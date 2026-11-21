@@ -1,5 +1,42 @@
 # Project progress
 
+## Marketplace responsiveness — 2026-11-21
+
+The deployed catalog and search took about 1–2 seconds on the initial normal
+read-only check. A local production build connected to a controlled provider
+reproduced the reported freeze. A temporary Supabase 503 with a three-second
+Retry-After header triggered four attempts and kept the previous screen visible
+for about 10 seconds. Search submission also reloaded the whole document.
+
+Catalog and search now stream results under a localized loading status. Search
+and catalog filters navigate within the app. Listing details show while
+reservation availability loads. Public reads use one attempt and a four-second
+timeout per request. The account security page reuses factors from the account
+already verified by Supabase.
+
+The production response showed Vercel compute in Washington (`iad1`). The
+dedicated Supabase database hostname resolved to the AWS Sydney region
+(`ap-southeast-2`). The next Vercel deployment is configured for Sydney
+(`syd1`). Its production latency remains to be measured after deployment.
+[Vercel regions](https://vercel.com/docs/regions)
+
+On the same controlled 503, desktop and mobile Chromium reached the error state
+in 0.5–1.4 seconds. Search updated the URL in 0.15–0.17 seconds with zero document
+reloads. A deliberately unresponsive provider surfaced the error in 4.4 seconds.
+The search status appeared during the wait, navigation away was usable, and a
+missing public listing retained HTTP 404. The successful fixture path loaded the
+listing, reservation link and back-to-search link. Browser plugin unavailable;
+Playwright used. Timing logs are in `/tmp/versax-browser-{before,after,deadline}.log`.
+The live production requests were read-only. No site deployment or database
+change was performed.
+
+Strict TypeScript, production build and all 156 Vitest tests in 40 files passed.
+ESLint reported four existing unused-parameter warnings and no errors.
+All 84 Playwright scenarios passed across desktop, tablet and mobile Chromium,
+including catalog navigation, search without a document reload, account access,
+cart and accessibility. The final run took 5.9 minutes. Logs are in
+`/tmp/versax-perf-{typecheck,lint,unit,build,e2e}.log`.
+
 ## Backup sign-in options — 2026-11-21
 
 The owner selected a backup authenticator, one-time backup codes and SMS
@@ -41,6 +78,10 @@ Anonymous Data API requests for identity requests and account access events
 returned HTTP 401 with code `42501`. The public listing view returned HTTP 200.
 The owner role was unassigned at migration time. See the production owner
 activation above for the subsequent role grant.
+
+On recheck, all eight repository migration versions matched the dedicated
+production migration history. The Supabase CLI dry run reported that the
+database was up to date.
 
 ## Owner dashboard and targeted identity verification — 2026-11-21
 

@@ -11,7 +11,8 @@ export async function loadPublicListings(
 ): Promise<PublicListingResults> {
   const start = (filters.page - 1) * size;
   try {
-    let query = client.from("marketplace_public_listings").select("*").eq("ecosystem", ecosystem);
+    // A retry with provider backoff keeps the visitor waiting on the same view.
+    let query = client.from("marketplace_public_listings").select("*").eq("ecosystem", ecosystem).retry(false);
     if (filters.q) query = query.regexIMatch("title", literalNamePattern(filters.q));
     if (filters.sort === "price-asc") query = query.order("price_tiyin", { ascending: true });
     if (filters.sort === "price-desc") query = query.order("price_tiyin", { ascending: false });

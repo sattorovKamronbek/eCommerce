@@ -1,3 +1,4 @@
+import Form from "next/form";
 import Link from "next/link";
 import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -11,7 +12,7 @@ export function ListingFilters({ action, filters, locale }: {
   locale: MarketplaceLocale;
 }) {
   const copy = listingDictionaries[locale];
-  return <form key={`${filters.q}:${filters.sort}`} action={action} className="real-filters" method="get" role="search" autoComplete="off">
+  return <Form key={`${filters.q}:${filters.sort}`} action={action} className="real-filters" role="search" autoComplete="off">
     <label>{copy.search}<input name="q" type="search" maxLength={80} defaultValue={filters.q} /></label>
     <label>{copy.sort}<select name="sort" defaultValue={filters.sort}>
       <option value="recent">{copy.recent}</option>
@@ -20,5 +21,5 @@ export function ListingFilters({ action, filters, locale }: {
     </select></label>
     <Button type="submit"><Search aria-hidden="true" />{copy.searchButton}</Button>
     {(filters.q || filters.sort !== "recent") && <Link className="mp-text-link real-clear" href={action}>{marketplaceDictionaries[locale].reset}</Link>}
-  </form>;
+  </Form>;
 }

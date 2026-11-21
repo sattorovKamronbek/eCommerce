@@ -1,7 +1,11 @@
 import type { PublicListingResults } from "@/lib/sellers/public-catalog";
-import type { MarketplaceLocale } from "@/messages/marketplace";
+import { marketplaceDictionaries, type MarketplaceLocale } from "@/messages/marketplace";
 import { listingDictionaries } from "@/messages/seller-catalog";
 import { PublicListingCard } from "./public-listing-card";
+
+export function ListingResultsLoading({ locale }: { locale: MarketplaceLocale }) {
+  return <p className="mp-feed-status" role="status">{marketplaceDictionaries[locale].loading}</p>;
+}
 
 export function ListingResults({ result, locale, heading, detailQuery }: {
   result: PublicListingResults;

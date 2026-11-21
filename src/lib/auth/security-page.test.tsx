@@ -13,13 +13,16 @@ vi.mock("@/app/(marketplace)/[locale]/account/actions", () => ({ logoutAction: v
 vi.mock("@/app/(marketplace)/[locale]/account/security/actions", () => ({ beginMfaSetup: vi.fn(), removeUnverifiedMfa: vi.fn(), verifyMfaCode: vi.fn() }));
 import AccountSecurity from "@/app/(marketplace)/[locale]/account/security/page";
 
-it("keeps sign-out available before MFA step-up, even when factor lookup fails", async () => {
+it("uses the verified account factors and keeps sign-out available if assurance lookup fails", async () => {
   const mfa = { listFactors: vi.fn(), getAuthenticatorAssuranceLevel: vi.fn() };
-  mock.account.mockResolvedValue({ client: { auth: { mfa } } });
-  mfa.listFactors.mockResolvedValue({ data: { all: [] }, error: null });
+  mock.account.mockResolvedValue({ user: { factors: [] }, client: { auth: { mfa } } });
+  mfa.listFactors.mockResolvedValue({ data: null, error: { message: "offline" } });
   mfa.getAuthenticatorAssuranceLevel.mockResolvedValue({ data: { currentLevel: "aal1" }, error: null });
   const props = { params: Promise.resolve({ locale: "en" }), searchParams: Promise.resolve({}) };
-  expect(renderToStaticMarkup(await AccountSecurity(props))).toContain("Sign out");
-  mfa.listFactors.mockResolvedValue({ data: null, error: { message: "offline" } });
-  expect(renderToStaticMarkup(await AccountSecurity(props))).toContain("Sign out");
+  expect(renderToStaticMarkup(await AccountSecurity(props))).toContain("MFA challenge");
+  expect(mfa.listFactors).not.toHaveBeenCalled();
+  mfa.getAuthenticatorAssuranceLevel.mockResolvedValue({ data: null, error: { message: "offline" } });
+  const unavailable = renderToStaticMarkup(await AccountSecurity(props));
+  expect(unavailable).toContain("Unavailable");
+  expect(unavailable).toContain("Sign out");
 });

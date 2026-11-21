@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { EditorialArt, EditorialHeading, EditorialLink } from "@/components/marketplace/editorial";
-import { ListingResults } from "@/components/marketplace/listing-results";
+import { ListingResults, ListingResultsLoading } from "@/components/marketplace/listing-results";
 import { loadPublicListings, type PublicListingResults } from "@/lib/sellers/public-catalog";
 import type { ListingEcosystem } from "@/lib/sellers/public-query";
 import { createPublicSupabaseClient } from "@/lib/supabase/public";
@@ -96,7 +96,7 @@ export default async function MarketplaceHome({ params }: { params: Promise<{ lo
 
     <section className="mp-arrivals" aria-labelledby="new-arrivals">
       <EditorialHeading id="new-arrivals">{editorial.arrivals}</EditorialHeading>
-      <Suspense fallback={<p className="mp-feed-status">{copy.loading}</p>}><NewArrivals locale={locale} /></Suspense>
+      <Suspense fallback={<ListingResultsLoading locale={locale} />}><NewArrivals locale={locale} /></Suspense>
     </section>
 
     <section className="mp-home-about" aria-labelledby="marketplace-how">

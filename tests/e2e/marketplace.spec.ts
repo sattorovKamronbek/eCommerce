@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Request } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { editorialDictionaries } from "../../src/messages/editorial";
 import { marketplaceDictionaries } from "../../src/messages/marketplace";
@@ -207,10 +207,17 @@ test("editorial entry links search and the sample cart without conflating them",
   await page.locator("header").getByRole("link", { name: "Search listings", exact: true }).click();
   await expect(page).toHaveURL(/\/en\/search$/);
   await page.getByRole("searchbox", { name: "Search listings", exact: true }).fill("winter coat");
+  const documentRequests: string[] = [];
+  const trackDocument = (request: Request) => {
+    if (request.isNavigationRequest() && request.frame() === page.mainFrame()) documentRequests.push(request.url());
+  };
+  page.on("request", trackDocument);
   await page.getByRole("button", { name: "Search", exact: true }).click();
   await expect(page).toHaveURL(/\/en\/search\?q=winter\+coat/);
   await expect(page.getByRole("region", { name: "Clothing", exact: true })).toBeVisible();
   await expect(page.getByRole("region", { name: "CS2 skins", exact: true })).toBeVisible();
+  page.off("request", trackDocument);
+  expect(documentRequests).toEqual([]);
   await page.getByRole("link", { name: "Русский", exact: true }).click();
   await expect(page).toHaveURL(/\/ru\/search\?q=winter\+coat/);
   await page.locator("footer").getByRole("link", { name: "Демонстрационная корзина", exact: true }).click();
