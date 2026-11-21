@@ -1,0 +1,63 @@
+@import "@fontsource-variable/oswald";
+
+:root {
+  --editorial-display: "Oswald Variable", "Arial Narrow", sans-serif;
+  --editorial-ink: #141414;
+  --editorial-paper: #fff;
+  --editorial-ash: #555;
+  --editorial-fog: #f3f3f1;
+  --editorial-brick: #a32c22;
+  --editorial-dark: #141414;
+  --editorial-measure: 90rem;
+  --editorial-gutter: clamp(1.125rem, 4vw, 3.75rem);
+  --editorial-gap: clamp(1rem, 2vw, 1.75rem);
+  --editorial-section: clamp(2.75rem, 5.6vw, 5.25rem);
+  --editorial-title: clamp(2.5rem, 5vw, 5.25rem);
+  --editorial-label: 0.105em;
+}
+
+.mp, body:has(.storefront-commerce) {
+  --editorial-rule: 1px solid var(--foreground);
+  --editorial-divider: 1px solid var(--border);
+  --secondary: var(--muted);
+  --secondary-foreground: var(--foreground);
+  --popover: var(--card);
+  --popover-foreground: var(--foreground);
+  --surface: var(--muted);
+  --background: var(--editorial-paper);
+  --foreground: var(--editorial-ink);
+  --card: var(--editorial-paper);
+  --card-foreground: var(--editorial-ink);
+  --muted: var(--editorial-fog);
+  --muted-foreground: var(--editorial-ash);
+  --border: #c8c8c6;
+  --input: #777;
+  --primary: var(--editorial-ink);
+  --primary-foreground: var(--editorial-paper);
+  --accent: #ebebe9;
+  --accent-foreground: var(--editorial-ink);
+  --editorial-mark: var(--editorial-brick);
+  --destructive: var(--editorial-brick);
+  --ring: #9c281e;
+  --radius: 0;
+  color-scheme: light;
+}
+
+.dark .mp, .mp[data-world="cs2"][data-preference="system"], .dark body:has(.storefront-commerce) {
+  --background: var(--editorial-dark);
+  --foreground: #f8f8f6;
+  --card: #202020;
+  --card-foreground: #f8f8f6;
+  --muted: #252525;
+  --muted-foreground: #c2c2c0;
+  --border: #575755;
+  --input: #8c8c8a;
+  --primary: #f8f8f6;
+  --primary-foreground: var(--editorial-dark);
+  --accent: #303030;
+  --accent-foreground: #f8f8f6;
+  --editorial-mark: #f3a298;
+  --destructive: #f3a298;
+  --ring: #f3a298;
+  color-scheme: dark;
+}

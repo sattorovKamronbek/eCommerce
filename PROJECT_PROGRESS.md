@@ -1,5 +1,52 @@
 # Project progress
 
+## ORO editorial marketplace redesign — 2026-11-21
+
+The localized homepage now uses an original ORO masthead, a featured outerwear
+collection, CS2 and collection stories, a curated picks rail, and two new
+arrivals feeds from the public seller views. The same rules, spacing and locally
+bundled Oswald and DM Sans type carry through the seller catalogs, sample
+catalogs, product pages, account entry, workspace, reservation checkout and
+sample cart. The three-column home spread reflows to two feature columns with a
+separate picks row on tablet and a single reading order on mobile.
+
+The localized search page queries both seller catalogs with the existing literal
+title search and sort behavior. Category result links preserve the query,
+pagination and return route. Product details expose the existing price,
+seller-reported availability and reservation eligibility. Account actions,
+Supabase schema, roles, checkout contracts and browser cart persistence were
+preserved. The active marketplace links to the labeled sample catalog and cart.
+The previously retired storefront homepage retains its HTTP 404 behavior.
+
+The attached screenshot was unavailable. Compared the production captures with
+the live homepage reference for the slim announcement strip, condensed display
+type, ruled columns and sidebar hierarchy. ORO leads with its own original
+fashion photograph and commerce navigation. [WIRED homepage](https://www.wired.com/)
+
+Read-only verification on project `xevzbtivteugbqbmmtyz` returned HTTP 200 and
+zero published listings available to the anonymous catalog. The existing
+listing view supplies no seller images. The front page uses editorial picks
+without a popularity ranking, and seller listing cards render the supplied
+text and price. A local read-only fixture verified populated arrivals, search,
+price sorting, expanding category results, stock states, product details,
+reservation-link eligibility and return paths. Live authenticated checkout,
+account updates and deployment were outside this verification.
+
+The final production build completed with 99 generated pages. TypeScript and
+ESLint passed, with four pre-existing unused-parameter warnings in account
+security and seller actions. Vitest passed all 148 tests in 38 files with one
+worker. Playwright ran 81 passing Chromium cases across desktop, tablet and
+mobile, including keyboard navigation, axe accessibility audits, auth redirects
+and cart persistence. The Browser plugin was unavailable, so the tests ran with
+the repo's Playwright runner. Production screenshots were reviewed at 1440,
+834 and 390 CSS pixels, plus a 740-pixel Russian dark-mode landscape viewport
+with reduced motion. The 750-pixel cover image returned a 27,266-byte WebP.
+Screenshots and test output are in `/tmp/oro-editorial-qa/`.
+
+The implementation plan and asset provenance are in the
+[editorial redesign plan](docs/superpowers/plans/2026-11-21-oro-editorial-marketplace.md)
+and [image sources](docs/ASSETS.md).
+
 ## Production Supabase migrations — 2026-11-21
 
 Applied the six pending repository migrations to the dedicated eCommerce

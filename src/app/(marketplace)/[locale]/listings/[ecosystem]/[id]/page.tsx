@@ -1,32 +1,58 @@
 import Link from "next/link";
-import { isUuid } from "@/lib/uuid";
+import { ArrowLeft } from "lucide-react";
 import { notFound } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { formatTiyin } from "@/lib/orders/model";
+import { parsePublicListingQuery, publicListingHref, publicListingQueryString } from "@/lib/sellers/public-query";
 import { createPublicSupabaseClient } from "@/lib/supabase/public";
-import { isMarketplaceLocale } from "@/messages/marketplace";
+import { isUuid } from "@/lib/uuid";
+import { editorialDictionaries } from "@/messages/editorial";
+import { isMarketplaceLocale, marketplaceDictionaries } from "@/messages/marketplace";
 import { orderDictionaries } from "@/messages/orders";
 import { listingDictionaries } from "@/messages/seller-catalog";
 
-export default async function PublicListing({ params }: { params: Promise<{ locale: string; ecosystem: string; id: string }> }) {
-  const { locale, ecosystem, id } = await params;
+export default async function PublicListing({ params, searchParams }: {
+  params: Promise<{ locale: string; ecosystem: string; id: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const [{ locale, ecosystem, id }, query] = await Promise.all([params, searchParams]);
   if (!isMarketplaceLocale(locale) || (ecosystem !== "cs2" && ecosystem !== "fashion") || !isUuid(id)) notFound();
+
   const copy = listingDictionaries[locale];
+  const editorial = editorialDictionaries[locale];
   const client = createPublicSupabaseClient();
   const result = client ? await client.from("marketplace_public_listings").select("*").eq("id", id).eq("ecosystem", ecosystem).maybeSingle() : null;
-  if (!result || result.error) return <section className="mp-catalog"><p role="alert">{copy.catalogUnavailable}</p></section>;
+  if (!result || result.error) return <div className="mp-catalog"><p className="mp-feed-status" role="alert">{copy.catalogUnavailable}</p></div>;
   if (!result.data) notFound();
+
   const item = result.data;
   const orders = orderDictionaries[locale];
+  const filters = parsePublicListingQuery(query);
+  const fromSearch = query.from === "search";
+  const back = fromSearch ? `/${locale}/search${publicListingQueryString(filters)}` : publicListingHref(locale, ecosystem, filters);
   const offer = item.available && client ? await client.from("marketplace_checkout_offers").select("listing_id")
     .eq("listing_id", item.id).maybeSingle() : null;
-  return <section className="mp-catalog real-catalog"><Link className="mp-text-link" href={`/${locale}/listings/${ecosystem}`}>{copy.back}</Link>
-    <h1>{item.title}</h1><p className="real-description">{item.description}</p>
-    <p>{formatTiyin(item.price_tiyin, locale)}</p>
-    {item.category ? <p>{copy.category}: {item.category}</p> : null}{item.variant ? <p>{copy.variant}: {item.variant}</p> : null}
-    <p>{item.available ? copy.available : copy.outOfStock}</p>
-    {ecosystem === "cs2" ? <p>{copy.unverifiedCs2}</p> : null}
-    {offer?.data ? <div><Button asChild><Link href={`/${locale}/account/checkout/${ecosystem}/${id}`}>{orders.checkout}</Link></Button></div>
-      : <p>{orders.offerUnavailable}</p>}
-  </section>;
+
+  return <div className="mp-catalog real-detail">
+    <Link className="mp-text-link mp-back" href={back}><ArrowLeft aria-hidden="true" />{fromSearch ? editorial.backToSearch : copy.back}</Link>
+    <div className="real-detail-grid">
+      <div className="mp-page-heading">
+        <p className="mp-kicker">{marketplaceDictionaries[locale][ecosystem]}</p>
+        <h1>{item.title}</h1>
+        <p className="real-description">{item.description}</p>
+        {ecosystem === "cs2" && <p>{copy.unverifiedCs2}</p>}
+      </div>
+      <section className="real-offer" aria-labelledby="listing-facts">
+        <h2 id="listing-facts" className="mp-imprint">{editorial.listingFacts}</h2>
+        <p className="mp-price">{formatTiyin(item.price_tiyin, locale)}</p>
+        <p className="mp-availability" data-available={item.available}>{item.available ? copy.available : copy.outOfStock}</p>
+        {(item.category || item.variant) && <dl>
+          {item.category && <div><dt>{copy.category}</dt><dd>{item.category}</dd></div>}
+          {item.variant && <div><dt>{copy.variant}</dt><dd>{item.variant}</dd></div>}
+        </dl>}
+        {offer?.data ? <Button asChild size="lg"><Link href={`/${locale}/account/checkout/${ecosystem}/${id}`}>{orders.checkout}</Link></Button>
+          : <p className="mp-muted">{orders.offerUnavailable}</p>}
+      </section>
+    </div>
+  </div>;
 }

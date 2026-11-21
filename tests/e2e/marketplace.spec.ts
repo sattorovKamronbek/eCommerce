@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
+import { editorialDictionaries } from "../../src/messages/editorial";
 import { marketplaceDictionaries } from "../../src/messages/marketplace";
 
 function contrastRatio(foreground: string, background: string) {
@@ -112,7 +113,7 @@ test("marketplace entry, both destinations, languages and theme preference", asy
   await expect(page).toHaveURL(/\/uz\/marketplace$/);
   await expect(page.locator("html")).toHaveAttribute("lang", "uz");
   await page.getByRole("link", { name: "English", exact: true }).click();
-  await expect(page.getByRole("heading", { level: 1 })).toContainText("Your next look.");
+  await expect(page.getByRole("heading", { level: 1 })).toContainText(editorialDictionaries.en.outerwear);
   await page.getByRole("combobox", { name: "Theme", exact: true }).selectOption("dark");
   await expect(page.locator("html")).toHaveClass(/dark/);
   await page.reload();
@@ -124,7 +125,7 @@ test("marketplace entry, both destinations, languages and theme preference", asy
   await expect(page.locator("html")).toHaveClass(/light/);
   await page.getByRole("link", { name: "Explore skins", exact: true }).click();
   await expect(page.locator(".mp")).toHaveAttribute("data-world", "cs2");
-  await expect(page.locator(".mp")).toHaveCSS("background-color", "rgb(17, 21, 26)");
+  await expect(page.locator(".mp")).toHaveCSS("background-color", "rgb(20, 20, 20)");
   await page.getByRole("navigation", { name: "Main navigation" }).getByRole("link", { name: "Clothing", exact: true }).click();
   await expect(page).toHaveURL(/\/en\/listings\/fashion$/);
   await expect(page.locator("h1")).toContainText("Clothing");
@@ -186,7 +187,7 @@ for (const locale of ["uz", "ru", "en"] as const) {
       await page.goto(`/${locale}/marketplace${section}`);
       await expect(page).toHaveTitle(/ORO/);
       await expect(page.locator("html")).toHaveAttribute("lang", locale);
-      await expect(page.locator("h1")).toContainText(section === "" ? copy.titleLine1 : section === "/cs2" ? copy.cs2 : copy.fashion);
+      await expect(page.locator("h1")).toContainText(section === "" ? editorialDictionaries[locale].outerwear : section === "/cs2" ? copy.cs2 : copy.fashion);
       await page.evaluate(async () => {
         for (const image of Array.from(document.images)) image.loading = "eager";
         await Promise.all(Array.from(document.images).map((image) => image.decode()));
@@ -199,3 +200,19 @@ for (const locale of ["uz", "ru", "en"] as const) {
     expect(errors).toEqual([]);
   });
 }
+
+test("editorial entry links search and the sample cart without conflating them", async ({ page }) => {
+  await page.goto("/en/marketplace");
+  await expect(page.getByRole("heading", { name: "New arrivals", exact: true })).toBeVisible();
+  await page.locator("header").getByRole("link", { name: "Search listings", exact: true }).click();
+  await expect(page).toHaveURL(/\/en\/search$/);
+  await page.getByRole("searchbox", { name: "Search listings", exact: true }).fill("winter coat");
+  await page.getByRole("button", { name: "Search", exact: true }).click();
+  await expect(page).toHaveURL(/\/en\/search\?q=winter\+coat/);
+  await expect(page.getByRole("region", { name: "Clothing", exact: true })).toBeVisible();
+  await expect(page.getByRole("region", { name: "CS2 skins", exact: true })).toBeVisible();
+  await page.getByRole("link", { name: "Русский", exact: true }).click();
+  await expect(page).toHaveURL(/\/ru\/search\?q=winter\+coat/);
+  await page.locator("footer").getByRole("link", { name: "Демонстрационная корзина", exact: true }).click();
+  await expect(page).toHaveURL(/\/savat$/);
+});

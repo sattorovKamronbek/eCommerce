@@ -12,21 +12,20 @@ export async function accountLocale(params: Promise<{ locale: string }>): Promis
   return locale;
 }
 export function AccountShell({ locale, title, intro, children, presentation = "compact" }: {
-  locale: MarketplaceLocale; title: string; intro?: string; children?: React.ReactNode; presentation?: "compact" | "entry";
+  locale: MarketplaceLocale; title: string; intro?: string; children?: React.ReactNode; presentation?: "compact" | "entry" | "checkout";
 }) {
   const copy = accountDictionaries[locale];
   const panel = <div className="account-panel">
     <div className="account-heading"><h1>{title}</h1>{intro ? <p>{intro}</p> : null}</div>
     {children}
   </div>;
-  return <section className={`account-shell${presentation === "entry" ? " account-entry" : ""}`}>
+  return <section className={`account-shell account-${presentation}`}>
     <Link className="mp-text-link" href={`/${locale}/marketplace`}><ArrowLeft aria-hidden="true" />{copy.back}</Link>
     {presentation === "entry" ? <div className="account-entry-grid">
       <aside className="account-brand">
         <div><p className="account-brand-title">{copy.brandTitle}</p><p>{copy.brandIntro}</p></div>
-        <div className="account-brand-images" aria-hidden="true">
-          <div><Image src="/images/marketplace/rifle.png" alt="" fill sizes="(min-width: 900px) 480px, 1px" /></div>
-          <div><Image src="/images/marketplace/overshirt.png" alt="" fill sizes="(min-width: 900px) 480px, 1px" /></div>
+        <div className="account-brand-image">
+          <Image src="/images/marketplace/editorial-outerwear.webp" alt="" fill sizes="(min-width: 1150px) 500px, (min-width: 801px) 42vw, 1px" />
         </div>
         <p className="account-brand-caption">{copy.illustrations}</p>
       </aside>

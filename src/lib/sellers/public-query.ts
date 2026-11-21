@@ -10,10 +10,14 @@ export function parsePublicListingQuery(input: Record<string, string | string[] 
   return { q, page: parseAdminPage(input.page), sort };
 }
 
-export function publicListingHref(locale: MarketplaceLocale, ecosystem: ListingEcosystem, filters: PublicListingQuery): string {
+export function publicListingQueryString(filters: PublicListingQuery): string {
   const query = new URLSearchParams();
   if (filters.q) query.set("q", filters.q);
   if (filters.sort !== "recent") query.set("sort", filters.sort);
   if (filters.page > 1) query.set("page", String(filters.page));
-  return `/${locale}/listings/${ecosystem}${query.size ? `?${query}` : ""}`;
+  return query.size ? `?${query}` : "";
+}
+
+export function publicListingHref(locale: MarketplaceLocale, ecosystem: ListingEcosystem, filters: PublicListingQuery): string {
+  return `/${locale}/listings/${ecosystem}${publicListingQueryString(filters)}`;
 }

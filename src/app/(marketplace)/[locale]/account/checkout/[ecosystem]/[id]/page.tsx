@@ -24,24 +24,26 @@ export default async function Checkout({ params }: { params: Promise<{ locale: s
     <Link className="mp-text-link" href={`/${locale}/listings/${ecosystem}/${id}`}>{listingDictionaries[locale].back}</Link>
   </AccountShell>;
 
-  return <AccountShell locale={locale} title={copy.checkout} intro={copy.checkoutIntro}>
-    <section className="order-summary">
-      <h2>{offer.title}</h2>
-      <p className="real-description">{offer.description}</p>
-      {offer.category || offer.variant ? <p>{[offer.category, offer.variant].filter(Boolean).join(" · ")}</p> : null}
-      <dl className="order-facts">
-        <div><dt>{copy.unitPrice}</dt><dd>{formatTiyin(offer.price_tiyin, locale)}</dd></div>
-        {ecosystem === "fashion" ? <div><dt>{copy.shipping}</dt><dd>{formatTiyin(offer.shipping_tiyin, locale)}</dd></div> : null}
-      </dl>
-    </section>
-    <ActionForm action={reserveOrder.bind(null, locale, ecosystem, id, randomUUID(), offer.quote)}
-      label={copy.checkout} errors={copy.feedback} pendingLabel={copy.pending}>
-      {ecosystem === "fashion" ? <>
-        <label>{copy.quantity}<input name="quantity" required type="number" min="1" max="1000000" defaultValue="1" /></label>
-        <label>{copy.name}<input name="name" required autoComplete="shipping name" maxLength={120} /></label>
-        <label>{copy.phone}<input name="phone" required type="tel" autoComplete="shipping tel" placeholder="+998901234567" maxLength={16} /></label>
-        <label>{copy.address}<input name="address" required autoComplete="shipping street-address" minLength={5} maxLength={500} /></label>
-      </> : null}
-    </ActionForm>
+  return <AccountShell locale={locale} title={copy.checkout} intro={copy.checkoutIntro} presentation="checkout">
+    <div className="checkout-spread">
+      <section className="order-summary" aria-labelledby="checkout-listing">
+        <h2 id="checkout-listing">{offer.title}</h2>
+        <p className="real-description">{offer.description}</p>
+        {offer.category || offer.variant ? <p>{[offer.category, offer.variant].filter(Boolean).join(" · ")}</p> : null}
+        <dl className="order-facts">
+          <div><dt>{copy.unitPrice}</dt><dd>{formatTiyin(offer.price_tiyin, locale)}</dd></div>
+          {ecosystem === "fashion" ? <div><dt>{copy.shipping}</dt><dd>{formatTiyin(offer.shipping_tiyin, locale)}</dd></div> : null}
+        </dl>
+      </section>
+      <ActionForm action={reserveOrder.bind(null, locale, ecosystem, id, randomUUID(), offer.quote)}
+        label={copy.checkout} errors={copy.feedback} pendingLabel={copy.pending}>
+        {ecosystem === "fashion" ? <>
+          <label>{copy.quantity}<input name="quantity" required type="number" min="1" max="1000000" defaultValue="1" /></label>
+          <label>{copy.name}<input name="name" required autoComplete="shipping name" maxLength={120} /></label>
+          <label>{copy.phone}<input name="phone" required type="tel" autoComplete="shipping tel" placeholder="+998901234567" maxLength={16} /></label>
+          <label>{copy.address}<input name="address" required autoComplete="shipping street-address" minLength={5} maxLength={500} /></label>
+        </> : null}
+      </ActionForm>
+    </div>
   </AccountShell>;
 }

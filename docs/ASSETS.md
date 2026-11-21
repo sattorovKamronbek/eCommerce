@@ -27,3 +27,15 @@ Built-in imagegen created four standalone illustrations in `public/images/market
 
 Design references and prompt descriptions: [marketplace design specification](design/marketplace/DESIGN.md), `docs/design/marketplace/home-concept.png`, `docs/design/marketplace/cs2-concept.png`. Production media are copied into the repository, not loaded from the generator's private path.
 
+
+## ORO editorial outerwear photograph
+
+The built-in image generator created the original cover image in
+`public/images/marketplace/editorial-outerwear.webp`, also shown beside account
+entry forms. The prompt asked for a landscape fashion editorial portrait of a
+Central Asian model in an oversized, unbranded technical coat against concrete
+architecture, with warm monochrome tones and analog grain. The image illustrates
+the collection theme. Seller inventory uses the listing records supplied by the
+catalog. The generated PNG was resized and encoded as WebP for the application.
+
+Display type uses the locally bundled [Oswald variable font license](licenses/Oswald-OFL.txt).

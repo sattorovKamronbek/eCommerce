@@ -1,0 +1,52 @@
+.storefront-commerce {
+  background: var(--background);
+  color: var(--foreground);
+}
+.storefront-commerce .page-section {
+  max-width: var(--editorial-measure);
+  margin-inline: auto;
+  padding: var(--editorial-gutter);
+}
+.storefront-commerce .page-heading {
+  border-block: var(--editorial-rule);
+  padding-block: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+.storefront-commerce h1, .storefront-commerce h2 {
+  font-family: var(--editorial-display);
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+.storefront-commerce h1 { font-size: var(--editorial-title); line-height: 1.08; }
+.storefront-commerce .eyebrow { color: var(--editorial-mark); }
+.storefront-commerce .cart-content { gap: var(--editorial-gap); }
+.storefront-commerce .cart-row { padding-block: 1rem; }
+.storefront-commerce .cart-row a { font-size: 1.0625rem; font-weight: 700; }
+.storefront-commerce .cart-row p { font-size: 0.875rem; }
+.storefront-commerce .cart-row > img { object-fit: cover; }
+.storefront-commerce .cart-row > div { min-width: 0; }
+.storefront-commerce .quantity button, .storefront-commerce .cart-row > button { width: 2.75rem; height: 2.75rem; flex: none; }
+.storefront-commerce .quantity span { font-size: 0.875rem; font-variant-numeric: tabular-nums; }
+.storefront-commerce .cart-summary { border: var(--editorial-rule); background: var(--background); }
+.storefront-commerce .cart-summary > div { font-size: 1rem; flex-wrap: wrap; }
+.storefront-commerce .cart-summary strong { font-variant-numeric: tabular-nums; }
+.storefront-commerce .cart-summary > p { font-size: 0.875rem; }
+.storefront-commerce .cart-summary [data-slot="button"] { min-height: 2.75rem; }
+.storefront-commerce .info-page { width: min(100%, 48rem); margin-inline: auto; }
+.storefront-commerce .info-page h1 { padding-bottom: 1rem; border-bottom: var(--editorial-rule); }
+@media (max-width: 420px) {
+  .storefront-commerce .cart-row { gap: 0.625rem; }
+  .storefront-commerce .cart-row > img { width: 3.5rem; height: 4.5rem; }
+}
+
+body:has(.storefront-commerce) {
+  --font-display: var(--editorial-display);
+}
+body:has(.storefront-commerce) > .announcement {
+  background: var(--editorial-ink);
+  color: var(--editorial-paper);
+}
+body:has(.storefront-commerce) .header { border-bottom: var(--editorial-rule); }
+body:has(.storefront-commerce) .wordmark { font-weight: 700; }
+body:has(.storefront-commerce) .footer { border-top: var(--editorial-rule); }
+body:has(.storefront-commerce) .footer h2 { font-weight: 600; }

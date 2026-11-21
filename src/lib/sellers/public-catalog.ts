@@ -4,8 +4,11 @@ import type { Database, PublicListing } from "@/lib/supabase/database";
 import { literalNamePattern } from "@/lib/auth/admin-users";
 import type { ListingEcosystem, PublicListingQuery } from "./public-query";
 
-export async function loadPublicListings(client: SupabaseClient<Database>, ecosystem: ListingEcosystem, filters: PublicListingQuery): Promise<{ rows: PublicListing[]; hasNext: boolean; error: boolean }> {
-  const size = 20;
+export type PublicListingResults = { rows: PublicListing[]; hasNext: boolean; error: boolean };
+
+export async function loadPublicListings(
+  client: SupabaseClient<Database>, ecosystem: ListingEcosystem, filters: PublicListingQuery, size = 20,
+): Promise<PublicListingResults> {
   const start = (filters.page - 1) * size;
   try {
     let query = client.from("marketplace_public_listings").select("*").eq("ecosystem", ecosystem);
