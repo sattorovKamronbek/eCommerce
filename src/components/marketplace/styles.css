@@ -172,7 +172,7 @@
 .mp-home-about-note { max-width: 85ch; margin-top: 1.25rem; }
 .mp-feed-status { padding-block: 1.125rem; border-top: var(--editorial-divider); }
 
-.mp-footer { background: var(--brand-plate); color: var(--editorial-paper); }
+.mp-footer { --brand-logo-filter: none; background: var(--brand-plate); color: var(--editorial-paper); }
 .mp-footer-inner {
   display: grid;
   grid-template-columns: minmax(0, 2fr) repeat(2, minmax(0, 1fr));

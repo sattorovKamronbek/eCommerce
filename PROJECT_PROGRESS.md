@@ -1,5 +1,30 @@
 # Project progress
 
+## VERSAX account deployment and transparent logo — 2026-11-21
+
+The deployed VERSAX login and registration routes showed the unavailable-account
+page. The production configuration now defaults to the dedicated Supabase project
+`xevzbtivteugbqbmmtyz` and `https://versax-six.vercel.app` when Vercel identifies
+that production deployment. Explicit environment settings take precedence.
+[Setup and environment overrides](docs/ACCOUNTS_SETUP.md)
+
+The desktop lockup and compact wordmark now have transparent backgrounds.
+The shared logo styles use dark ink on light surfaces and cream and lime on
+dark surfaces, including the marketplace footer and the CS2 system theme.
+The original artwork provided the lettering and monogram.
+
+Strict TypeScript, the production build and all 150 Vitest tests passed.
+ESLint completed with four existing unused-parameter warnings. All 27 targeted
+Playwright checks passed across desktop, tablet and mobile Chromium. Reviewed
+the desktop and mobile mastheads in both themes. On a local
+production build with only the Vercel deployment identifiers set, Chromium
+registered a test account against the dedicated Supabase project, verified the
+Secure and HTTP-only session cookie, signed out, signed in again and reloaded
+the authenticated account. A prior diagnostic run also created a designated
+test account. No Supabase settings, privileges or schema were altered. The
+updated build has yet to be deployed to Vercel. Email delivery and recovery
+were outside the smoke test. Logs and captures: `/tmp/versax-auth-logo.APmWAs/`.
+
 ## VERSAX brand rollout — 2026-11-21
 
 The owner selected VERSAX and supplied the logo. The marketplace and sample

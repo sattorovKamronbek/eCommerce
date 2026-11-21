@@ -10,6 +10,7 @@
   --brand-plate: #030303;
   --brand-accent: #c0ff2d;
   --brand-ink-accent: #426000;
+  --brand-logo-filter: brightness(0.28);
   --background: #f8f7f4;
   --foreground: #262b24;
   --card: #fff;
@@ -34,6 +35,7 @@
   --font-display: "Cormorant Garamond", Georgia, serif;
 }
 .dark {
+  --brand-logo-filter: none;
   --background: #151817;
   --foreground: #f4f3ef;
   --card: #202422;
@@ -191,7 +193,7 @@ img {
   flex-shrink: 0;
 }
 .brand-logo { display: block; width: 100%; }
-.brand-logo img { display: block; width: 100%; height: auto; }
+.brand-logo img { display: block; width: 100%; height: auto; filter: var(--brand-logo-filter); }
 .desktop-nav {
   display: flex;
   gap: 30px;

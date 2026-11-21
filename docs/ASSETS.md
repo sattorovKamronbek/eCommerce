@@ -44,6 +44,7 @@ Display type uses the locally bundled [Oswald variable font license](licenses/Os
 ## VERSAX logo
 
 The owner supplied the VERSAX logo as a PNG. The full lockup and compact
-wordmark are locally served as optimized WebP files in
-`public/images/brand/`. The favicon and PNG browser icon use the monogram
-from the same source artwork.
+wordmark are served as transparent WebP files in `public/images/brand/`.
+They use the original lettering and monogram, with an ink treatment on light
+surfaces and cream and lime on dark surfaces. The favicon and PNG browser icon
+use the monogram from the same source artwork.

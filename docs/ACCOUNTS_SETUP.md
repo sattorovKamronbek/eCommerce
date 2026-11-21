@@ -16,9 +16,15 @@ Fill `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` with the project's publishable key.
 No service-role key, database password or management token belongs in browser
 variables, Git, chat, screenshots or application logs.
 
-The application validates public credentials and requires `APP_ORIGIN`; incomplete
-configuration yields an unavailable-account page while browsing continues.
-Restart the local server after changing environment settings.
+The VERSAX production deployment on `versax-six.vercel.app` has defaults for
+the dedicated project's URL and publishable key and its HTTPS origin. The app
+recognizes this deployment through Vercel's `VERCEL_ENV` and
+`VERCEL_PROJECT_PRODUCTION_URL` system environment variables. Explicit settings
+take precedence and can be set for key rotation or a domain change. For local,
+preview or other deployments, set the project's URL, publishable key and
+`APP_ORIGIN` explicitly. Incomplete configuration yields an unavailable-account
+page while browsing continues. Restart the local server or redeploy after
+changing environment settings.
 
 ## Apply the migration
 

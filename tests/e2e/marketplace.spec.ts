@@ -227,12 +227,33 @@ test("VERSAX branding appears in both storefront layouts", async ({ page }, test
   const smallViewport = page.viewportSize()!.width <= 660;
   await expect.poll(() => headerLogo.evaluate((img: HTMLImageElement) => new URL(img.currentSrc).pathname))
     .toBe(smallViewport ? "/images/brand/versax-compact.webp" : "/images/brand/versax.webp");
-  await expect(page.locator("footer").getByRole("img", { name: "VERSAX", exact: true })).toBeVisible();
+  const footerLogo = page.locator("footer").getByRole("img", { name: "VERSAX", exact: true });
+  await expect(footerLogo).toBeVisible();
+  for (const logo of [headerLogo, footerLogo]) {
+    await logo.scrollIntoViewIfNeeded();
+    const alpha = await logo.evaluate(async (img: HTMLImageElement) => {
+      await img.decode();
+      const canvas = document.createElement("canvas");
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      const context = canvas.getContext("2d")!;
+      context.drawImage(img, 0, 0);
+      return context.getImageData(0, 0, 1, 1).data[3];
+    });
+    expect(alpha).toBe(0);
+  }
+  const theme = page.getByRole("combobox", { name: "Theme", exact: true });
+  await theme.selectOption("light");
+  await expect(headerLogo).not.toHaveCSS("filter", "none");
+  await expect(footerLogo).toHaveCSS("filter", "none");
+  await page.screenshot({ path: testInfo.outputPath("versax-light.png") });
+  await theme.selectOption("dark");
+  await expect(headerLogo).toHaveCSS("filter", "none");
+  await page.screenshot({ path: testInfo.outputPath("versax-dark.png") });
   await expect(page.locator('link[rel="icon"][href^="/icon.png"]').first()).toHaveCount(1);
   for (const path of ["/favicon.ico", "/icon.png"]) {
     expect((await page.request.get(path)).ok()).toBe(true);
   }
-  await page.screenshot({ path: testInfo.outputPath("versax-home.png") });
   await page.goto("/savat");
   await expect(page).toHaveTitle(/VERSAX/);
   await expect(page.locator("header").getByRole("img", { name: "VERSAX", exact: true })).toBeVisible();

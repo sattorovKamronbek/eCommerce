@@ -44,6 +44,7 @@
 }
 
 .dark .mp, .mp[data-world="cs2"][data-preference="system"], .dark body:has(.storefront-commerce) {
+  --brand-logo-filter: none;
   --background: var(--editorial-dark);
   --foreground: #f8f8f6;
   --card: #202020;

@@ -44,6 +44,30 @@ describe("public Supabase configuration", () => {
     expect(readAuthConfig({ ...base, NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "sb_secret_do_not_expose" })).toBeNull();
     expect(readAuthConfig({ ...base, NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "" })).toBeNull();
   });
+
+  const versaxDeployment = { VERCEL_ENV: "production", VERCEL_PROJECT_PRODUCTION_URL: "versax-six.vercel.app" } as const;
+
+  it("connects the VERSAX production deployment to the dedicated project with no dashboard overrides", () => {
+    expect(readAuthConfig(versaxDeployment)).toEqual({
+      origin: "https://versax-six.vercel.app",
+      url: "https://xevzbtivteugbqbmmtyz.supabase.co",
+      key: expect.stringMatching(/^sb_publishable_/),
+    });
+  });
+
+  it("uses explicit configuration and limits the production defaults to VERSAX", () => {
+    const explicit = { ...base, APP_ORIGIN: "https://market.example.test" };
+    expect(readAuthConfig({ ...versaxDeployment, ...explicit })).toEqual({
+      origin: explicit.APP_ORIGIN,
+      url: base.NEXT_PUBLIC_SUPABASE_URL,
+      key: base.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
+    });
+    expect(readAuthConfig({ ...versaxDeployment, VERCEL_ENV: "preview" })).toBeNull();
+    expect(readAuthConfig({ ...versaxDeployment, VERCEL_PROJECT_PRODUCTION_URL: "another-site.vercel.app" })).toBeNull();
+    expect(readAuthConfig({ ...versaxDeployment, NEXT_PUBLIC_SUPABASE_URL: "https://another-project.supabase.co" })).toBeNull();
+    expect(readAuthConfig({ ...versaxDeployment, APP_ORIGIN: "http://localhost:3000" })).toBeNull();
+    expect(readAuthConfig({ ...versaxDeployment, NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "sb_secret_invalid" })).toBeNull();
+  });
 });
 
 it("preserves a valid order or checkout destination through authentication", () => {
