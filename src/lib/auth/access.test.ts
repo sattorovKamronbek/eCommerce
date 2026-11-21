@@ -1,13 +1,14 @@
 import { beforeEach, expect, it, vi } from "vitest";
 vi.mock("server-only", () => ({}));
-const mock = vi.hoisted(() => ({ available: true, getUser: vi.fn(), assurance: vi.fn(), maybeSingle: vi.fn(), from: vi.fn() }));
+const mock = vi.hoisted(() => ({ available: true, getUser: vi.fn(), assurance: vi.fn(), maybeSingle: vi.fn(), from: vi.fn(), rpc: vi.fn() }));
 vi.mock("next/navigation", () => ({ redirect: (path: string) => { throw new Error(`REDIRECT:${path}`); } }));
-vi.mock("@/lib/supabase/server", () => ({ createServerSupabaseClient: async () => mock.available ? { auth: { getUser: mock.getUser, mfa: { getAuthenticatorAssuranceLevel: mock.assurance } }, from: mock.from } : null }));
+vi.mock("@/lib/supabase/server", () => ({ createServerSupabaseClient: async () => mock.available ? { auth: { getUser: mock.getUser, mfa: { getAuthenticatorAssuranceLevel: mock.assurance } }, from: mock.from, rpc: mock.rpc } : null }));
 import { requireAccount, requireAdmin } from "./access";
 beforeEach(() => {
   mock.available = true;
   vi.clearAllMocks();
   mock.getUser.mockResolvedValue({ data: { user: { id: "verified-user", email_confirmed_at: "2026-11-11", factors: [{ status: "verified" }] } }, error: null });
+  mock.rpc.mockResolvedValue({ data: true, error: null });
   mock.assurance.mockResolvedValue({ data: { currentLevel: "aal2" }, error: null });
   const query = { select: () => query, eq: () => query, maybeSingle: mock.maybeSingle };
   mock.from.mockReturnValue(query);
@@ -49,4 +50,13 @@ it("requires admins to step up even before they enroll MFA", async () => {
   mock.getUser.mockResolvedValue({ data: { user: { id: "verified-user", email_confirmed_at: "now", factors: [] } }, error: null });
   mock.assurance.mockResolvedValue({ data: { currentLevel: "aal1" }, error: null });
   await expect(requireAdmin("en", "/en/admin/users")).rejects.toThrow("REDIRECT:/en/account/security?next=%2Fen%2Fadmin%2Fusers");
+});
+
+
+it("blocks an authenticated account when marketplace access is suspended", async () => {
+  mock.rpc.mockResolvedValue({ data: false, error: null });
+  expect(await requireAccount("en")).toBeNull();
+  expect(await requireAccount("en", undefined, { allowSuspended: true })).toMatchObject({ suspended: true });
+  expect(await requireAdmin("en")).toEqual({ kind: "unavailable" });
+  expect(mock.from).not.toHaveBeenCalled();
 });

@@ -1,8 +1,8 @@
-# ORO — CS2 and clothing marketplace preview
+# ORO — CS2 and clothing marketplace
 
-Three-language marketplace for CS2 skin browsing and clothing, alongside the preserved original storefront. Catalog data remains sample-only. Real Supabase account/profile flows and a protected read-only admin users panel are implemented; integration readiness and exact verification are tracked in PROJECT_PROGRESS.md. No live trading, orders or payments are accepted. Large-scale backend readiness has not been established.
+Three-language marketplace for CS2 and clothing. The homepage opens the seller catalogs. Supabase provides email/password accounts, seller listings, manual direct-payment orders and an MFA-protected admin workspace. Deployment and live commerce status are tracked in [project progress](PROJECT_PROGRESS.md).
 
-The owner approved both ecosystems at first release, an Uzbekistan/nearby-region audience, initial listings/P2P, hybrid clothing supply (own products + independent sellers) and UZS as the primary currency. Visa and later cryptocurrency payment capabilities are requested, alongside both direct-seller and platform payment-flow possibilities. Providers, operating entity, crypto assets/networks and operating rules remain undecided. See [requirements and decision log](PRODUCT_REQUIREMENTS.md).
+The first commerce release uses UZS. Buyers pay sellers directly and admins review reported payments and disputes. Click Business remains the intended platform-payment target. See [requirements and decision log](PRODUCT_REQUIREMENTS.md).
 
 ## Run locally
 Node 20.19+ (tested with 20.19), npm.
@@ -12,18 +12,17 @@ npm ci
 npm run dev
 ```
 
-Open http://localhost:3000; `/` enters `/uz/marketplace`. Public browsing needs no environment variables. Account/admin flows require the dedicated Supabase project, `.env.local` based on `.env.example`, the versioned migration and auth/email setup described in [account setup](docs/ACCOUNTS_SETUP.md). Marketplace routes:
+Open http://localhost:3000. The root opens `/uz/marketplace`. The seller catalog and private routes require the dedicated Supabase project and `.env.local` based on `.env.example`. See [accounts setup](docs/ACCOUNTS_SETUP.md) and [seller and orders setup](docs/SUPABASE_SELLER_SETUP.md).
 
-- `/{locale}/marketplace` — shared entry; `locale` is `uz`, `ru` or `en`.
-- `/{locale}/marketplace/cs2` and `/fashion` — separate sample catalogs.
-- `/{locale}/marketplace/{ecosystem}/{sampleId}` — sample detail; clothing size demonstration.
-- `/{locale}/marketplace/how-it-works` — current commerce boundaries and planned model.
-- `/storefront-preview` — preserved original homepage. Existing `/katalog`, `/mahsulot/*`, `/savat`, `/sevimlilar`, `/hisob`, `/checkout` and `/malumot/*` retain their behavior.
-- `/{locale}/account` — real profile/settings workspace; sign-in redirect for visitors. Registration, login, recovery, confirmation and `/resend-confirmation` routes live under this path.
-- `/{locale}/admin` and `/{locale}/admin/users` — server-authorized read-only users workspace with literal name search, language filtering and pagination; UUID-based owner bootstrap is documented in account setup.
-- `/hisob` remains a legacy account entry linking to the new localized account flow; browser cart/favorites are not merged into account data.
+- `/{locale}/marketplace` — shared entry for Uzbek, Russian and English.
+- `/{locale}/listings/{ecosystem}` — seller catalog and listing details for `cs2` and `fashion`.
+- `/{locale}/account` — email/password registration, login, recovery and profile settings.
+- `/{locale}/account/orders` — buyer and seller orders. Reservations start on eligible listings.
+- `/{locale}/seller/products` — listings and direct payment terms for approved sellers.
+- `/{locale}/admin` — users, seller applications, listing moderation, orders and payment review.
+- The original storefront homepage is retired. Retained storefront and marketplace sample pages visibly label development data. The legacy browser cart stays separate from real orders.
 
-Configure the temporary brand and development defaults in `src/lib/config.ts`. Marketplace customer text is in `src/messages/marketplace.ts`, and sample records in `src/data/marketplace-samples.ts`. Original storefront dictionaries and fixtures remain separate. UZS is owner-selected, but displayed prices remain illustrative and no payments are accepted. Old browser cart data is not imported into marketplace records or real orders.
+Configure the brand in `src/lib/config.ts`. Localized text is in `src/messages`. Enable reservations only after applying and verifying the [seller and orders setup](docs/SUPABASE_SELLER_SETUP.md).
 
 ## Verify
 ```sh

@@ -4,7 +4,7 @@ const mock = vi.hoisted(() => ({ requireAccount: vi.fn(), insert: vi.fn(), from:
 vi.mock("next/navigation", () => ({ redirect: mock.redirect }));
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
 vi.mock("@/lib/auth/access", () => ({ requireAccount: mock.requireAccount }));
-import { createListing } from "@/app/(marketplace)/[locale]/seller/products/actions";
+import { createListing, updateListing } from "@/app/(marketplace)/[locale]/seller/products/actions";
 
 const seller = "00000000-0000-4000-8000-000000000001";
 function form(values: Record<string, string>) { const data = new FormData(); for (const [key, value] of Object.entries(values)) data.set(key, value); return data; }
@@ -25,4 +25,16 @@ it("creates listings only for the authenticated seller and computes exact money 
 it("rejects invalid item details before reaching the database", async () => {
   expect(await createListing("en", {}, form({ ...valid, price: "1e6" }))).toEqual({ error: "invalid" });
   expect(mock.from).not.toHaveBeenCalled();
+});
+
+it("rejects seller edits based on a listing fetched before an inventory change", async () => {
+  const id = "10000000-0000-4000-8000-000000000001";
+  const updatedAt = "2026-11-21T08:00:00.124502+00:00";
+  const select = vi.fn().mockReturnValue({ maybeSingle: async () => ({ data: null, error: null }) });
+  const filters = { eq: vi.fn(), select };
+  filters.eq.mockReturnValue(filters);
+  mock.from.mockReturnValue({ update: vi.fn().mockReturnValue(filters) });
+  expect(await updateListing("en", id, updatedAt, {}, form(valid))).toEqual({ error: "changed" });
+  expect(filters.eq).toHaveBeenCalledWith("updated_at", updatedAt);
+  expect(mock.redirect).not.toHaveBeenCalled();
 });

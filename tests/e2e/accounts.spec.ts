@@ -102,6 +102,19 @@ test("new private seller, moderation and security pages require an account", asy
 test("public seller catalog explains purchase availability", async ({ page }) => {
   await page.goto("/en/listings/cs2");
   await expect(page.getByRole("heading", { name: "CS2 skins — Seller listings" })).toBeVisible();
-  await expect(page.getByText("Seller-provided listings. Purchases are not yet available.")).toBeVisible();
+  await expect(page.getByText("When reservation is available, you pay the seller directly.")).toBeVisible();
   await expect(page.getByRole("button", { name: /buy|checkout/i })).toHaveCount(0);
+});
+
+test("checkout, private orders and admin pages preserve the destination through sign-in", async ({ page }) => {
+  const id = "12345678-1234-4000-8000-123456789abc";
+  for (const destination of [`/en/account/checkout/fashion/${id}`, `/en/account/orders/${id}`, `/en/admin/orders/${id}`, `/en/admin/users/${id}`]) {
+    await page.goto(destination);
+    const url = new URL(page.url());
+    expect(url.pathname).toBe("/en/account/login");
+    expect(url.searchParams.get("next")).toBe(destination);
+    await page.getByRole("link", { name: "New here? Create an account" }).click();
+    await expect(page).toHaveURL(/\/en\/account\/register\?next=/);
+    expect(new URL(page.url()).searchParams.get("next")).toBe(destination);
+  }
 });

@@ -49,7 +49,6 @@ export function Header() {
                 {[
                   ["/katalog", uz.nav.catalog],
                   ["/katalog?yangi=1", uz.nav.arrivals],
-                  ["/storefront-preview#kolleksiyalar", uz.nav.collections],
                   ["/malumot/biz-haqimizda", uz.nav.about],
                   ["/hisob", uz.nav.account],
                 ].map(([href, label]) => (
@@ -72,7 +71,6 @@ export function Header() {
           <nav className="desktop-nav" aria-label={copy.asosiyNavigatsiya}>
             <Link href="/katalog">{uz.nav.catalog}</Link>
             <Link href="/katalog?yangi=1">{uz.nav.arrivals}</Link>
-            <Link href="/storefront-preview#kolleksiyalar">{uz.nav.collections}</Link>
             <Link href="/malumot/biz-haqimizda">{uz.nav.about}</Link>
           </nav>
           <div className="header-actions">

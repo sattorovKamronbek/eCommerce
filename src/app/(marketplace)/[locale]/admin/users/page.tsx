@@ -11,6 +11,9 @@ export default async function AdminUsers({ params, searchParams }: {
   if (access.kind === "unavailable") return <AccountUnavailable locale={locale} />;
   if (access.kind === "denied") return <AccountDenied locale={locale} />;
   const filters = parseAdminFilters(await searchParams);
-  const result = await loadAdminProfiles(access.client, filters);
-  return <AdminUsersView locale={locale} filters={filters} result={result} />;
+  const [result, management] = await Promise.all([
+    loadAdminProfiles(access.client, filters),
+    access.client.from("marketplace_user_access_events").select("id").limit(0),
+  ]);
+  return <AdminUsersView locale={locale} filters={filters} result={result} manage={!management.error} />;
 }

@@ -16,7 +16,7 @@ function contrastRatio(foreground: string, background: string) {
 }
 
 test("keyboard focus and light CS2 navigation have visible contrast", async ({ page }) => {
-  await page.goto("/en/marketplace/cs2");
+  await page.goto("/en/listings/cs2");
   await page.getByRole("combobox", { name: "Theme", exact: true }).selectOption("light");
   await page.reload();
   await page.keyboard.press("Tab");
@@ -61,16 +61,15 @@ test("category shortcuts and sample details preserve the browsing context", asyn
   await expect(page).toHaveURL(/q=rifle&sort=price-desc$/);
 });
 
-test("editorial home links to real sample details and keeps the preview boundary", async ({ page }) => {
+test("homepage opens seller catalogs without sample listings or a demo banner", async ({ page }) => {
   await page.goto("/en/marketplace");
-  const edit = page.getByRole("region", { name: "The sample edit.", exact: true });
-  await expect(edit.locator(".mp-sample-card")).toHaveCount(3);
-  await edit.getByRole("link", { name: "Sand cotton overshirt", exact: true }).click();
-  await expect(page).toHaveURL(/\/en\/marketplace\/fashion\/sand-overshirt$/);
-  await expect(page.getByRole("note")).toContainText("Payment and delivery are not available");
+  await expect(page.locator(".mp-sample-card, .mp-notice")).toHaveCount(0);
+  await page.getByRole("link", { name: "Explore skins", exact: true }).click();
+  await expect(page).toHaveURL(/\/en\/listings\/cs2$/);
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("Seller listings");
 });
 
-test("home explains both marketplace directions and the current trading boundary", async ({ page }) => {
+test("home explains both marketplace directions and direct payment", async ({ page }) => {
   await page.goto("/uz/marketplace");
   const copy = marketplaceDictionaries.uz;
   const details = page.getByRole("region", { name: copy.buyingTitle });
@@ -127,19 +126,16 @@ test("marketplace entry, both destinations, languages and theme preference", asy
   await expect(page.locator(".mp")).toHaveAttribute("data-world", "cs2");
   await expect(page.locator(".mp")).toHaveCSS("background-color", "rgb(17, 21, 26)");
   await page.getByRole("navigation", { name: "Main navigation" }).getByRole("link", { name: "Clothing", exact: true }).click();
-  await expect(page.locator(".mp-sample-card")).toHaveCount(3);
-  await expect(page.locator("h1")).toHaveText("Clothing");
+  await expect(page).toHaveURL(/\/en\/listings\/fashion$/);
+  await expect(page.locator("h1")).toContainText("Clothing");
   await page.emulateMedia({ colorScheme: "dark" });
   await expect(page.getByRole("link", { name: "Original storefront", exact: true })).toHaveCount(0);
-  await page.goto("/storefront-preview");
+  await page.goto("/katalog");
   await expect(page.locator("html")).toHaveClass(/dark/);
-  await expect(page.locator("h1")).toContainText("Oddiy kunlar");
+  await expect(page.locator("h1")).toContainText("Katalog");
   await page.goto("/mahsulot/sokin-keramik-vaza");
   await page.getByRole("button", { name: "Savatga qo‘shish", exact: true }).click();
   await page.goto("/en/marketplace");
-  await page.goto("/storefront-preview");
-  await expect(page).toHaveURL(/\/storefront-preview$/);
-  await expect(page.locator("h1")).toContainText("Oddiy kunlar");
   await page.goto("/savat");
   await expect(page.locator(".quantity span")).toHaveText("1");
   expect(errors).toEqual([]);
@@ -176,7 +172,7 @@ test("detail, size choice, wrong-domain rejection and trading boundary", async (
   expect(response?.status()).toBe(404);
   await expect(page.locator("h1")).toHaveText("Sample not found");
   await page.goto("/en/marketplace/how-it-works");
-  await expect(page.getByText(/No payments, orders or skin transfers/)).toBeVisible();
+  await expect(page.getByText(/pay the seller directly and report the payment/)).toBeVisible();
 });
 
 for (const locale of ["uz", "ru", "en"] as const) {

@@ -1,6 +1,6 @@
 # Product requirements — CS2 and Fashion marketplace
 
-Status: frontend preview and accounts slice delivered locally; owner-role and seller-application foundation under local implementation. Started 2026-11-11. Dedicated Supabase project confirmed and public credentials configured locally; live-commerce policies and provider remain open.
+Status: the seller catalog, manual direct-payment order flow and account administration have local implementations. The dedicated Supabase deployment and launch verification remain pending. Started 2026-11-11.
 
 ## Confirmed direction from the owner's transformation brief
 
@@ -176,7 +176,7 @@ not implemented or implied by the existing email/read-only-admin design.
 
 - Candidate modular-monolith domains and additive migration steps in MARKETPLACE_AUDIT.md.
 - Reusing UI primitives, token foundations, localization and test tooling while introducing domain-specific catalog/listing/fulfillment contracts.
-- Seller workspaces, further admin modules and commerce domain contracts remain proposed. The initial read-only admin workspace is separately approved in the accounts slice above. The development catalog uses `/{locale}/marketplace`, separate `/cs2` and `/fashion` paths and localized sample details; the original home is retained at `/storefront-preview`.
+- Seller workspaces, further admin modules and commerce domain contracts remain proposed. The initial read-only admin workspace is separately approved in the accounts slice above. The development catalog uses `/{locale}/marketplace`, separate `/cs2` and `/fashion` paths and localized sample details. This describes the original migration phase. The owner retired the preserved homepage on 2026-11-21.
 - Preliminary phases 0–10 from the owner brief, with proposed measurable gates in the audit. The owner may change their order and content.
 
 Potential item/category fields, seller metrics, payouts, reviews, promotions, storefront modules and advanced integrations listed in the brief express future capability options. Their exact data models, sources and first-release inclusion remain unapproved.
@@ -215,6 +215,7 @@ For each owner answer, record date, decision ID, the answer, scope and remaining
 
 | Date | Decision IDs | Owner statement and scope | Remaining conditions |
 | --- | --- | --- | --- |
+| 2026-11-21 | D01, D03, D07, D10 | Start with direct seller payments in both CS2 and clothing. Administrators review payment evidence and decide disputes case by case. Retire the original storefront homepage and use seller listings in the marketplace navigation. | Before switching on reservations, verify the dedicated schema, seller flows, expiration job and the people and procedures responsible for payment review, refunds and fulfillment. Click settlement remains pending. |
 | 2026-11-18 | D03, D07, D09, D14 | A reservation without a payment report is automatically cancelled after 48 hours; a direct-payment report may store payment time, amount and transaction ID; clothing orders may store the buyer's name, phone and address, visible to the relevant seller and admin. | The buyer also needs access to their own order. Payment reports are unverified until admin review; scheduler operation, payment evidence review, personal-data retention, refunds and provider support remain unresolved. |
 | 2026-11-18 | D09, D14 | Seller sets delivery price; orders are separated by seller and ecosystem. Owner asked us to derive one clothing return rule from other stores. | Selected customer-facing draft in docs/FASHION_RETURNS_POLICY.md; legal review, seller implementation and checkout remain outstanding. |
 | 2026-11-16 | D02, D07 (partial) | Business not yet registered; no payment-provider contract. After reviewing options, selected Click Business as target. | Verify merchant eligibility, Visa, CS2 listings, marketplace settlement, hold and seller payouts with Click; register the business and obtain credentials. Selection is not evidence of any approved capabilities or live connection. |

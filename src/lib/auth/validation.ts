@@ -1,3 +1,4 @@
+import { isUuid } from "@/lib/uuid";
 import type { MarketplaceLocale } from "@/messages/marketplace";
 
 export function parseEmail(value: unknown): string | null {
@@ -17,8 +18,15 @@ export function validFlowToken(value: unknown): value is string {
   return typeof value === "string" && /^[a-f0-9]{40,128}$/i.test(value);
 }
 export function safeReturnPath(input: unknown, locale: MarketplaceLocale): string {
-  const allowed = [`/${locale}/account`, `/${locale}/account/security`, `/${locale}/admin`, `/${locale}/admin/users`, `/${locale}/admin/sellers`, `/${locale}/admin/listings`, `/${locale}/seller/apply`, `/${locale}/seller/products`];
-  return typeof input === "string" && allowed.includes(input) ? input : allowed[0];
+  const allowed = [`/${locale}/account`, `/${locale}/account/security`, `/${locale}/account/orders`, `/${locale}/admin`, `/${locale}/admin/users`, `/${locale}/admin/sellers`, `/${locale}/admin/listings`, `/${locale}/admin/orders`, `/${locale}/seller/apply`, `/${locale}/seller/products`];
+  if (typeof input !== "string") return allowed[0];
+  if (allowed.includes(input)) return input;
+  const [, targetLocale, section, feature, target, listing, ...extra] = input.split("/");
+  if (!input.startsWith("/") || targetLocale !== locale || extra.length) return allowed[0];
+  if ((section === "account" || section === "admin") && feature === "orders" && isUuid(target) && listing === undefined) return input;
+  if (section === "admin" && feature === "users" && isUuid(target) && listing === undefined) return input;
+  if (section === "account" && feature === "checkout" && (target === "cs2" || target === "fashion") && isUuid(listing)) return input;
+  return allowed[0];
 }
 export function parseAdminPage(value: string | string[] | undefined): number {
   return typeof value === "string" && /^[1-9]\d{0,4}$/.test(value) && Number(value) <= 10000 ? Number(value) : 1;

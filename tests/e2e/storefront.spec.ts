@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
-test("homepage, theme, images, console and accessibility", async ({
+test("legacy catalog theme, images, console and accessibility", async ({
   page,
 }, testInfo) => {
   // This combined check loads all imagery and audits both themes on a local laptop.
@@ -10,9 +10,9 @@ test("homepage, theme, images, console and accessibility", async ({
   page.on("console", (m) => {
     if (m.type() === "error") errors.push(m.text());
   });
-  await page.goto("/storefront-preview");
+  await page.goto("/katalog");
   await expect(page).toHaveTitle(/ORO/);
-  await expect(page.locator("h1")).toContainText("Oddiy kunlar");
+  await expect(page.locator("h1")).toContainText("Katalog");
   await page.evaluate(() => document.fonts.ready);
   await page.evaluate(async () => {
     for (const img of Array.from(document.images)) {
@@ -29,14 +29,9 @@ test("homepage, theme, images, console and accessibility", async ({
       ),
     ),
   ).toBe(true);
-  await expect(page.locator(".hero-image img")).toBeVisible();
-  expect(
-    await page
-      .locator(".hero-image img")
-      .evaluate(
-        (img: HTMLImageElement) => img.complete && img.naturalWidth > 0,
-      ),
-  ).toBe(true);
+  const firstProductImage = page.locator(".product-image img").first();
+  await expect(firstProductImage).toBeVisible();
+  expect(await firstProductImage.evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
   await page.screenshot({
     path: `/tmp/oro-${testInfo.project.name}-viewport.png`,
   });
@@ -110,18 +105,15 @@ test("product to cart, quantity persistence, remove, unavailable and wishlist", 
   await page.reload();
   await expect(page.locator(".product-card")).toHaveCount(1);
 });
+test("the retired storefront homepage returns 404", async ({ request }) => {
+  const response = await request.get("/storefront-preview", { maxRedirects: 0 });
+  expect(response.status()).toBe(404);
+});
+
 test("mobile navigation and explicit checkout boundary", async ({
   page,
 }, testInfo) => {
-  await page.goto("/storefront-preview");
-  if (testInfo.project.name === "mobile") {
-    await page.getByRole("button", { name: "Menyu", exact: true }).click();
-    await page.getByRole("dialog").getByRole("link", { name: "Kolleksiyalar", exact: true }).click();
-  } else {
-    await page.getByRole("navigation", { name: "Asosiy navigatsiya" }).getByRole("link", { name: "Kolleksiyalar", exact: true }).click();
-  }
-  await expect(page).toHaveURL(/storefront-preview#kolleksiyalar$/);
-  await expect(page.locator("#kolleksiyalar")).toBeVisible();
+  await page.goto("/katalog");
   if (testInfo.project.name === "mobile") {
     await page.getByRole("button", { name: "Menyu", exact: true }).click();
     await page
@@ -164,7 +156,7 @@ test("catalog, detail, and cart drawer accessibility", async ({ page }) => {
 test("account access remains available across responsive layouts", async ({
   page,
 }) => {
-  await page.goto("/storefront-preview");
+  await page.goto("/katalog");
   const menu = page.getByRole("button", { name: "Menyu", exact: true });
   if (await menu.isVisible()) {
     await menu.click();

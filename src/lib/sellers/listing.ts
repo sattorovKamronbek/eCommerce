@@ -2,7 +2,7 @@ export type ListingInput = {
   ecosystem: "cs2" | "fashion"; title: string; description: string; category: string; variant: string;
   price_tiyin: number; quantity: number; state: "draft" | "published";
 };
-export type ListingActionState = { error?: "invalid" | "unavailable" };
+export type ListingActionState = { error?: "invalid" | "unavailable" | "changed" };
 
 export function parseUzsTiyin(value: unknown): number | null {
   if (typeof value !== "string") return null;

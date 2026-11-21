@@ -23,7 +23,7 @@ export default async function MarketplaceLayout({ children, params }: { children
   const { locale } = await params;
   if (!isMarketplaceLocale(locale)) notFound();
   const copy = marketplaceDictionaries[locale];
-  const { discover, cs2, fashion, notice, skip, navigation, language, theme, light, dark, system } = copy;
-  const navigationCopy: NavigationCopy = { discover, cs2, fashion, notice, skip, navigation, language, theme, light, dark, system, account: accountDictionaries[locale].account };
+  const { discover, cs2, fashion, skip, navigation, language, theme, light, dark, system } = copy;
+  const navigationCopy: NavigationCopy = { discover, cs2, fashion, skip, navigation, language, theme, light, dark, system, account: accountDictionaries[locale].account };
   return <html lang={locale} suppressHydrationWarning><body><Providers defaultTheme="system" enableSystem><MarketplaceFrame locale={locale} copy={navigationCopy} footer={<MarketplaceFooter locale={locale} />}>{children}</MarketplaceFrame></Providers></body></html>;
 }

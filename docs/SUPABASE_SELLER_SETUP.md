@@ -10,3 +10,29 @@ The site uses project **xevzbtivteugbqbmmtyz**. Do not run these instructions in
 6. The SQL Editor is not the Supabase CLI migration runner. A manually executed bundle does **not** create migration-history entries; do not subsequently apply the same migrations again. Reconcile migration history using the official Supabase workflow after inspecting the actual project state; never mark anything applied without verifying every object.
 
 The bundle is generated from four repository migrations by `node scripts/build-owner-seller-setup.mjs`. Database setup creates seller onboarding and listings only; orders, checkout and Click settlement are not enabled. Applying this SQL to the wrong Supabase project can modify that project, so verify the dashboard project reference every time.
+
+## Direct payments and account administration
+
+1. Verify the account and seller objects above. Apply the next platform migrations in version order using the same reviewed migration workflow. [Direct orders](../supabase/migrations/202611210005_direct_orders.sql), [account administration](../supabase/migrations/202611210006_admin_accounts.sql).
+2. Verify signup and sign-in with dedicated test accounts. Verify the owner and administrator sign in with a configured authenticator. In `/uz/admin/users`, an administrator can suspend or restore customer access. The owner can grant or revoke the administrator role after fresh TOTP verification. Confirm the exact candidate UUID and account control independently. The candidate must already have a verified MFA factor. The owner role is managed through [owner bootstrap](OWNER_BOOTSTRAP.md).
+3. Enable Supabase Cron in this project. Run the expiration job as the database administrator. A one-minute schedule closes orders with no payment report after their 48-hour deadline and releases their reserved stock. It leaves reported orders available for review. Check the job's execution history in the dashboard. [Supabase Cron setup](https://supabase.com/docs/guides/cron/install).
+
+   ```sql
+   select cron.schedule(
+     'marketplace-expire-direct-orders',
+     '* * * * *',
+     'select marketplace_private.expire_direct_orders();'
+   );
+   ```
+
+4. In a test environment, have an approved seller set per-listing payment contact, clothing shipping price or CS2 asset ID. Test stock conservation, valid account isolation, expiry, the payment evidence review, two separate delivery confirmations and dispute decisions. Plan applicant verification, buyer support, shipping regions, return and refund execution outside ORO, dispute evidence handling and retention before opening real sales. The code only checks the seller-supplied CS2 ID for reuse. It does not verify Steam ownership or transfer eligibility.
+5. New reservations default to disabled. Once setup and launch verification are complete, enable them in the dedicated project below. Turning the setting back off stops new reservations and leaves existing orders and the expiration job operational.
+
+   ```sql
+   update marketplace_private.direct_order_settings
+   set accepting_orders = true where singleton;
+   ```
+
+An order contains one listing and belongs to one seller and ecosystem. Buyers reserve before sending money and can see the server-calculated total on the order. The buyer or seller reports a timestamp, amount and transaction reference. An administrator records their review and any case-by-case decision. The parties move funds and fulfill orders outside ORO. The site records no processor-confirmed settlement or automated refund. Clothing delivery details are visible to the buyer, relevant seller and authorized admins. Review how long to retain these details and order records before release.
+
+Payment times are entered and shown in Uzbekistan time. A reservation with no report closes automatically. A late payment report opens a case for administrator review while the stock stays released. The dashboard records review decisions and stock disposition. Review evidence privately, and keep account secrets and personal documents out of shared notes. Communicate how the seller and administrator handle funds when a payment is reported after the reservation expires.

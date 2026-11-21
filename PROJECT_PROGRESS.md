@@ -1,5 +1,57 @@
 # Project progress
 
+## Direct seller orders and account administration — 2026-11-21
+
+The owner retired the original storefront homepage and selected direct seller
+payment for CS2 and clothing. The administrator decides payment reviews and
+disputes case by case. The main marketplace links to the seller catalog and no
+longer shows sample cards or a global development banner. Retained historical
+sample pages still label their data.
+
+The versioned migrations implement stock reservation, a server-computed UZS
+total, private clothing delivery details, manually reported payments, separate
+delivery confirmations and audited administrator decisions. Orders cover one
+listing from one seller and ecosystem. Sellers supply a payment contact and a
+shipping price for clothing. A 48-hour expiry returns stock if no payment was
+reported. A late report goes to administrator review without reclaiming stock.
+Stale seller forms cannot overwrite quantity changed by a reservation.
+Authenticated administrators can suspend customers and restore marketplace
+access. Fresh TOTP and a current owner session are required for administrator
+role changes. A candidate needs a verified MFA factor.
+
+The dedicated project's public Auth settings returned HTTP 200 with email signup
+and automatic confirmation enabled. Its Data API still reports
+`PGRST205` for seller applications and public listings. The Supabase connector
+was available for installation but not connected, and no privileged project
+credentials or dedicated test accounts were configured. No remote schema,
+provider settings, roles or deployment were changed. Actual login, signup,
+owner verification and commerce against the live project remain unverified.
+New reservations default to disabled. See the
+[dedicated project setup](docs/SUPABASE_SELLER_SETUP.md).
+
+Payment transfers, refunds and fulfillment occur outside ORO. The application
+records administrative decisions and does not verify bank settlement or Steam
+ownership. Click Business, detailed returns operations, and deployment-specific
+privacy and retention procedures remain pending.
+
+Local checks passed strict TypeScript, ESLint with four existing unused-parameter
+warnings, 148 Vitest cases in 38 files, and the production Next.js build with
+96 generated pages. A separate PostgreSQL 16 instance with two concurrent
+connections accepted one reservation of a single CS2 item and rejected the
+second. A scheduled `pg_cron` run then cancelled the unpaid reservation after
+the test deadline and returned the unit to stock. Those database checks used
+local fixture identities. A separate code review checked stale listing edits,
+expired payment handling, TOTP compatibility and suspended account sign-out.
+Browser verification used Playwright Chromium across desktop, tablet and mobile
+because the Browser plugin is unavailable. The full run passed 77 of 78 cases.
+The desktop legacy-catalog image check selected six images where Playwright
+expected one. After narrowing the selector, the focused desktop, tablet and
+mobile rerun passed all three cases. The retired path returned HTTP 404 on
+all three device profiles. Reviewed fresh desktop and mobile marketplace
+screenshots. Browser checks used the production build and public/session-entry
+flows. Live authenticated buying, selling and admin sessions require the
+dedicated Supabase setup.
+
 ## Deployment diagnosis and storefront copy — 2026-11-20
 
 Fetched and fast-forwarded `main` to GitHub merge `9963fed`, preserving the

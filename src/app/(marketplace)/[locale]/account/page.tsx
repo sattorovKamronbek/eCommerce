@@ -1,18 +1,22 @@
 import Link from "next/link";
 import { KeyRound, UserRound } from "lucide-react";
-import { AccountUnavailable, accountLocale } from "@/components/account/shell";
+import { AccountShell, AccountUnavailable, accountLocale } from "@/components/account/shell";
 import { WorkspaceShell } from "@/components/account/workspace";
 import { AccountForm } from "@/components/account/form";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { accountDictionaries } from "@/messages/account";
+import { accessDictionaries } from "@/messages/admin-access";
 import { mfaDictionaries } from "@/messages/mfa";
 import { requireAccount } from "@/lib/auth/access";
 import { logoutAction, updateProfileAction } from "./actions";
 
 export default async function Account({ params }: { params: Promise<{ locale: string }> }) {
   const locale = await accountLocale(params); const copy = accountDictionaries[locale];
-  const account = await requireAccount(locale);
+  const account = await requireAccount(locale, undefined, { allowSuspended: true });
   if (!account) return <AccountUnavailable locale={locale} />;
+  if (account.suspended) return <AccountShell locale={locale} title={accessDictionaries[locale].suspended} intro={accessDictionaries[locale].blockedIntro}>
+    <AccountForm action={logoutAction.bind(null, locale)} kind="logout" copy={copy} />
+  </AccountShell>;
   const [profile, role] = await Promise.all([
     account.client.from("marketplace_profiles").select("id, display_name, preferred_locale, created_at, updated_at").eq("id", account.user.id).maybeSingle(),
     account.client.from("marketplace_user_roles").select("role").eq("user_id", account.user.id).maybeSingle(),

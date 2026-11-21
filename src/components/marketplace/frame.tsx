@@ -9,7 +9,7 @@ import { marketplaceConfig, storeConfig } from "@/lib/config";
 import { localeNames, type MarketplaceLocale, type MarketplaceMessages } from "@/messages/marketplace";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 
-export type NavigationCopy = Pick<MarketplaceMessages, "discover" | "cs2" | "fashion" | "notice" | "skip" | "navigation" | "language" | "theme" | "light" | "dark" | "system"> & { account: string };
+export type NavigationCopy = Pick<MarketplaceMessages, "discover" | "cs2" | "fashion" | "skip" | "navigation" | "language" | "theme" | "light" | "dark" | "system"> & { account: string };
 
 const subscribeToMount = () => () => {};
 const clientSnapshot = () => true;
@@ -38,14 +38,17 @@ export function MarketplaceFrame({ locale, copy, children, footer }: { locale: M
   const mounted = useSyncExternalStore(subscribeToMount, clientSnapshot, serverSnapshot);
   const preference = mounted ? theme ?? "system" : "system";
   const base = `/${locale}/marketplace`;
-  const world = path.startsWith(`${base}/cs2`) ? "cs2" : path.startsWith(`${base}/fashion`) ? "fashion" : "home";
+  const catalogs = `/${locale}/listings`;
+  const section = path.split("/")[3];
+  const isCatalog = path.startsWith(`${catalogs}/`) || path.startsWith(`${base}/`);
+  const world = isCatalog && (section === "cs2" || section === "fashion") ? section : "home";
   const ThemeIcon = preference === "dark" ? Moon : preference === "light" ? Sun : Monitor;
   return <div className="mp" data-world={world} data-preference={preference}>
     <a className="skip-link" href="#marketplace-main">{copy.skip}</a>
     <header><div className="mp-header">
       <Link href={base} className="mp-wordmark" translate="no">{storeConfig.name}</Link>
       <nav className="mp-navigation" aria-label={copy.navigation}>
-        {[[base, copy.discover], [`${base}/cs2`, copy.cs2], [`${base}/fashion`, copy.fashion]].map(([href, label]) => <Link key={href} href={href} aria-current={href === base ? path === href ? "page" : undefined : path.startsWith(href) ? "page" : undefined}>{label}</Link>)}
+        {[[base, copy.discover], [`${catalogs}/cs2`, copy.cs2], [`${catalogs}/fashion`, copy.fashion]].map(([href, label]) => <Link key={href} href={href} aria-current={href === base ? path === href ? "page" : undefined : (path === href || path.startsWith(`${href}/`)) ? "page" : undefined}>{label}</Link>)}
       </nav>
       <div className="mp-tools">
         <Link className="mp-account-link" href={`/${locale}/account`} aria-label={copy.account}><UserRound aria-hidden="true" /></Link>
@@ -60,7 +63,7 @@ export function MarketplaceFrame({ locale, copy, children, footer }: { locale: M
           </NativeSelect>
         </label>
       </div>
-    </div><div className="mp-notice"><p>{copy.notice}</p></div></header>
+    </div></header>
     <main id="marketplace-main" tabIndex={-1}>{children}</main>
     {footer}
   </div>;

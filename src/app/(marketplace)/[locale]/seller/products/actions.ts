@@ -22,15 +22,18 @@ export async function createListing(locale: MarketplaceLocale, _state: ListingAc
   redirect(`/${locale}/seller/products`);
 }
 
-export async function updateListing(locale: MarketplaceLocale, id: string, _state: ListingActionState, form: FormData): Promise<ListingActionState> {
-  if (!isMarketplaceLocale(locale) || !validId(id)) return { error: "unavailable" };
+export async function updateListing(locale: MarketplaceLocale, id: string, expectedUpdatedAt: string, _state: ListingActionState, form: FormData): Promise<ListingActionState> {
+  if (!isMarketplaceLocale(locale) || !validId(id) || typeof expectedUpdatedAt !== "string"
+    || !Number.isFinite(Date.parse(expectedUpdatedAt))) return { error: "unavailable" };
   const account = await requireAccount(locale, `/${locale}/seller/products`);
   if (!account) return { error: "unavailable" };
   const item = parseListing(form);
   if (!item) return { error: "invalid" };
   try {
-    const result = await account.client.from("marketplace_listings").update(item).eq("id", id).eq("seller_id", account.user.id).select("id").maybeSingle();
-    if (result.error || !result.data) return { error: "unavailable" };
+    const result = await account.client.from("marketplace_listings").update(item).eq("id", id).eq("seller_id", account.user.id)
+      .eq("updated_at", expectedUpdatedAt).select("id").maybeSingle();
+    if (result.error) return { error: "unavailable" };
+    if (!result.data) return { error: "changed" };
   } catch { return { error: "unavailable" }; }
   revalidatePath(`/${locale}/seller/products`);
   redirect(`/${locale}/seller/products`);

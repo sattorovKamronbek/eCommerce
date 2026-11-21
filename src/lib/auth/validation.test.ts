@@ -45,3 +45,13 @@ describe("public Supabase configuration", () => {
     expect(readAuthConfig({ ...base, NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "" })).toBeNull();
   });
 });
+
+it("preserves a valid order or checkout destination through authentication", () => {
+  const id = "12345678-1234-4000-8000-123456789abc";
+  for (const path of ["/en/account/orders", `/en/account/orders/${id}`, `/en/admin/orders/${id}`, `/en/account/checkout/fashion/${id}`]) {
+    expect(safeReturnPath(path, "en")).toBe(path);
+  }
+  for (const path of [`/uz/account/checkout/cs2/${id}`, `/en/account/checkout/other/${id}`, "/en/account/orders/../security", `/en/admin/orders/${id}?next=//example.com`]) {
+    expect(safeReturnPath(path, "en")).toBe("/en/account");
+  }
+});

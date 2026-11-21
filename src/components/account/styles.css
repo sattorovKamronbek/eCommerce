@@ -175,3 +175,18 @@
   .mp .profile-summary dl { width: 100%; margin: 6px 0 0; padding-top: 14px; border-top: 1px solid var(--border); }
 }
 @media (prefers-reduced-motion: reduce) { .account-spinner { animation: none; } }
+
+.order-summary, .workspace-action-form fieldset { display: grid; gap: 12px; min-width: 0; }
+.order-summary, .order-actions, .workspace-action-form { margin-block: 20px; }
+.order-summary h2, .workspace-action-form h3 { font-size: 1.1rem; font-weight: 600; }
+.order-facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(160px, 100%), 1fr)); gap: 12px; }
+.order-facts dt, .order-note { color: var(--muted-foreground); }
+.order-facts dd, .order-summary, .workspace-action-form p { overflow-wrap: anywhere; }
+.order-facts a { text-decoration: underline; }
+.order-actions { display: grid; gap: 12px; }
+.order-actions .workspace-action-form { margin: 0; padding: 16px; border: 1px solid var(--border); border-radius: 6px; }
+.workspace-action-form label { display: grid; gap: 6px; }
+.workspace-action-form input { min-width: 0; min-height: 44px; padding: 8px 12px; border: 1px solid var(--input); border-radius: 6px; background: var(--card); color: var(--foreground); }
+.workspace-action-form button { justify-self: start; }
+.order-timeline { display: grid; gap: 10px; list-style: none; }
+.order-timeline li { border-inline-start: 2px solid var(--border); padding-inline-start: 12px; }

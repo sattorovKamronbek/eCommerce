@@ -60,7 +60,7 @@ export async function signupAction(locale: MarketplaceLocale, _previous: Account
     }
   } catch { return fail("registrationFailed"); }
   revalidatePath(`/${locale}/account`);
-  redirect(`/${locale}/account`);
+  redirect(safeReturnPath(form.get("next"), locale));
 }
 
 export async function loginAction(locale: MarketplaceLocale, _previous: AccountState, form: FormData): Promise<AccountState> {

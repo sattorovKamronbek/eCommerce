@@ -6,12 +6,14 @@ import { Input } from "@/components/ui/input";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { accessDictionaries } from "@/messages/admin-access";
 import { accountDictionaries } from "@/messages/account";
 import { localeNames, type MarketplaceLocale } from "@/messages/marketplace";
 import { adminUsersHref, type AdminFilters, type AdminProfiles } from "@/lib/auth/admin-users";
 
-export function AdminUsersView({ locale, filters, result }: { locale: MarketplaceLocale; filters: AdminFilters; result: AdminProfiles }) {
+export function AdminUsersView({ locale, filters, result, manage = false }: { locale: MarketplaceLocale; filters: AdminFilters; result: AdminProfiles; manage?: boolean }) {
   const copy = accountDictionaries[locale];
+  const accessCopy = accessDictionaries[locale];
   const filtered = !!(filters.q || filters.language);
   const base = `/${locale}/admin/users`;
   const date = new Intl.DateTimeFormat(locale === "uz" ? "uz-UZ" : locale === "ru" ? "ru-RU" : "en-US", { dateStyle: "medium", timeZone: "UTC" });
@@ -33,10 +35,11 @@ export function AdminUsersView({ locale, filters, result }: { locale: Marketplac
       <div className="account-table-scroll" tabIndex={0} role="region" aria-label={copy.users}>
         <table className="account-table">
           <caption className="sr-only">{copy.usersIntro}</caption>
-          <thead><tr><th scope="col">{copy.displayName}</th><th scope="col">{copy.identifier}</th><th scope="col">{copy.preferredLocale}</th><th scope="col">{copy.created}</th></tr></thead>
+          <thead><tr><th scope="col">{copy.displayName}</th><th scope="col">{copy.identifier}</th><th scope="col">{copy.preferredLocale}</th><th scope="col">{copy.created}</th>{manage ? <th scope="col">{accessCopy.manage}</th> : null}</tr></thead>
           <tbody>{result.rows.map(profile => <tr key={profile.id}>
             <td><span className="account-table-name">{profile.display_name || copy.unnamed}</span></td><td><code>{profile.id}</code></td>
             <td>{localeNames[profile.preferred_locale]}</td><td><time dateTime={profile.created_at}>{date.format(new Date(profile.created_at))}</time></td>
+            {manage ? <td><Link className="mp-text-link" href={`${base}/${profile.id}`} aria-label={`${accessCopy.manage} · ${profile.display_name || profile.id}`}>{accessCopy.manage}</Link></td> : null}
           </tr>)}</tbody>
         </table>
         {!result.rows.length ? <div className="workspace-empty">
@@ -51,6 +54,6 @@ export function AdminUsersView({ locale, filters, result }: { locale: Marketplac
         {result.hasNext ? <Link href={adminUsersHref(locale, filters, filters.page + 1)} rel="next">{copy.next}<ArrowRight aria-hidden="true" /></Link> : <span aria-disabled="true">{copy.next}<ArrowRight aria-hidden="true" /></span>}
       </nav>
     </>}
-    <div className="workspace-note"><Info aria-hidden="true" /><div><p>{copy.readOnly}</p><span>{copy.readOnlyBody}</span></div></div>
+    {!manage ? <div className="workspace-note"><Info aria-hidden="true" /><div><p>{copy.readOnly}</p><span>{copy.readOnlyBody}</span></div></div> : null}
   </WorkspaceShell>;
 }

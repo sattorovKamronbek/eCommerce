@@ -4,7 +4,7 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 import type { MarketplaceLocale } from "@/messages/marketplace";
 import { safeReturnPath } from "./validation";
 
-export async function requireAccount(locale: MarketplaceLocale, destination = `/${locale}/account`, options: { allowMfaPending?: boolean } = {}) {
+export async function requireAccount(locale: MarketplaceLocale, destination = `/${locale}/account`, options: { allowMfaPending?: boolean; allowSuspended?: boolean } = {}) {
   const client = await createServerSupabaseClient();
   if (!client) return null;
   let result;
@@ -12,13 +12,21 @@ export async function requireAccount(locale: MarketplaceLocale, destination = `/
   if (result.error && result.error.name !== "AuthSessionMissingError" && result.error.status !== 401 && result.error.status !== 403) return null;
   const user = result.data.user;
   if (!user?.email_confirmed_at) redirect(`/${locale}/account/login?next=${encodeURIComponent(safeReturnPath(destination, locale))}`);
+  try {
+    const status = await client.rpc("marketplace_account_is_active");
+    // The account slice can run on the preceding schema during rollout.
+    if (status.error?.code !== "PGRST202") {
+      if (status.error) return null;
+      if (!status.data) return options.allowSuspended ? { client, user, suspended: true } : null;
+    }
+  } catch { return null; }
   if (!options.allowMfaPending && user.factors?.some(factor => factor.status === "verified")) {
     let assurance;
     try { assurance = await client.auth.mfa.getAuthenticatorAssuranceLevel(); } catch { return null; }
     if (assurance.error) return null;
     if (assurance.data.currentLevel !== "aal2") redirect(`/${locale}/account/security?next=${encodeURIComponent(safeReturnPath(destination, locale))}`);
   }
-  return { client, user };
+  return { client, user, suspended: false };
 }
 
 export async function requireAdmin(locale: MarketplaceLocale, destination = `/${locale}/admin`) {
