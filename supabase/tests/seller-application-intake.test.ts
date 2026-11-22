@@ -11,6 +11,7 @@ const admin = "00000000-0000-4000-8000-000000000004";
 const owner = "00000000-0000-4000-8000-000000000005";
 const inactiveCustomer = "00000000-0000-4000-8000-000000000006";
 const unverifiedAdmin = "00000000-0000-4000-8000-000000000007";
+const storeBuyer = "00000000-0000-4000-8000-000000000008";
 
 const getIntake = "select * from public.marketplace_seller_intake_status()";
 const setIntake = "select public.marketplace_set_seller_intake($1)";
@@ -20,12 +21,12 @@ const insertApplication = `insert into public.marketplace_seller_applications
 const resubmit = `select public.marketplace_resubmit_seller_application(
   'individual', 'Applicant revised', 'applicant@example.test', 'Tashkent', 'both', null)`;
 
-function asUser(id: string | null, sql: string, params: unknown[] = [], level = "aal1") {
+function asUser<T = Record<string, unknown>>(id: string | null, sql: string, params: unknown[] = [], level = "aal1") {
   return db.transaction(async (tx) => {
     await tx.exec(id ? "set local role authenticated" : "set local role anon");
     await tx.query("select set_config('request.jwt.claim.sub', $1, true), set_config('request.jwt.claims', $2, true)",
       [id ?? "", JSON.stringify({ aal: level })]);
-    return tx.query(sql, params);
+    return tx.query<T>(sql, params);
   });
 }
 
@@ -40,11 +41,12 @@ beforeAll(async () => {
     create function auth.jwt() returns jsonb language sql stable as $$
       select coalesce(nullif(current_setting('request.jwt.claims', true), '')::jsonb, '{}'::jsonb) $$;
     grant usage on schema auth to anon, authenticated;`);
-  for (const id of [applicant, pendingSeller, customer, admin, owner, inactiveCustomer, unverifiedAdmin]) {
+  for (const id of [applicant, pendingSeller, customer, admin, owner, inactiveCustomer, unverifiedAdmin, storeBuyer]) {
     await db.query("insert into auth.users (id, raw_user_meta_data, email_confirmed_at) values ($1, '{}', now())", [id]);
   }
   for (const name of ["202611110001_accounts.sql", "202611160001_seller_applications.sql", "202611160002_owner_role.sql",
-    "202611160003_seller_catalog.sql", "202611180004_enforce_mfa.sql", "202611210005_direct_orders.sql", "202611210006_admin_accounts.sql"]) {
+    "202611160003_seller_catalog.sql", "202611180004_enforce_mfa.sql", "202611210005_direct_orders.sql",
+    "202611210006_admin_accounts.sql", "202611210011_direct_order_ecosystems.sql"]) {
     await db.exec(await readFile(new URL(`../migrations/${name}`, import.meta.url), "utf8"));
   }
   await db.query("insert into auth.mfa_factors values ($1, 'verified'), ($2, 'verified'), ($3, 'verified'), ($4, 'unverified')",
@@ -117,4 +119,65 @@ it("preserves verification and seller grants for pending applications while clos
     .toEqual([{ application_revision: 1 }]);
   expect((await asUser(pendingSeller, "select marketplace_private.can_manage_listing($1, 'fashion') as allowed", [pendingSeller], "aal2")).rows)
     .toEqual([{ allowed: true }]);
+});
+
+it("locks single-vendor intake and catalog writes while preserving existing orders and history", async () => {
+  const listingId = "10000000-0000-4000-8000-000000000001";
+  const orderId = "20000000-0000-4000-8000-000000000001";
+  const createListing = `insert into public.marketplace_listings
+    (id, seller_id, ecosystem, title, description, price_tiyin, quantity, state)
+    values ($1, $2, 'fashion', 'Store shirt', 'Details', 100, 2, 'published')`;
+  const editListing = "update public.marketplace_listings set price_tiyin = 150 where id = $1 returning id";
+  const checkoutTerms = "select public.marketplace_set_checkout_terms($1, '+998901234567', 50, null)";
+  const applicantStatus = "select status, revision from public.marketplace_seller_applications where applicant_id = $1";
+  const applicationBefore = await asUser(applicant, applicantStatus, [applicant]);
+
+  await asUser(owner, setIntake, [true], "aal2");
+  for (const id of [pendingSeller, owner, admin]) {
+    await db.query(`${insertApplication} on conflict (applicant_id) do nothing`, [id, "fashion"]);
+    await db.query("update public.marketplace_seller_applications set status = 'approved' where applicant_id = $1", [id]);
+    await db.query("insert into public.marketplace_seller_grants (seller_id, application_revision) values ($1, 1) on conflict do nothing", [id]);
+  }
+  await asUser(pendingSeller, createListing, [listingId, pendingSeller], "aal2");
+  await asUser(pendingSeller, checkoutTerms, [listingId], "aal2");
+  await db.exec("update marketplace_private.direct_order_settings set accepting_orders = true");
+  const getOffer = "select quote from public.marketplace_checkout_offers where listing_id = $1";
+  const offer = await asUser<{ quote: string }>(null, getOffer, [listingId]);
+  const reserve = "select public.marketplace_reserve_order($1, $2, $3, 1, 'Buyer', '+998909876543', 'Test street') as id";
+  const reservation = [orderId, listingId, offer.rows[0].quote];
+  await asUser(storeBuyer, reserve, reservation);
+
+  await db.exec(await readFile(new URL("../migrations/202611220014_single_vendor_transition.sql", import.meta.url), "utf8"));
+
+  expect((await asUser(storeBuyer, getIntake)).rows).toEqual([{ is_open: false, has_application: false }]);
+  await expect(asUser(owner, setIntake, [true], "aal2")).rejects.toMatchObject({ code: "42501" });
+  await expect(asUser(storeBuyer, insertApplication, [storeBuyer, "both"])).rejects.toMatchObject({ code: "42501" });
+  await expect(asUser(applicant, resubmit)).rejects.toMatchObject({ code: "42501" });
+  await expect(asUser(admin, "select public.marketplace_verify_seller($1, 1, $2)", [applicant, "a".repeat(64)], "aal2"))
+    .rejects.toMatchObject({ code: "42501" });
+  await expect(asUser(admin, "select public.marketplace_review_seller_application($1, 'reopen', 1)", [applicant], "aal2"))
+    .rejects.toMatchObject({ code: "42501" });
+  await expect(asUser(pendingSeller, "select public.marketplace_create_seller_challenge()", [], "aal2"))
+    .rejects.toMatchObject({ code: "42501" });
+
+  expect((await asUser(applicant, applicantStatus, [applicant])).rows).toEqual(applicationBefore.rows);
+  await expect(asUser(pendingSeller, createListing, [crypto.randomUUID(), pendingSeller], "aal2")).rejects.toMatchObject({ code: "42501" });
+  expect((await asUser(pendingSeller, editListing, [listingId], "aal2")).rows).toEqual([]);
+  await expect(asUser(pendingSeller, checkoutTerms, [listingId], "aal2")).rejects.toMatchObject({ code: "42501" });
+  for (const id of [owner, admin]) {
+    const internalListing = crypto.randomUUID();
+    await expect(asUser(id, createListing, [internalListing, id], "aal1")).rejects.toMatchObject({ code: "42501" });
+    await asUser(id, createListing, [internalListing, id], "aal2");
+    expect((await asUser(id, editListing, [internalListing], "aal2")).rows).toEqual([{ id: internalListing }]);
+    await asUser(id, checkoutTerms, [internalListing], "aal2");
+    expect((await asUser(id, editListing, [listingId], "aal2")).rows).toEqual([]);
+  }
+  expect((await asUser(null, "select price_tiyin from public.marketplace_public_listings where id = $1", [listingId])).rows)
+    .toEqual([{ price_tiyin: 100 }]);
+  expect((await asUser(null, getOffer, [listingId])).rows).toEqual([]);
+  await expect(asUser(storeBuyer, reserve, [crypto.randomUUID(), ...reservation.slice(1)])).rejects.toMatchObject({ code: "P0002" });
+  expect((await asUser(storeBuyer, reserve, reservation)).rows).toEqual([{ id: orderId }]);
+  await asUser(pendingSeller, "select public.marketplace_update_order($1, 'report', 1, null, 'reference', 150, now())", [orderId], "aal2");
+  expect((await asUser(storeBuyer, "select status from public.marketplace_orders where id = $1", [orderId])).rows)
+    .toEqual([{ status: "reported" }]);
 });

@@ -25,10 +25,10 @@ export function WorkspaceShell({ locale, title, intro, active, admin, sellerInta
         {admin ? <Link href={`/${locale}/admin/orders`} aria-current={active === "adminOrders" ? "page" : undefined}><Package aria-hidden="true" />{orderDictionaries[locale].adminOrders}</Link> : null}
         <Link href={`/${locale}/account/orders`} aria-current={active === "orders" ? "page" : undefined}><Package aria-hidden="true" />{orderDictionaries[locale].orders}</Link>
         <Link href={`/${locale}/account`} aria-current={active === "profile" ? "page" : undefined}><UserRound aria-hidden="true" />{copy.profile}</Link>
-        {(sellerIntake?.is_open || sellerIntake?.has_application) && <Link href={`/${locale}/seller/apply`} prefetch={false}><Store aria-hidden="true" />
-          {sellerIntake.has_application ? sellerCopy.status : sellerCopy.applicationLink}
+        {sellerIntake?.has_application && <Link href={`/${locale}/seller/apply`} prefetch={false}><Store aria-hidden="true" />
+          {sellerCopy.status}
         </Link>}
-        <Link href={`/${locale}/seller/products`} aria-current={active === "products" ? "page" : undefined}><Store aria-hidden="true" />{listingDictionaries[locale].listingLink}</Link>
+        {(admin || active === "products") && <Link href={`/${locale}/seller/products`} aria-current={active === "products" ? "page" : undefined}><Store aria-hidden="true" />{listingDictionaries[locale].products}</Link>}
       </nav>
       <Link className="workspace-back" href={`/${locale}/marketplace`}><ArrowLeft aria-hidden="true" />{copy.back}</Link>
     </aside>

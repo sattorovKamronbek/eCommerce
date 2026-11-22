@@ -1,5 +1,10 @@
 # Owner and seller setup in Supabase
 
+This is a reference for the existing marketplace schema and legacy orders.
+The single-vendor launch closes onboarding. Use the [current roadmap](MILESTONES.md)
+for the cutover and its production checks. The legacy launch steps below
+do not authorize reopening seller intake or taking new payments.
+
 Use this guide after checking production migration history and object presence.
 The November 21 production check found the CS2 and clothing listing schema in
 the database while versions `202611210008` and `202611210009` were absent from

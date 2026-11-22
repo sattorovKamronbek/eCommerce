@@ -17,8 +17,8 @@ export async function SellerAccessNotice({ locale, kind }: { locale: Marketplace
   const client = await createServerSupabaseClient();
   const intake = client ? await loadSellerIntake(client) : null;
   return <AccountShell locale={locale} title={copy.products} intro={copy.requireApproval}>
-    {(intake?.is_open || intake?.has_application) && <Link className="mp-text-link" href={`/${locale}/seller/apply`} prefetch={false}>
-      {intake.has_application ? sellerDictionaries[locale].status : copy.apply}
+    {intake?.has_application && <Link className="mp-text-link" href={`/${locale}/seller/apply`} prefetch={false}>
+      {sellerDictionaries[locale].status}
     </Link>}
   </AccountShell>;
 }

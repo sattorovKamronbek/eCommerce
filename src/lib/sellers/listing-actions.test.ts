@@ -3,15 +3,14 @@ import { readFile } from "node:fs/promises";
 import { beforeEach, expect, it, vi } from "vitest";
 vi.mock("server-only", () => ({}));
 const mock = vi.hoisted(() => ({
-  requireAccount: vi.fn(), requireSeller: vi.fn(), insert: vi.fn(), from: vi.fn(),
+  requireSeller: vi.fn(), insert: vi.fn(), from: vi.fn(),
   upload: vi.fn(), remove: vi.fn(), rpc: vi.fn(),
   redirect: vi.fn((path: string) => { throw new Error(`REDIRECT:${path}`); }),
 }));
 vi.mock("next/navigation", () => ({ redirect: mock.redirect }));
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
-vi.mock("@/lib/auth/access", () => ({ requireAccount: mock.requireAccount }));
 vi.mock("@/lib/sellers/access", () => ({ requireSeller: mock.requireSeller }));
-import { createListing, updateListing } from "@/app/(marketplace)/[locale]/seller/products/actions";
+import { archiveListing, createListing, updateListing } from "@/app/(marketplace)/[locale]/seller/products/actions";
 
 const seller = "00000000-0000-4000-8000-000000000001";
 function form(values: Record<string, string>) { const data = new FormData(); for (const [key, value] of Object.entries(values)) data.set(key, value); return data; }
@@ -35,7 +34,6 @@ beforeEach(() => {
     user: { id: seller },
     client: { from: mock.from, rpc: mock.rpc, storage: { from: () => ({ upload: mock.upload, remove: mock.remove }) } },
   };
-  mock.requireAccount.mockResolvedValue(account);
   mock.requireSeller.mockResolvedValue({ kind: "seller", account, scope: "both" });
   const lookup = { eq: vi.fn(), limit: vi.fn(), maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }) };
   lookup.eq.mockReturnValue(lookup);
@@ -105,6 +103,15 @@ it("creates listings only for the authenticated seller and computes exact money 
   await expect(createListing("en", {}, form(valid))).rejects.toThrow("REDIRECT:/en/seller/products");
   expect(mock.from).toHaveBeenCalledWith("marketplace_listings");
   expect(mock.insert).toHaveBeenCalledWith({ seller_id: seller, ecosystem: "fashion", title: "Jacket", description: "Details", category: "", variant: "", price_tiyin: 1050, quantity: 1, state: "draft" });
+});
+
+it("denies legacy listing mutations when the caller lacks current catalog access", async () => {
+  const updatedAt = "2026-11-21T08:00:00.124502+00:00";
+  mock.requireSeller.mockResolvedValue({ kind: "denied" });
+  expect(await createListing("en", {}, form(valid))).toEqual({ error: "unavailable" });
+  expect(await updateListing("en", group, updatedAt, {}, form(valid))).toEqual({ error: "unavailable" });
+  await expect(archiveListing("en", form({ id: group }))).rejects.toThrow("REDIRECT:/en/seller/products?error=unavailable");
+  expect(mock.from).not.toHaveBeenCalled();
 });
 
 it("creates one atomic batch of authorized CS2 variants with their own exact price and photo", async () => {

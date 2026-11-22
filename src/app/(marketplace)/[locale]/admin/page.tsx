@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, CircleCheck, ClipboardList, Package, ReceiptText, ShieldCheck, TriangleAlert, UsersRound } from "lucide-react";
+import { ArrowRight, CircleCheck, ClipboardList, Package, ReceiptText, TriangleAlert, UsersRound } from "lucide-react";
 import { AccountUnavailable, AccountDenied, accountLocale } from "@/components/account/shell";
 import { WorkspaceShell } from "@/components/account/workspace";
 import { requireAdmin } from "@/lib/auth/access";
@@ -8,7 +8,6 @@ import { dashboardDictionaries } from "@/messages/admin-dashboard";
 
 const sections = [
   { key: "users", path: "/users", icon: UsersRound },
-  { key: "sellers", path: "/sellers?status=pending", icon: ShieldCheck },
   { key: "listings", path: "/listings", icon: Package },
   { key: "orders", path: "/orders", icon: ClipboardList },
   { key: "payments", path: "/orders?status=reported", icon: ReceiptText },

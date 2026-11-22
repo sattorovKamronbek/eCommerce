@@ -70,7 +70,7 @@ test("homepage opens seller catalogs without sample listings or a demo banner", 
   await expect(page.getByRole("heading", { level: 1 })).toContainText("Seller listings");
 });
 
-test("home explains both marketplace directions and direct payment", async ({ page }) => {
+test("home explains how to buy CS2 skins and clothing", async ({ page }) => {
   await page.goto("/uz/marketplace");
   const copy = marketplaceDictionaries.uz;
   const details = page.getByRole("region", { name: copy.buyingTitle });
@@ -79,6 +79,7 @@ test("home explains both marketplace directions and direct payment", async ({ pa
   await expect(details.getByText(copy.planNote)).toBeVisible();
   await details.getByRole("link", { name: copy.how }).click();
   await expect(page).toHaveURL(/\/uz\/marketplace\/how-it-works$/);
+  await expect(page.getByRole("heading", { name: "Qanday xarid qilish mumkin", exact: true })).toBeVisible();
 });
 
 test("keyboard entry and translated narrow layouts remain usable", async ({ page }) => {

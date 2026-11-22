@@ -24,7 +24,6 @@ it("shows an owner dashboard with localized routes to existing workflows", async
   const modules = within(screen.getByRole("list"));
   for (const [name, href] of [
     [/Foydalanuvchilar/, "/uz/admin/users"],
-    [/Sotuvchi arizalari/, "/uz/admin/sellers?status=pending"],
     [/E’lonlar/, "/uz/admin/listings"],
     [/Buyurtmalar/, "/uz/admin/orders"],
     [/To‘lovni tekshirish/, "/uz/admin/orders?status=reported"],
@@ -34,6 +33,8 @@ it("shows an owner dashboard with localized routes to existing workflows", async
     expect(modules.getByRole("link", { name })).toHaveAttribute("href", href);
   }
   expect(within(modules.getByRole("link", { name: /To‘lovni tekshirish/ })).getByText("7")).toBeVisible();
+  expect(modules.queryByRole("link", { name: /arizalari/i })).not.toBeInTheDocument();
+  expect(screen.getByRole("link", { name: "Sotuvchilik arizalari tarixi" })).toHaveAttribute("href", "/uz/admin/sellers");
   expect(screen.getByText("CS2 bandlovlari")).toBeVisible();
   expect(screen.getByText("Kiyim bandlovlari")).toBeVisible();
   expect(screen.getByRole("link", { current: "page" })).toHaveAttribute("href", "/uz/admin");

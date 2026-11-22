@@ -289,3 +289,21 @@ it("reserves only the selected wear at the existing checkout terms", async () =>
   expect((await asUser(buyer, "select listing_id, total_tiyin from public.marketplace_orders")).rows)
     .toEqual([{ listing_id: reserveFn, total_tiyin: 38000000 }]);
 });
+
+it("retains public CS2 photos and restricts new uploads to authorized operators after the transition", async () => {
+  const id = crypto.randomUUID();
+  const path = `${id}/${photo}`;
+  await uploadObject(seller, path);
+  await asUser(seller, createVariant, [id, seller, "cs2", "USP-S | Printstream", "pistol", "WW", 200,
+    "published", crypto.randomUUID(), "pistol", "USP-S", "WW", [photo]]);
+  await db.query("insert into public.marketplace_user_roles(user_id, role) values ($1, 'admin')", [otherSeller]);
+  for (const name of ["202611220012_seller_application_intake.sql", "202611220014_single_vendor_transition.sql"]) {
+    await db.exec(await readFile(new URL(`../migrations/${name}`, import.meta.url), "utf8"));
+  }
+
+  expect((await readObject(null, path, { operation: downloadInfo })).rows).toEqual([{ name: path }]);
+  await expect(uploadObject(seller, `${id}/${extraPhoto}`)).rejects.toMatchObject({ code: "42501" });
+  const nextPath = `${crypto.randomUUID()}/${photo}`;
+  await uploadObject(otherSeller, nextPath);
+  expect((await readObject(otherSeller, nextPath)).rows).toEqual([{ name: nextPath }]);
+});

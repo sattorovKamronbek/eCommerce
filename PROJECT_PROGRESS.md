@@ -1,5 +1,47 @@
 # Project progress
 
+## Single-vendor transition — 2026-11-22
+
+VERSAX will launch with its own CS2 and clothing inventory. The
+[product requirements](PRODUCT_REQUIREMENTS.md) record the owner's decision.
+The [roadmap](docs/MILESTONES.md) covers all 16 operations modules and
+the [architecture](docs/ARCHITECTURE.md) documents the domain boundaries.
+
+The app presents earlier seller applications as private, read-only history.
+Customer accounts no longer offer seller registration or catalog authoring.
+The owner/admin navigation links to the retained product editors. All catalog
+write actions now use the shared verified access check. The
+[transition migration](supabase/migrations/202611220014_single_vendor_transition.sql)
+closes seller intake and its write APIs and requires an existing `owner` or
+`admin` role, a verified MFA session and a matching catalog grant for private
+catalog management. Customer accounts and role assignments are preserved.
+
+Applying the migration pauses new legacy reservations while inventory and
+payment terms are reconciled. Existing orders can still be viewed and updated,
+and the expiration job and idempotent reservation retries remain available.
+Published catalog records and images remain readable. Prior order participants
+and account, listing and audit records are retained.
+
+`VITEST_MAX_WORKERS=2 npm run check` passed strict TypeScript, 224
+unit/component/database tests in 47 files, and the production build. ESLint
+reported two existing warnings in account security actions and zero errors.
+PGlite exercised denied onboarding and catalog writes, permitted owner/admin
+writes, public images in both categories, rejection of a new reservation,
+and retry and payment-report actions on an existing order.
+Playwright passed 30 focused Chromium checks across desktop, tablet, and
+mobile against the local production build. They covered customer registration
+and recovery, protected catalog and admin routes, sign-in return paths, and
+storefront catalog and guide navigation. Authenticated data access was covered
+by component and PGlite tests. The Browser plugin was unavailable.
+
+The migration and app build are local. Production still needs verification that
+the designated operator can edit both categories under the current grants,
+confirmation of which inventory and checkout terms belong to VERSAX, and a plan
+for any open legacy orders. Shared inventory access and configurable admin and
+Manager/Staff permissions remain planned. Live checkout also depends on
+merchant payment/refund decisions, CS2 verification and trade procedures, and
+clothing shipping and returns. See the [rollout gates](docs/MILESTONES.md).
+
 ## Administrator activity and operations — 2026-11-22
 
 The overview now shows profile, listing and order counts, pending seller

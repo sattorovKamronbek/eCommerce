@@ -283,3 +283,22 @@ it("rejects oversized matrices, duplicate color names, and incorrectly owned gal
   await expect(asUser(seller, "update marketplace_listings set fashion_size='S' where id=$1", [versions[0].id])).rejects.toMatchObject({ code: "42501" });
   await expect(asUser(seller, "update marketplace_listings set state='archived',quantity=999 where id=$1", [versions[0].id])).rejects.toMatchObject({ code: "42501" });
 });
+
+it("retains published clothing galleries and restricts variant writes after the transition", async () => {
+  const id = crypto.randomUUID();
+  const color = { ...black(), images: [photo] };
+  const path = `${color.id}/${photo}`;
+  await uploadObject(seller, path);
+  await save(id, [color]);
+  const version = await snapshot(id);
+  await db.query("insert into public.marketplace_user_roles(user_id, role) values ($1, 'admin')", [fashionSeller]);
+  for (const name of ["202611220012_seller_application_intake.sql", "202611220014_single_vendor_transition.sql"]) {
+    await db.exec(await readFile(new URL(`../migrations/${name}`, import.meta.url), "utf8"));
+  }
+
+  expect((await readObject(null, path)).rows).toEqual([{ name: path }]);
+  await expect(uploadObject(seller, `${color.id}/${crypto.randomUUID()}.webp`)).rejects.toMatchObject({ code: "42501" });
+  await expect(save(id, [color], version)).rejects.toMatchObject({ code: "42501" });
+  const storeProduct = crypto.randomUUID();
+  expect((await save(storeProduct, [black()], { who: fashionSeller })).rows).toEqual([{ id: storeProduct }]);
+});
