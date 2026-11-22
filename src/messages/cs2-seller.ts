@@ -19,6 +19,9 @@ const en = {
   photoPrepare: "A photo couldn’t be prepared. Choose another image and try again.",
   reservationSetup: "Set up reservations",
   reservationSetupRequired: "Buyers can’t reserve this variant yet. Add a payment contact number and this item’s CS2 asset ID.",
+  reservationSettings: "CS2 reservation settings",
+  steamAssetId: "Steam Asset ID",
+  assetLocked: "The asset ID is locked for this listing.",
 };
 
 export const cs2SellerDictionaries: Record<MarketplaceLocale, typeof en> = {
@@ -42,6 +45,9 @@ export const cs2SellerDictionaries: Record<MarketplaceLocale, typeof en> = {
     photoPrepare: "Rasmni tayyorlab bo‘lmadi. Boshqa rasm tanlab, qayta urining.",
     reservationSetup: "Band qilishni sozlash",
     reservationSetupRequired: "Xaridorlar bu variantni hozircha band qila olmaydi. To‘lov uchun aloqa raqamini va shu buyumning CS2 asset ID’sini kiriting.",
+    reservationSettings: "CS2 bron sozlamalari",
+    steamAssetId: "Steam Asset ID",
+    assetLocked: "Bu e’lonning Asset ID’si tahrirlash uchun yopilgan.",
   },
   ru: {
     model: "Модель",
@@ -62,5 +68,8 @@ export const cs2SellerDictionaries: Record<MarketplaceLocale, typeof en> = {
     photoPrepare: "Не удалось подготовить фото. Выберите другое изображение и повторите попытку.",
     reservationSetup: "Настроить резервирование",
     reservationSetupRequired: "Покупатели пока не могут зарезервировать этот вариант. Укажите номер для связи по оплате и ID этого предмета CS2.",
+    reservationSettings: "Настройки резервирования CS2",
+    steamAssetId: "Steam Asset ID",
+    assetLocked: "ID предмета для этого объявления заблокирован для изменения.",
   },
 };

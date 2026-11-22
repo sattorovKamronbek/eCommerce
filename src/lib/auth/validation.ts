@@ -18,7 +18,7 @@ export function validFlowToken(value: unknown): value is string {
   return typeof value === "string" && /^[a-f0-9]{40,128}$/i.test(value);
 }
 export function safeReturnPath(input: unknown, locale: MarketplaceLocale): string {
-  const allowed = [`/${locale}/account`, `/${locale}/account/security`, `/${locale}/account/orders`, `/${locale}/admin`, `/${locale}/admin/users`, `/${locale}/admin/sellers`, `/${locale}/admin/listings`, `/${locale}/admin/orders`, `/${locale}/seller/apply`, `/${locale}/seller/products`];
+  const allowed = [`/${locale}/account`, `/${locale}/account/security`, `/${locale}/account/orders`, `/${locale}/account/cs2-reservations`, `/${locale}/admin`, `/${locale}/admin/users`, `/${locale}/admin/sellers`, `/${locale}/admin/listings`, `/${locale}/admin/orders`, `/${locale}/seller/apply`, `/${locale}/seller/products`];
   if (typeof input !== "string") return allowed[0];
   if (allowed.includes(input)) return input;
   const [, targetLocale, section, feature, target, listing, ...extra] = input.split("/");

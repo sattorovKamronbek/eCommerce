@@ -54,6 +54,17 @@ orders, payments and fulfillment modular and document where merchant ownership
 would attach. The launch has one merchant and no seller payout or onboarding
 infrastructure beyond the retained historical implementation.
 
+### CS2 reservation setup and operations
+
+The owner designated Fazliddin to handle CS2 sales and Shakhriyor to handle
+clothing sales. Fazliddin enters the actual Steam Asset ID and buyer-facing
+payment contact for each of his published CS2 listings. The existing Owner
+can correct these settings. These responsibilities do not assign an Owner or
+Admin role to either operator.
+
+CS2 payment and Steam trade delivery start with the manual workflow. Any
+future trade automation depends on documented platform support and authorization.
+
 ### Decisions needed before live acceptance
 
 | Decision | Current launch status |

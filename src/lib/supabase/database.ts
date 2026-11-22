@@ -40,6 +40,9 @@ export type CheckoutTerms = {
 export type CheckoutOffer = Pick<PublicListing, "ecosystem" | "title" | "category" | "variant" | "description" | "price_tiyin"> & {
   listing_id: string; quote: string; shipping_tiyin: number;
 };
+export type Cs2ReservationSettings = Pick<SellerListing, "title" | "variant"> & {
+  listing_id: string; revision: string | null; seller_phone: string | null; cs2_asset_id: string | null; asset_editable: boolean;
+};
 export type DirectOrder = {
   id: string; listing_id: string; buyer_id: string; seller_id: string; ecosystem: SellerListing["ecosystem"];
   title: string; category: string; variant: string; description: string; quote: string; quantity: number;
@@ -132,6 +135,10 @@ export type Database = {
       };
       marketplace_set_checkout_terms: {
         Args: { p_listing_id: string; p_seller_phone: string; p_shipping_tiyin: number; p_cs2_asset_id: string | null }; Returns: undefined;
+      };
+      marketplace_cs2_reservation_settings: { Args: Record<string, never>; Returns: Cs2ReservationSettings[] };
+      marketplace_save_cs2_reservation_settings: {
+        Args: { p_listing_id: string; p_expected_revision: string | null; p_seller_phone: string; p_cs2_asset_id: string }; Returns: string;
       };
       marketplace_save_fashion_product: {
         Args: { p_product_id: string; p_expected_updated_at: string | null; p_details: FashionProductDetails;
