@@ -6,10 +6,10 @@ for the cutover and its production checks. The legacy launch steps below
 do not authorize reopening seller intake or taking new payments.
 
 Use this guide after checking production migration history and object presence.
-The November 21 production check found the CS2 and clothing listing schema in
-the database while versions `202611210008` and `202611210009` were absent from
-the CLI ledger. Compare the objects with their source before reconciling those
-versions. [Recovery and verification](../PROJECT_PROGRESS.md#cs2-production-photos-and-reservations--2026-11-22)
+The CS2 and clothing listing schema was already installed when versions
+`202611210008` and `202611210009` were missing from the CLI ledger. The November 22
+rollout verified those objects and reconciled the ledger.
+[Production migration evidence](../PROJECT_PROGRESS.md#production-migration-rollout--2026-11-22)
 
 The site uses project **xevzbtivteugbqbmmtyz**. Do not run these instructions in the owner's other application. No role or schema is changed automatically by the app.
 

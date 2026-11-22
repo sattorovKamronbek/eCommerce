@@ -1,5 +1,33 @@
 # Project progress
 
+## Production migration rollout — 2026-11-22
+
+Applied `202611220012` and `202611220013` with Supabase CLI 3.2.0 to the
+dedicated VERSAX production project `xevzbtivteugbqbmmtyz`. Read-only queries
+confirmed both migration history entries, closed seller intake, enabled Auth
+activity triggers, and both administrator activity RPCs. RLS protects sign-in
+history and authenticated clients cannot read its session identifier.
+
+The public API reported 10 catalog entries and zero checkout offers.
+Anonymous reads of sign-in history and seller applications
+returned HTTP 401 with PostgreSQL code `42501`. There were zero orders or
+checkout terms before the rollout. Ten focused PGlite tests passed across the
+intake and activity suites. Two desktop Chromium checks passed against the
+local production build for the public catalog and protected application history.
+
+Reconciled the migration ledger for `202611210008` and `202611210009` after
+comparing 99 installed variant schema definitions with a fresh migration replay.
+Column metadata confirmed 19 equivalent `NOT NULL` constraints across the two
+PostgreSQL versions. The CLI recorded both previously installed migrations as
+applied. [Supabase migration repair](https://supabase.com/docs/reference/cli/supabase-migration-repair)
+
+The preflight confirmed one active Owner with verified MFA and no catalog grant.
+All 10 CS2 listings are attached to one legacy seller account without an Owner
+or Admin role. Applying `202611220014` in that state would leave the existing
+published catalog without an authorized editor. The rollout of that version
+is pending the owner's decision about catalog access during cutover. After
+reconciliation, a CLI dry run listed `202611220014` as the only pending migration.
+
 ## Single-vendor transition — 2026-11-22
 
 VERSAX will launch with its own CS2 and clothing inventory. The
@@ -34,7 +62,7 @@ and recovery, protected catalog and admin routes, sign-in return paths, and
 storefront catalog and guide navigation. Authenticated data access was covered
 by component and PGlite tests. The Browser plugin was unavailable.
 
-The migration and app build are local. Production still needs verification that
+The transition migration and app build are local. Production still needs verification that
 the designated operator can edit both categories under the current grants,
 confirmation of which inventory and checkout terms belong to VERSAX, and a plan
 for any open legacy orders. Shared inventory access and configurable admin and
@@ -80,7 +108,7 @@ was unavailable.
 A read-only check of the dedicated VERSAX project found existing last sign-in
 values and no rows in the stored Auth audit log. It confirmed the session
 columns, password method claims and trigger permissions. The activity migration
-and this app release remain pending in production.
+was subsequently applied as recorded above. Application deployment is a separate step.
 
 ## Administrator-controlled seller application intake — 2026-11-22
 
@@ -109,7 +137,8 @@ workspace changes passed 27 tests in seven files, including four PGlite cases.
 Typecheck, the production build and ESLint passed. ESLint reported four
 pre-existing warnings. Logs are in `/tmp/versax-seller-intake-qa/`.
 
-The migration and application release are pending in production.
+The intake migration was subsequently applied as recorded above. Application
+deployment is a separate step.
 
 ## CS2 production photos and reservations — 2026-11-22
 
