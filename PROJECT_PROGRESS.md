@@ -47,6 +47,11 @@ After publishing the app, Fazliddin enters the real Asset ID and contact for
 each listing from Account → CS2 reservation settings. A configured, available
 listing can then use the existing manual reservation flow.
 
+A repeat SQL Editor run reported `42P07` for `cs2_reservation_operators`.
+A read-only production check found the migration ledger entry, both tables,
+both settings RPCs and the ten-listing operator assignment. The hosted settings
+route still returned HTTP 404, and the public catalog had zero CS2 offers.
+
 ## Production migration rollout — 2026-11-22
 
 Applied `202611220012` and `202611220013` with Supabase CLI 3.2.0 to the
