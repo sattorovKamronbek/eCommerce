@@ -3,15 +3,14 @@ import { readFile } from "node:fs/promises";
 import { beforeEach, expect, it, vi } from "vitest";
 vi.mock("server-only", () => ({}));
 const mock = vi.hoisted(() => ({
-  requireAccount: vi.fn(), requireSeller: vi.fn(), insert: vi.fn(), from: vi.fn(),
-  upload: vi.fn(), remove: vi.fn(),
+  requireSeller: vi.fn(), insert: vi.fn(), from: vi.fn(),
+  upload: vi.fn(), remove: vi.fn(), rpc: vi.fn(),
   redirect: vi.fn((path: string) => { throw new Error(`REDIRECT:${path}`); }),
 }));
 vi.mock("next/navigation", () => ({ redirect: mock.redirect }));
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
-vi.mock("@/lib/auth/access", () => ({ requireAccount: mock.requireAccount }));
 vi.mock("@/lib/sellers/access", () => ({ requireSeller: mock.requireSeller }));
-import { createListing, updateListing } from "@/app/(marketplace)/[locale]/seller/products/actions";
+import { archiveListing, createListing, updateListing } from "@/app/(marketplace)/[locale]/seller/products/actions";
 
 const seller = "00000000-0000-4000-8000-000000000001";
 function form(values: Record<string, string>) { const data = new FormData(); for (const [key, value] of Object.entries(values)) data.set(key, value); return data; }
@@ -33,9 +32,8 @@ beforeEach(() => {
   vi.clearAllMocks();
   const account = {
     user: { id: seller },
-    client: { from: mock.from, storage: { from: () => ({ upload: mock.upload, remove: mock.remove }) } },
+    client: { from: mock.from, rpc: mock.rpc, storage: { from: () => ({ upload: mock.upload, remove: mock.remove }) } },
   };
-  mock.requireAccount.mockResolvedValue(account);
   mock.requireSeller.mockResolvedValue({ kind: "seller", account, scope: "both" });
   const lookup = { eq: vi.fn(), limit: vi.fn(), maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }) };
   lookup.eq.mockReturnValue(lookup);
@@ -44,12 +42,76 @@ beforeEach(() => {
   mock.insert.mockResolvedValue({ error: null });
   mock.upload.mockResolvedValue({ error: null });
   mock.remove.mockResolvedValue({ error: null });
+  mock.rpc.mockReturnValue({ retry: () => Promise.resolve({ data: group, error: null }) });
+});
+
+const black = "20000000-0000-4000-8000-000000000001";
+const white = "20000000-0000-4000-8000-000000000002";
+
+function fashionForm(colors = [
+  { id: black, name: "Black", sizes: [{ size: "m", quantity: "3", price: "" }, { size: "L", quantity: "0", price: "11.25" }] },
+  { id: white, name: "White", sizes: [{ size: "M", quantity: "1", price: "" }] },
+]) {
+  return form({ ...valid, category: "Polo shirts", state: "published", fashionProductId: group,
+    fashionBrand: "VERSAX", fashionMaterial: "100% cotton", fashionFit: "Regular", fashionCare: "30 °C",
+    fashionPayload: JSON.stringify({ colors, sizeGuide: [{ size: "M", measurements: "Chest 96, length 70" }] }),
+  });
+}
+
+it("saves one authorized clothing product with shared color photos and independent stock and prices", async () => {
+  const data = fashionForm();
+  const photo = new File([await readFile("public/images/brand/versax.webp")], "polo.webp", { type: "image/webp" });
+  data.append(`fashionPhoto-${black}`, photo);
+  await expect(createListing("en", {}, data)).rejects.toThrow("REDIRECT:/en/seller/products");
+  expect(mock.rpc).toHaveBeenCalledTimes(1);
+  expect(mock.rpc).toHaveBeenCalledWith("marketplace_save_fashion_product", {
+    p_product_id: group, p_expected_updated_at: null, p_versions: [],
+    p_details: {
+      title: "Jacket", description: "Details", category: "Polo shirts", brand: "VERSAX", material: "100% cotton",
+      fit: "Regular", care: "30 °C", price_tiyin: 1050, state: "published",
+      size_guide: [{ size: "M", measurements: "Chest 96, length 70" }],
+    },
+    p_colors: [
+      { id: black, name: "Black", images: [expect.stringMatching(/\.webp$/)], variants: [
+        { size: "M", quantity: 3, price_tiyin: null }, { size: "L", quantity: 0, price_tiyin: 1125 },
+      ] },
+      { id: white, name: "White", images: [], variants: [{ size: "M", quantity: 1, price_tiyin: null }] },
+    ],
+  });
+  const [name] = mock.rpc.mock.calls[0][1].p_colors[0].images;
+  expect(mock.upload).toHaveBeenCalledWith(`${black}/${name}`, photo, expect.objectContaining({ upsert: false }));
+  expect(mock.insert).not.toHaveBeenCalled();
+});
+
+it("refuses duplicate clothing sizes regardless of case and whitespace", async () => {
+  const data = fashionForm([{ id: black, name: "Black", sizes: [
+    { size: " M ", quantity: "1", price: "" }, { size: "m", quantity: "2", price: "" },
+  ] }]);
+  expect(await createListing("en", {}, data)).toEqual({ error: "invalid" });
+  expect(mock.rpc).not.toHaveBeenCalled();
+  expect(mock.insert).not.toHaveBeenCalled();
+});
+
+it("rejects structured clothing submissions from a CS2-only seller", async () => {
+  mock.requireSeller.mockResolvedValueOnce({ kind: "seller", scope: "cs2" });
+  expect(await createListing("en", {}, fashionForm())).toEqual({ error: "unavailable" });
+  expect(mock.rpc).not.toHaveBeenCalled();
+  expect(mock.insert).not.toHaveBeenCalled();
 });
 
 it("creates listings only for the authenticated seller and computes exact money on the server", async () => {
   await expect(createListing("en", {}, form(valid))).rejects.toThrow("REDIRECT:/en/seller/products");
   expect(mock.from).toHaveBeenCalledWith("marketplace_listings");
   expect(mock.insert).toHaveBeenCalledWith({ seller_id: seller, ecosystem: "fashion", title: "Jacket", description: "Details", category: "", variant: "", price_tiyin: 1050, quantity: 1, state: "draft" });
+});
+
+it("denies legacy listing mutations when the caller lacks current catalog access", async () => {
+  const updatedAt = "2026-11-21T08:00:00.124502+00:00";
+  mock.requireSeller.mockResolvedValue({ kind: "denied" });
+  expect(await createListing("en", {}, form(valid))).toEqual({ error: "unavailable" });
+  expect(await updateListing("en", group, updatedAt, {}, form(valid))).toEqual({ error: "unavailable" });
+  await expect(archiveListing("en", form({ id: group }))).rejects.toThrow("REDIRECT:/en/seller/products?error=unavailable");
+  expect(mock.from).not.toHaveBeenCalled();
 });
 
 it("creates one atomic batch of authorized CS2 variants with their own exact price and photo", async () => {

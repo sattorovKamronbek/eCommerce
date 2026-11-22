@@ -1,8 +1,15 @@
 # Owner and seller setup in Supabase
 
-As of 2026-11-21, the production migration history includes all seven repository
-versions. Use this guide for remaining setup and for recovery after checking the
-actual migration history. [Production verification](../PROJECT_PROGRESS.md#production-supabase-migrations--2026-11-21)
+This is a reference for the existing marketplace schema and legacy orders.
+The single-vendor launch closes onboarding. Use the [current roadmap](MILESTONES.md)
+for the cutover and its production checks. The legacy launch steps below
+do not authorize reopening seller intake or taking new payments.
+
+Use this guide after checking production migration history and object presence.
+The CS2 and clothing listing schema was already installed when versions
+`202611210008` and `202611210009` were missing from the CLI ledger. The November 22
+rollout verified those objects and reconciled the ledger.
+[Production migration evidence](../PROJECT_PROGRESS.md#production-migration-rollout--2026-11-22)
 
 The site uses project **xevzbtivteugbqbmmtyz**. Do not run these instructions in the owner's other application. No role or schema is changed automatically by the app.
 
@@ -19,22 +26,14 @@ The bundle is generated from four repository migrations by `node scripts/build-o
 
 1. Verify the account and seller objects above. Apply the next platform migrations in version order using the same reviewed migration workflow. [Direct orders](../supabase/migrations/202611210005_direct_orders.sql), [account administration](../supabase/migrations/202611210006_admin_accounts.sql).
 2. Verify signup and sign-in with dedicated test accounts. Verify the owner and administrator sign in with a configured authenticator. In `/uz/admin/users`, an administrator can suspend or restore customer access. The owner can grant or revoke the administrator role after fresh TOTP verification. Confirm the exact candidate UUID and account control independently. The candidate must already have a verified MFA factor. The owner role is managed through [owner bootstrap](OWNER_BOOTSTRAP.md).
-3. Enable Supabase Cron in this project. Run the expiration job as the database administrator. A one-minute schedule closes orders with no payment report after their 48-hour deadline and releases their reserved stock. It leaves reported orders available for review. Check the job's execution history in the dashboard. [Supabase Cron setup](https://supabase.com/docs/guides/cron/install).
-
-   ```sql
-   select cron.schedule(
-     'marketplace-expire-direct-orders',
-     '* * * * *',
-     'select marketplace_private.expire_direct_orders();'
-   );
-   ```
+3. Run the [expiration job setup](../supabase/setup/direct_order_expiration.sql) in this project as the database administrator. A one-minute schedule closes orders with no payment report after their 48-hour deadline and releases their reserved stock. Reported orders remain available for review. Check the job's execution history in the dashboard. [Supabase Cron setup](https://supabase.com/docs/guides/cron/install)
 
 4. In a test environment, have an approved seller set per-listing payment contact, clothing shipping price or CS2 asset ID. Test stock conservation, valid account isolation, expiry, the payment evidence review, two separate delivery confirmations and dispute decisions. Plan applicant verification, buyer support, shipping regions, return and refund execution outside VERSAX, dispute evidence handling and retention before opening real sales. The code only checks the seller-supplied CS2 ID for reuse. It does not verify Steam ownership or transfer eligibility.
-5. New reservations default to disabled. Once setup and launch verification are complete, enable them in the dedicated project below. Turning the setting back off stops new reservations and leaves existing orders and the expiration job operational.
+5. New reservations default to disabled. After applying the ecosystem rollout migration and verifying launch readiness, use the [CS2 activation script](../supabase/setup/enable_cs2_reservations.sql) for a CS2 rollout. For both categories, explicitly include both ecosystems in the launch scope. Turning `accepting_orders` off pauses new reservations while existing orders and the expiration job continue to operate. Each CS2 variant needs its seller's payment contact and asset ID before it becomes available to reserve.
 
    ```sql
    update marketplace_private.direct_order_settings
-   set accepting_orders = true where singleton;
+   set accepting_orders = true, accepting_ecosystems = array['cs2', 'fashion'] where singleton;
    ```
 
 An order contains one listing and belongs to one seller and ecosystem. Buyers reserve before sending money and can see the server-calculated total on the order. The buyer or seller reports a timestamp, amount and transaction reference. An administrator records their review and any case-by-case decision. The parties move funds and fulfill orders outside VERSAX. The site records no processor-confirmed settlement or automated refund. Clothing delivery details are visible to the buyer, relevant seller and authorized admins. Review how long to retain these details and order records before release.

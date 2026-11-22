@@ -1,4 +1,54 @@
-# ORO architecture
+# VERSAX architecture
+
+## Current boundaries and proposed launch design
+
+VERSAX is a single merchant with two catalog and fulfillment domains. Keep
+the existing Next.js App Router, server-rendered reads, session-scoped Supabase
+clients, PostgreSQL RLS and audited RPCs. `src/messages` owns interface copy.
+`src/lib/config.ts` owns branding. Environment credentials stay outside Git.
+
+| Domain | Owns | Can reuse today |
+| --- | --- | --- |
+| Identity and access | Customer profiles, verified owner identity, staff access, permission changes and audit events | Supabase Auth, existing owner/admin UUID assignments, session assurance, recent owner verification and account restrictions |
+| Catalog | Product facts, media, variants, publish state and public projections | Listings, image access policies, CS2 wear groups, clothing product/color/size editors and public routes |
+| Inventory | Sale authority, reservations, adjustments and fulfillment release | Existing transactional listings and order reservation/expiration. Extend with unit-level verified CS2 assets and count-based clothing variants and movements. |
+| Orders and payments | Immutable pricing and item snapshots, order lifecycle, payment state, review and refund evidence | Existing order event history and manual reports. Merchant payment and reconciliation need the confirmed payment procedure. |
+| Fulfillment and support | Shipment and return state, CS2 trade state/evidence, support and dispute handling | Existing order detail and confirmation history. Use distinct clothing and CS2 state transitions keyed to order/line identity. |
+| Store operations | Store settings, promotions, metrics and operator dashboards | Existing account, listing and order views. Derive financial metrics from payment and refund records. |
+
+### Catalog ownership and staff authorization
+
+The current repository binds catalog records to `seller_id` and a seller grant
+revision. It also records that account as the seller in existing orders. The
+[transition migration](../supabase/migrations/202611220014_single_vendor_transition.sql)
+keeps those relationships and adds the existing verified owner/admin gate to
+catalog edits. Legacy seller onboarding becomes read-only history. Shared
+catalog access and store-owned stock still require a separate cutover. The
+migration pauses new legacy reservations and keeps existing order updates,
+reservation retries and expiration available.
+
+Proposed launch design gives the business a stable catalog owner independent
+of the staff member who entered a record. Existing listings retain IDs and
+media references. Existing orders retain their original parties. Staff actions
+record the authenticated actor separately. Check scoped capabilities in server
+entry points and in the owning RLS policy or RPC before each operation, including
+media mutations and concurrent stock changes. Preserve the current owner-only
+role-management boundary and customer self-access. Use an explicit capability
+catalog so a product edit permission conveys only the intended operations.
+
+### Future independent sellers
+
+Merchant ownership belongs at the catalog/inventory boundary. Order lines
+should snapshot merchant responsibility when transactions are created, and
+fulfillment may route by merchant and product type if independent selling is
+approved. Payment allocation and settlement would be a separate contract
+behind payments. The single-store launch uses one business and needs no
+seller tenant hierarchy or payout ledger. Add seller-facing authorization
+and workflows only alongside a confirmed future requirement.
+
+See the [launch roadmap](MILESTONES.md) and [requirements](../PRODUCT_REQUIREMENTS.md).
+
+## Historical ORO storefront architecture
 
 Historical storefront guidance/delivery. The approved marketplace frontend now has separate route-group layouts and locale routes; the old home is at `/storefront-preview` and other original public routes remain. See [current progress](../PROJECT_PROGRESS.md), [requirements](../PRODUCT_REQUIREMENTS.md) and [marketplace scope](MARKETPLACE_PHASE1_PROPOSAL.md). Historical phase numbers and source paths below do not describe marketplace completion.
 

@@ -26,6 +26,7 @@ const extraPath = `${withPhotos}/${extraPhoto}`;
 const bucket = "marketplace-cs2-images";
 const upload = "storage.object.upload";
 const download = "storage.object.get_authenticated";
+const downloadInfo = "object.get_authenticated_info";
 const remove = "storage.object.delete_many";
 
 function asUser<T extends Record<string, unknown> = Record<string, unknown>>(
@@ -119,6 +120,7 @@ beforeAll(async () => {
     ($1, $3, 'cs2', 'Legacy skin', 'Details', 100, 1, 'published'),
     ($2, $3, 'fashion', 'Legacy shirt', 'Details', 250, 2, 'published')`, [legacy, legacyFashion, seller]);
   await db.exec(await readFile(new URL("202611210008_cs2_listing_variants.sql", directory), "utf8"));
+  await db.exec(await readFile(new URL("202611210010_cs2_photo_download.sql", directory), "utf8"));
 }, 45000);
 
 afterAll(async () => { await db.close(); });
@@ -236,11 +238,16 @@ it("uses listing visibility to authorize photo downloads and limits cleanup to u
     "draft", photosGroup, "pistol", "USP-S", "WW", [photo, extraPhoto]]);
   expect((await readObject(null, primaryPath)).rows).toEqual([]);
   expect((await readObject(seller, primaryPath)).rows).toEqual([{ name: primaryPath }]);
+  expect((await readObject(null, primaryPath, { operation: downloadInfo })).rows).toEqual([]);
+  expect((await readObject(seller, primaryPath, { operation: downloadInfo })).rows).toEqual([{ name: primaryPath }]);
+  expect((await readObject(otherSeller, primaryPath, { operation: downloadInfo })).rows).toEqual([]);
   expect((await readObject(seller, primaryPath, { aal: "aal1" })).rows).toEqual([]);
   expect((await readObject(otherSeller, primaryPath)).rows).toEqual([]);
   await asUser(seller, "update public.marketplace_listings set state = 'published' where id = $1", [visibilityListing]);
   expect((await readObject(null, primaryPath)).rows).toEqual([{ name: primaryPath }]);
+  expect((await readObject(null, primaryPath, { operation: downloadInfo })).rows).toEqual([{ name: primaryPath }]);
   expect((await readObject(null, primaryPath, { operation: "storage.object.list" })).rows).toEqual([]);
+  expect((await readObject(null, primaryPath, { operation: "storage.object.sign" })).rows).toEqual([]);
   expect((await readObject(null, unreferencedPath)).rows).toEqual([]);
   expect((await deleteObject(seller, primaryPath)).rows).toEqual([]);
   await asUser(seller, updateImages, [visibilityListing, [photo]]);
@@ -281,4 +288,22 @@ it("reserves only the selected wear at the existing checkout terms", async () =>
   ]);
   expect((await asUser(buyer, "select listing_id, total_tiyin from public.marketplace_orders")).rows)
     .toEqual([{ listing_id: reserveFn, total_tiyin: 38000000 }]);
+});
+
+it("retains public CS2 photos and restricts new uploads to authorized operators after the transition", async () => {
+  const id = crypto.randomUUID();
+  const path = `${id}/${photo}`;
+  await uploadObject(seller, path);
+  await asUser(seller, createVariant, [id, seller, "cs2", "USP-S | Printstream", "pistol", "WW", 200,
+    "published", crypto.randomUUID(), "pistol", "USP-S", "WW", [photo]]);
+  await db.query("insert into public.marketplace_user_roles(user_id, role) values ($1, 'admin')", [otherSeller]);
+  for (const name of ["202611220012_seller_application_intake.sql", "202611220014_single_vendor_transition.sql"]) {
+    await db.exec(await readFile(new URL(`../migrations/${name}`, import.meta.url), "utf8"));
+  }
+
+  expect((await readObject(null, path, { operation: downloadInfo })).rows).toEqual([{ name: path }]);
+  await expect(uploadObject(seller, `${id}/${extraPhoto}`)).rejects.toMatchObject({ code: "42501" });
+  const nextPath = `${crypto.randomUUID()}/${photo}`;
+  await uploadObject(otherSeller, nextPath);
+  expect((await readObject(otherSeller, nextPath)).rows).toEqual([{ name: nextPath }]);
 });

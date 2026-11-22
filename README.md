@@ -1,8 +1,8 @@
-# VERSAX — CS2 and clothing marketplace
+# VERSAX — CS2 skins and clothing
 
-Three-language marketplace for CS2 and clothing. The homepage opens the seller catalogs. Supabase provides email/password accounts, seller listings, manual direct-payment orders and an MFA-protected admin workspace. Deployment and live commerce status are tracked in [project progress](PROJECT_PROGRESS.md).
+VERSAX will launch as a single-vendor store for CS2 skins and clothing in Uzbek, Russian and English. The existing implementation includes Supabase accounts, catalog listings, manual direct-payment order workflows and an MFA-protected administration workspace. Legacy inventory and orders require reconciliation before the store cutover. [Project progress](PROJECT_PROGRESS.md)
 
-The first commerce release uses UZS. Buyers pay sellers directly and admins review reported payments and disputes. Click Business remains the intended platform-payment target. See [requirements and decision log](PRODUCT_REQUIREMENTS.md).
+UZS is the primary currency. Merchant payment, refunds, CS2 transfer verification and clothing fulfillment still need operating decisions and end-to-end verification. [Requirements](PRODUCT_REQUIREMENTS.md) and [implementation roadmap](docs/MILESTONES.md)
 
 ## Run locally
 Node 20.19+ (tested with 20.19), npm.
@@ -12,17 +12,17 @@ npm ci
 npm run dev
 ```
 
-Open http://localhost:3000. The root opens `/uz/marketplace`. The seller catalog and private routes require the dedicated Supabase project and `.env.local` based on `.env.example`. See [accounts setup](docs/ACCOUNTS_SETUP.md) and [seller and orders setup](docs/SUPABASE_SELLER_SETUP.md).
+Open http://localhost:3000. The root opens `/uz/marketplace`. The catalog and private routes require the dedicated VERSAX Supabase project and `.env.local` based on `.env.example`. See [accounts setup](docs/ACCOUNTS_SETUP.md) and the [legacy catalog and orders setup reference](docs/SUPABASE_SELLER_SETUP.md).
 
 - `/{locale}/marketplace` — shared entry for Uzbek, Russian and English.
-- `/{locale}/listings/{ecosystem}` — seller catalog and listing details for `cs2` and `fashion`.
+- `/{locale}/listings/{ecosystem}` — public catalog and listing details for `cs2` and `fashion`.
 - `/{locale}/account` — email/password registration, login, recovery and profile settings.
-- `/{locale}/account/orders` — buyer and seller orders. Reservations start on eligible listings.
-- `/{locale}/seller/products` — listings and direct payment terms for approved sellers.
-- `/{locale}/admin` — users, seller applications, listing moderation, orders and payment review.
+- `/{locale}/account/orders` — order history and the existing reservation workflow where available.
+- `/{locale}/seller/products` — retained catalog editor for an owner or admin with a matching existing catalog grant and verified MFA.
+- `/{locale}/admin` — owner/admin dashboards, users, listings, orders and payment review. Earlier seller applications appear as read-only history.
 - The original storefront homepage is retired. Retained storefront and marketplace sample pages visibly label development data. The legacy browser cart stays separate from real orders.
 
-Configure the brand in `src/lib/config.ts`. Localized text is in `src/messages`. Enable reservations only after applying and verifying the [seller and orders setup](docs/SUPABASE_SELLER_SETUP.md).
+Configure the brand in `src/lib/config.ts`. Localized text is in `src/messages`. See the [roadmap cutover requirements](docs/MILESTONES.md) before applying the single-vendor migration or enabling reservations.
 
 ## Verify
 ```sh
@@ -36,12 +36,12 @@ npm run test:e2e
 
 Playwright starts a production server on 127.0.0.1:3000 and sets its trusted callback origin to the same URL. Stop any development server on that port first. Screenshots and traces are written under /tmp. For production preview: `npm run build && npm start`.
 
-See [marketplace migration scope](docs/MARKETPLACE_PHASE1_PROPOSAL.md), [marketplace design specification](docs/design/marketplace/DESIGN.md), [historical storefront architecture](docs/ARCHITECTURE.md), [historical milestones](docs/MILESTONES.md), [progress and evidence](PROJECT_PROGRESS.md), [engineering rules](AGENTS.md) and [image sources](docs/ASSETS.md).
+See [architecture](docs/ARCHITECTURE.md), [historical marketplace migration scope](docs/MARKETPLACE_PHASE1_PROPOSAL.md), [storefront design specification](docs/design/marketplace/DESIGN.md), [progress and evidence](PROJECT_PROGRESS.md), [engineering rules](AGENTS.md) and [image sources](docs/ASSETS.md).
 
 ## Tooling
 The existing Next.js/React/TypeScript/Tailwind stack is retained. Two App Router route groups provide independent legacy and localized marketplace root layouts; crossing between them causes a full document navigation. Server Components own catalogs and detail data; theme/language navigation is a small client island. shadcn components use the existing Radix and utility dependencies. Build Web Apps, built-in imagegen, React and shadcn guidance informed the frontend work. Browser plugin is unavailable; validation uses repository Playwright Chromium. No formal security scan, live Steam/API validation or load test has been claimed.
 
-## Verification
+## Historical account verification
 
 Latest account/workspace refinement verification on 2026-11-12: `npm run check`
 passed strict TypeScript, warning-free lint, 65 unit/component/database tests and

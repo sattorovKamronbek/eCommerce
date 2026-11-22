@@ -15,6 +15,7 @@ export function SellerForm({ action, copy, application }: {
   const errorRef = useRef<HTMLParagraphElement>(null);
   useEffect(() => { if (state.error) errorRef.current?.focus(); }, [state]);
   const change = (key: keyof typeof values) => (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setValues((current) => ({ ...current, [key]: event.target.value }));
+  if (state.error === "closed") return <p role="alert" tabIndex={-1} ref={errorRef}>{copy.intakeClosed}</p>;
   return <form className="seller-form" action={formAction} onReset={(event) => event.preventDefault()}>
     {state.error ? <p role="alert" tabIndex={-1} ref={errorRef}>{state.error === "invalid" ? copy.invalid : copy.unavailable}</p> : null}
     <label>{copy.type}<select name="type" value={values.type} onChange={change("type")}><option value="individual">{copy.individual}</option><option value="company">{copy.company}</option></select></label>

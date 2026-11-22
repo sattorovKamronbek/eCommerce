@@ -8,8 +8,10 @@ import { requireAccount, requireAdmin } from "@/lib/auth/access";
 import { parseAdminPage } from "@/lib/auth/validation";
 import { formatTiyin, orderStatuses, type OrderAction, type OrderRole, type OrderStatus } from "@/lib/orders/model";
 import { sellerPageRange, sellerPageResults } from "@/lib/sellers/pagination";
+import { loadSellerIntake } from "@/lib/sellers/intake";
 import type { DirectOrder, DirectOrderEvent } from "@/lib/supabase/database";
 import { accountDictionaries } from "@/messages/account";
+import { activityDictionaries } from "@/messages/admin-activity";
 import { listingDictionaries } from "@/messages/seller-catalog";
 import type { MarketplaceLocale } from "@/messages/marketplace";
 import { orderDictionaries, type OrderMessages } from "@/messages/orders";
@@ -52,16 +54,25 @@ export async function OrdersList({ locale, admin, search }: {
   const page = parseAdminPage(search.page);
   const range = sellerPageRange(page);
   const status = typeof search.status === "string" && orderStatuses.includes(search.status as OrderStatus) ? search.status as OrderStatus : "";
-  let query = access.client.from("marketplace_orders").select("id, title, ecosystem, buyer_id, status, total_tiyin, created_at")
+  const party = admin && isUuid(search.buyer) ? { key: "buyer", id: search.buyer } as const
+    : admin && isUuid(search.seller) ? { key: "seller", id: search.seller } as const : null;
+  const filters = new URLSearchParams(status ? { status } : {});
+  if (party) filters.set(party.key, party.id);
+  let query = access.client.from("marketplace_orders").select("id, title, ecosystem, buyer_id, quantity, status, total_tiyin, created_at")
     .order("created_at", { ascending: false }).order("id", { ascending: false }).range(range.from, range.to);
   if (!admin) query = query.or(ownOrdersFilter(access.user.id));
+  if (party) query = query.eq(party.key === "buyer" ? "buyer_id" : "seller_id", party.id);
   if (status) query = query.eq("status", status);
-  const result = await query;
+  const [result, intake] = await Promise.all([query, loadSellerIntake(access.client)]);
   const orders = sellerPageResults(result.data ?? []);
   return <WorkspaceShell locale={locale} title={admin ? copy.adminOrders : copy.orders}
-    intro={admin ? copy.adminIntro : copy.orderIntro} active={admin ? "adminOrders" : "orders"} admin={admin}>
+    intro={admin ? copy.adminIntro : copy.orderIntro} active={admin ? "adminOrders" : "orders"} admin={admin} sellerIntake={intake}>
+    {party ? <p className="order-note"><Link className="mp-text-link" href={`/${locale}/admin/users/${party.id}`} prefetch={false}>
+      {activityDictionaries[locale][party.key === "buyer" ? "buyerFilter" : "sellerFilter"]}
+    </Link></p> : null}
     {result.error ? <p role="alert">{copy.unavailable}</p> : <>
       <form action={base} method="get" className="real-filters">
+        {party ? <input type="hidden" name={party.key} value={party.id} /> : null}
         <label>{copy.filter}<select name="status" defaultValue={status}>
           <option value="">{copy.allStatuses}</option>
           {orderStatuses.map(value => <option key={value} value={value}>{copy.statuses[value]}</option>)}
@@ -73,9 +84,10 @@ export async function OrdersList({ locale, admin, search }: {
           <h2><Link href={`${base}/${order.id}`}>{order.title}</Link></h2>
           <p>{category[order.ecosystem]} · {copy.statuses[order.status]}{admin ? "" : ` · ${order.buyer_id === access.user.id ? copy.buyer : copy.seller}`}</p>
           <p>{formatTiyin(order.total_tiyin, locale)} · {dateTime(order.created_at, locale)}</p>
+          {admin ? <dl className="order-facts"><div><dt>{copy.quantity}</dt><dd>{order.quantity}</dd></div></dl> : null}
         </article>)}
       </div> : <p>{copy.empty}</p>}
-      <OrderPagination locale={locale} page={page} base={base} search={new URLSearchParams(status ? { status } : {})}
+      <OrderPagination locale={locale} page={page} base={base} search={filters}
         hasNext={orders.hasNext} label={admin ? copy.adminOrders : copy.orders} />
     </>}
   </WorkspaceShell>;
@@ -201,10 +213,11 @@ export async function OrderDetail({ locale, admin, id, search }: {
   if (!admin) query = query.or(ownOrdersFilter(access.user.id));
   const page = parseAdminPage(search.page);
   const range = sellerPageRange(page);
-  const [result, log] = await Promise.all([
+  const [result, log, intake] = await Promise.all([
     query.maybeSingle(),
     access.client.from("marketplace_order_events").select("*").eq("order_id", id)
       .order("id", { ascending: false }).range(range.from, range.to),
+    loadSellerIntake(access.client),
   ]);
   if (result.error) return <AccountUnavailable locale={locale} />;
   if (!result.data) notFound();
@@ -214,8 +227,12 @@ export async function OrderDetail({ locale, admin, id, search }: {
   const actions = admin && viewer !== "admin" ? [] : availableActions(order, viewer);
   const history = sellerPageResults(log.data ?? []);
 
-  return <WorkspaceShell locale={locale} title={order.title} intro={order.id} active={admin ? "adminOrders" : "orders"} admin={admin}>
+  return <WorkspaceShell locale={locale} title={order.title} intro={order.id} active={admin ? "adminOrders" : "orders"} admin={admin} sellerIntake={intake}>
     <Link className="mp-text-link" href={base}>{copy.back}</Link>
+    {admin ? <div className="seller-review-filters">
+      <Link className="mp-text-link" href={`/${locale}/admin/users/${order.buyer_id}`} prefetch={false}>{copy.buyer}</Link>
+      <Link className="mp-text-link" href={`/${locale}/admin/users/${order.seller_id}`} prefetch={false}>{copy.seller}</Link>
+    </div> : null}
     <OrderDetails order={order} locale={locale} copy={copy} />
     {order.status === "disputed" || (order.status === "cancelled" && order.payment_reference) ? <p className="order-note">{copy.noRefund}</p> : null}
     {actions.length ? <div className="order-actions">{actions.map(action => <OrderActionForm key={action} order={order}

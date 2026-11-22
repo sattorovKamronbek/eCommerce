@@ -1,0 +1,75 @@
+.fields,
+.sizeFields,
+.guideFields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+  gap: 12px;
+}
+
+.sizeFields {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
+}
+
+.section,
+.color,
+.size,
+.guideRow {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+
+.section > legend,
+.color > legend,
+.size > legend {
+  padding-block-end: 6px;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.color {
+  border: 1px solid var(--border);
+  padding: 12px;
+}
+
+.color > legend {
+  padding: 0 6px;
+}
+
+.size,
+.guideRow {
+  padding-block-end: 12px;
+  border-block-end: 1px solid var(--border);
+}
+
+.hint {
+  color: var(--muted-foreground);
+  font-size: 0.8125rem;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+:global(.seller-form) .secondary {
+  justify-self: start;
+  padding: 8px 12px;
+  background: var(--background);
+  color: var(--foreground);
+  font-size: 0.875rem;
+}
+
+:global(.seller-form) .secondary:hover:enabled {
+  background: var(--muted);
+}
+
+:global(.seller-form) .secondary:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+:global(.seller-form) .secondary:disabled {
+  opacity: 0.6;
+}

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { AccountDenied, AccountShell, AccountUnavailable, SellerSetupRequired, accountLocale } from "@/components/account/shell";
 import { WorkspaceShell } from "@/components/account/workspace";
 import { isSellerSchemaMissing } from "@/lib/sellers/schema";
+import { loadSellerIntake } from "@/lib/sellers/intake";
 import { requireAdmin } from "@/lib/auth/access";
 import { parseAdminPage } from "@/lib/auth/validation";
 import { sellerPageRange, sellerPageResults } from "@/lib/sellers/pagination";
@@ -21,10 +22,13 @@ export default async function AdminListings({ params, searchParams }: {
   if (assurance.error) return <AccountUnavailable locale={locale} />;
   if (assurance.data.currentLevel !== "aal2") return <AccountShell locale={locale} title={copy.adminListings} intro={copy.adminMfa}><Link className="mp-text-link" href={`/${locale}/account/security?next=${encodeURIComponent(destination)}`}>{copy.verify}</Link></AccountShell>;
   const query = await searchParams; const page = parseAdminPage(query.page); const range = sellerPageRange(page);
-  const result = await access.client.from("marketplace_listings").select("*").order("created_at", { ascending: false }).order("id", { ascending: false }).range(range.from, range.to);
+  const [result, intake] = await Promise.all([
+    access.client.from("marketplace_listings").select("*").order("created_at", { ascending: false }).order("id", { ascending: false }).range(range.from, range.to),
+    loadSellerIntake(access.client),
+  ]);
   if (result.error) return isSellerSchemaMissing(result.error) ? <SellerSetupRequired locale={locale} admin /> : <AccountUnavailable locale={locale} />;
   const listings = sellerPageResults(result.data); const common = accountDictionaries[locale];
-  return <WorkspaceShell locale={locale} title={copy.adminListings} intro={copy.adminIntro} active="moderation" admin>
+  return <WorkspaceShell locale={locale} title={copy.adminListings} intro={copy.adminIntro} active="moderation" admin sellerIntake={intake}>
     {query.error ? <p role="alert">{copy.unavailable}</p> : null}
     {listings.rows.length ? <div className="seller-reviews">{listings.rows.map(item => <article className="seller-review" key={item.id}>
       <h2>{item.title}</h2><p>{copy.sellerId}: {item.seller_id}</p><p>{copy[item.ecosystem]} · {item.moderation_status === "blocked" ? copy.blocked : copy[item.state]}</p>

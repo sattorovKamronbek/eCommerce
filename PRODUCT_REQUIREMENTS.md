@@ -1,6 +1,80 @@
-# Product requirements — CS2 and Fashion marketplace
+# VERSAX product requirements — CS2 skins and clothing
 
-Status: the seller catalog, manual direct-payment order flow and account administration have local implementations. The repository migrations are applied to the dedicated Supabase project. Authenticated production verification remains pending. Started 2026-11-11.
+## Confirmed launch direction — 2026-11-22
+
+VERSAX will launch as a single-vendor store. The owner's business owns the
+catalog and inventory for both CS2 and clothing and is the sole merchant.
+Customers can register, browse, purchase and manage their own accounts. Only
+authorized internal users can create and manage products. Public seller
+registration, independent seller storefronts and onboarding, commission
+splitting and third-party payouts are outside launch scope. This decision
+supersedes the earlier marketplace, hybrid stock and seller settlement plans.
+
+Both categories launch together. The established direction is Uzbekistan and
+nearby markets, English, Uzbek and Russian, and UZS as the primary currency.
+Keep the localized App Router frontend, real Supabase accounts, the current
+server-side authorization architecture and the dedicated VERSAX project
+`xevzbtivteugbqbmmtyz`. Existing order, account and audit records must survive
+the transition. Production ownership and availability for legacy listings
+must be verified before treating them as store stock.
+
+### Access roles
+
+| Role | Confirmed responsibility | Current implementation |
+| --- | --- | --- |
+| Owner | Complete platform control, including assigning and revoking staff access. Owner authority requires independently verified provisioning. | Existing UUID-based `owner` role, verified MFA, and recent authenticator verification for privileged role management. Signup and migrations do not promote anyone. |
+| Admin | Administrative operations with configurable permissions. | Existing `admin` role and verified MFA. Existing admin operations need to be mapped to individual permissions for launch. |
+| Manager/Staff | Products, inventory and orders according to assigned permissions. | Launch requirement. The current database role constraint permits `owner` and `admin`; a legacy seller grant is unrelated to staff authority. |
+| Customer | Shopping and personal account management. | Existing authenticated customer access without a privileged role row. |
+
+### Internal operations and product workflows
+
+The Owner Dashboard and Admin Dashboard should lead staff to the actions they
+are permitted to take. Product Management includes quick entry, bulk edits,
+image management, controlled publishing and availability. Inventory includes
+stock counts, movement history, and low-stock warnings. Order Management,
+Customer Management, Payment Management, Shipping and Delivery Management,
+CS2 Trade Management, Sales Analytics, Promotions and Discounts, Customer
+Support, Security and Audit Logs, Staff Permissions, and Store Settings are
+launch workstreams. Use real records for sales and revenue and expose the
+operational actions that non-technical staff need for daily work.
+
+- **CS2** requires individual asset identity, verified availability, reservation
+  status and traceable trade status. A wear option can describe more than one
+  unique asset. A trade and any dispute must identify the asset involved.
+- **Clothing** requires product variants, stock per color/size combination,
+  product images, shipping and returns. Retain the current variant galleries
+  and product details where appropriate.
+- **Orders and payments** use authoritative server prices and inventory checks,
+  exact UZS amounts, idempotent state transitions and auditable payment review.
+  Clothing fulfillment and CS2 trades use their own workflows.
+
+Future independent selling is an extension point. Keep catalog, inventory,
+orders, payments and fulfillment modular and document where merchant ownership
+would attach. The launch has one merchant and no seller payout or onboarding
+infrastructure beyond the retained historical implementation.
+
+### Decisions needed before live acceptance
+
+| Decision | Current launch status |
+| --- | --- |
+| Existing inventory and orders | Confirm which legacy listing, asset and checkout records belong to the business, the verified catalog operator, and how any outstanding legacy orders will be resolved. Do not infer business ownership from a seller grant. |
+| Staff access | Confirm initial staff assignments and which operators can publish, adjust stock, handle payment/refunds, view customer data and manage settings. The proposed authorization design uses owner-assigned permissions and verified MFA. |
+| Merchant payment operation | Click Business is an earlier preference. Confirm the merchant entity, provider contract, supported categories, payment evidence and refund/reconciliation process. Visa capability and later cryptocurrency remain preferences pending feasibility. |
+| CS2 trade operation | Confirm the authorized delivery method, evidence of ownership/availability and receipt, trade restrictions, reversals and dispute handling. Existing manual orders do not verify Steam ownership or establish a custody model. |
+| Clothing shipping, returns and support | Confirm launch destinations, rates, carriers, return eligibility and responsibility, and support escalation. The prior [draft returns policy](docs/FASHION_RETURNS_POLICY.md) needs review for the business's own store. |
+| Checkout structure and release targets | Confirm mixed-category checkout expectations, operating/default locale, operating geographies, business timeline and measurable launch targets. Fulfillment stays separated by product type. |
+
+See the [implementation roadmap](docs/MILESTONES.md) for proposed sequencing,
+[architecture](docs/ARCHITECTURE.md) for domain boundaries and extension points,
+and [project progress](PROJECT_PROGRESS.md) for implementation and release status.
+
+## Historical marketplace decisions and delivery
+
+The following sections preserve the earlier marketplace work and approvals.
+The launch decision above takes precedence over historical seller, payment
+recipient and fulfillment plans. Earlier delivery notes record the state as
+of their original dates.
 
 ## Confirmed direction from the owner's transformation brief
 
@@ -18,6 +92,25 @@ Status: the seller catalog, manual direct-payment order flow and account adminis
 ## Existing implementation facts — not new marketplace launch decisions
 
 The original store uses temporary ORO branding, Uzbek, UZS, local development products and browser persistence. It has no production checkout, account system, seller backend, Steam integration or payment provider. The former single-vendor roadmap is preserved in docs and historical PROJECT_PROGRESS.md sections. These historical settings were not automatically transformation decisions; UZS was subsequently explicitly selected by the owner, and the preview retains Uzbek as its default entry. The owner later selected VERSAX as the marketplace brand and supplied the logo.
+
+## Administrator activity and site operations — 2026-11-22
+
+The owner requested account details, site operations in the admin dashboard,
+and visibility into how many items each user bought. They selected a history
+of every successful sign-in.
+
+The admin workspace reads account data and the last sign-in from Supabase
+Auth. History starts when the migration is installed and records successful
+password sign-ins. If the account requires MFA, the entry records when MFA
+succeeds. The admin view displays the timestamp for the selected account.
+Account detail and this history require the existing verified admin or owner
+access. The overview counts currently completed orders, sums their item
+quantities, and shows their total including delivery in UZS. Admins can open
+purchase and sales order lists filtered to the selected account.
+
+The dashboard shows account and listing counts, pending seller applications
+and payment reports, disputes, all orders and completed orders. Reservation
+availability is shown per ecosystem using the existing settings.
 
 ## Owner dashboard and profile verification — 2026-11-21
 
@@ -75,6 +168,11 @@ The owner requested the ability to add sellers, with three permitted scopes:
 CS2 only, clothing only, or both. Sellers need a capable product-entry experience.
 All sellers apply and require administrator approval, regardless of category.
 Both individuals and companies may apply.
+On 2026-11-22 the owner requested that customers see the seller application
+only while an administrator has opened intake. A verified administrator can
+open or close intake from Seller applications. Intake starts closed. During a
+closure applicants can view their existing application and complete pending
+verification. New submissions and resubmissions wait until intake reopens.
 The owner requested all important application information, but did not specify
 individual fields or identity-document collection and verification procedures.
 The owner confirmed applicants may correct and resubmit rejected or mistaken
@@ -169,6 +267,31 @@ Each wear uses the existing listing-level checkout and inventory. The form
 supports optional photo uploads, with up to four photos per variant in the
 implementation. [CS2 listing variants design](docs/superpowers/specs/2026-11-21-cs2-listing-variants.md)
 
+## Clothing product entry — 2026-11-21
+
+The owner requested multiple sizes, multiple photos and additional product
+details when a seller adds clothing. The owner suggested Uzum Market, Polo and
+other clothing sites as references. At the time of the request, the seller form
+had one free-text variant field and one stock count for clothing. Photo upload
+was available on CS2 listings.
+
+The seller creates one product with a category, title and description. They
+choose sizes for each color, upload a gallery per color and set stock for each
+offered color and size combination. The shared price applies unless the seller
+sets an override. The form offers an optional size chart in centimeters and
+fields for brand, fabric composition, fit and care instructions. The public
+product page shows the selected color's photos, the size chart and availability
+for the selected combination. Reservations use that combination's listing and
+stock. Legacy clothing listings still use their existing purchase path.
+
+The owner confirmed a single product card with color, fabric composition, fit
+and care details. They approved a separate gallery per color, stock per color
+and size, an overridable default price and an optional measurement guide in
+centimeters. [Clothing listing design](docs/superpowers/specs/2026-11-21-clothing-listing-variants.md)
+[Uzum seller guide](https://seller.uzum.uz/manual/uz/5.product-creation/)
+[Polo Ralph Lauren product page](https://www.ralphlauren.com/men-clothing-polo-shirts/custom-slim-fit-mesh-polo-shirt/582999.html)
+[Shopify variant inventory](https://help.shopify.com/en/manual/products/variants/)
+
 ## Backup sign-in methods — 2026-11-21
 
 The owner wants to sign in from another device while their primary authenticator
@@ -232,7 +355,7 @@ not implemented or implied by the existing email/read-only-admin design.
 
 Potential item/category fields, seller metrics, payouts, reviews, promotions, storefront modules and advanced integrations listed in the brief express future capability options. Their exact data models, sources and first-release inclusion remain unapproved.
 
-## Open decisions
+## Historical decision status before the single-vendor update
 
 | ID | Decision | Why it matters | Status |
 | --- | --- | --- | --- |
@@ -252,7 +375,7 @@ Potential item/category fields, seller metrics, payouts, reviews, promotions, st
 | D14 | Mixed-ecosystem/multi-seller baskets, split payments/orders and customer-facing totals | Determines checkout boundaries and refund/fulfillment grouping | Separate order for each seller and ecosystem; checkout and payment implementation remain open |
 | D15 | Identity backend, signup methods, account/admin first slice and infrastructure isolation | Defines real authentication, private data and initial privileged scope | Detailed design approved; dedicated project xevzbtivteugbqbmmtyz confirmed, public credentials configured and migration applied per owner; authenticated/email/admin end-to-end verification pending; other live application's project remains untouched |
 
-## Deferred decisions and technical constraints
+## Earlier marketplace decisions and technical constraints
 
 No custodial/bot-based CS2 model, wallet or escrow is selected. Click Business is the selected integration target, but no contract or supported marketplace payout mechanism has been verified. No platform commission is charged for now, and platform-received CS2 funds are intended for payout after both parties confirm delivery; payout execution remains open. All sellers require administrator approval, while eligibility and verification remain open. Integrations depend on documented access and permitted use. Steam policy research does not establish authorization for a particular commercial model. No unavailable ownership/float/pattern/market-price API is assumed.
 
@@ -266,6 +389,7 @@ For each owner answer, record date, decision ID, the answer, scope and remaining
 
 | Date | Decision IDs | Owner statement and scope | Remaining conditions |
 | --- | --- | --- | --- |
+| 2026-11-22 | D01, D03–D10, D14 | Launch VERSAX as a single-vendor business selling its own CS2 skins and clothing. Scope the Owner, Admin, Manager/Staff and Customer roles as above. Exclude public seller onboarding, independent storefronts, commissions and third-party payouts from launch. | Confirm existing inventory ownership and open-order disposition, staff permissions, merchant payments/refunds, and separate CS2 and clothing operating procedures. |
 | 2026-11-21 | D15 | Preserve authenticator sign-in and add a backup authenticator, one-time backup codes and SMS verification. | Review the sign-in design, verify native recovery-code settings and select an SMS delivery provider. |
 | 2026-11-21 | D04, D10, D15 | Owner dashboard for users and roles, listing and sales management, identity and contact verification, and account suspensions. The owner contacts the user directly for identity checks and records the outcome with the one-time code from their profile. The owner chooses email or SMS for contact verification. Buying and selling remain available during checks. | Email and SMS services are unconfigured. Select and verify code delivery services before enabling contact verification. |
 | 2026-11-21 | D01, D03, D07, D10 | Start with direct seller payments in both CS2 and clothing. Administrators review payment evidence and decide disputes case by case. Retire the original storefront homepage and use seller listings in the marketplace navigation. | Before switching on reservations, verify the dedicated schema, seller flows, expiration job and the people and procedures responsible for payment review, refunds and fulfillment. Click settlement remains pending. |

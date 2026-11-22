@@ -1,5 +1,220 @@
 # Project progress
 
+## Production migration rollout — 2026-11-22
+
+Applied `202611220012` and `202611220013` with Supabase CLI 3.2.0 to the
+dedicated VERSAX production project `xevzbtivteugbqbmmtyz`. Read-only queries
+confirmed both migration history entries, closed seller intake, enabled Auth
+activity triggers, and both administrator activity RPCs. RLS protects sign-in
+history and authenticated clients cannot read its session identifier.
+
+The public API reported 10 catalog entries and zero checkout offers.
+Anonymous reads of sign-in history and seller applications
+returned HTTP 401 with PostgreSQL code `42501`. There were zero orders or
+checkout terms before the rollout. Ten focused PGlite tests passed across the
+intake and activity suites. Two desktop Chromium checks passed against the
+local production build for the public catalog and protected application history.
+
+Reconciled the migration ledger for `202611210008` and `202611210009` after
+comparing 99 installed variant schema definitions with a fresh migration replay.
+Column metadata confirmed 19 equivalent `NOT NULL` constraints across the two
+PostgreSQL versions. The CLI recorded both previously installed migrations as
+applied. [Supabase migration repair](https://supabase.com/docs/reference/cli/supabase-migration-repair)
+
+The preflight confirmed one active Owner with verified MFA and no catalog grant.
+All 10 CS2 listings are attached to one legacy seller account without an Owner
+or Admin role. Applying `202611220014` in that state would leave the existing
+published catalog without an authorized editor. The rollout of that version
+is pending the owner's decision about catalog access during cutover. After
+reconciliation, a CLI dry run listed `202611220014` as the only pending migration.
+
+## Single-vendor transition — 2026-11-22
+
+VERSAX will launch with its own CS2 and clothing inventory. The
+[product requirements](PRODUCT_REQUIREMENTS.md) record the owner's decision.
+The [roadmap](docs/MILESTONES.md) covers all 16 operations modules and
+the [architecture](docs/ARCHITECTURE.md) documents the domain boundaries.
+
+The app presents earlier seller applications as private, read-only history.
+Customer accounts no longer offer seller registration or catalog authoring.
+The owner/admin navigation links to the retained product editors. All catalog
+write actions now use the shared verified access check. The
+[transition migration](supabase/migrations/202611220014_single_vendor_transition.sql)
+closes seller intake and its write APIs and requires an existing `owner` or
+`admin` role, a verified MFA session and a matching catalog grant for private
+catalog management. Customer accounts and role assignments are preserved.
+
+Applying the migration pauses new legacy reservations while inventory and
+payment terms are reconciled. Existing orders can still be viewed and updated,
+and the expiration job and idempotent reservation retries remain available.
+Published catalog records and images remain readable. Prior order participants
+and account, listing and audit records are retained.
+
+`VITEST_MAX_WORKERS=2 npm run check` passed strict TypeScript, 224
+unit/component/database tests in 47 files, and the production build. ESLint
+reported two existing warnings in account security actions and zero errors.
+PGlite exercised denied onboarding and catalog writes, permitted owner/admin
+writes, public images in both categories, rejection of a new reservation,
+and retry and payment-report actions on an existing order.
+Playwright passed 30 focused Chromium checks across desktop, tablet, and
+mobile against the local production build. They covered customer registration
+and recovery, protected catalog and admin routes, sign-in return paths, and
+storefront catalog and guide navigation. Authenticated data access was covered
+by component and PGlite tests. The Browser plugin was unavailable.
+
+The transition migration and app build are local. Production still needs verification that
+the designated operator can edit both categories under the current grants,
+confirmation of which inventory and checkout terms belong to VERSAX, and a plan
+for any open legacy orders. Shared inventory access and configurable admin and
+Manager/Staff permissions remain planned. Live checkout also depends on
+merchant payment/refund decisions, CS2 verification and trade procedures, and
+clothing shipping and returns. See the [rollout gates](docs/MILESTONES.md).
+
+## Administrator activity and operations — 2026-11-22
+
+The overview now shows profile, listing and order counts, pending seller
+applications and payment reports, disputes, completed orders, and the
+reservation setting for each ecosystem. The existing management pages open
+from the counts. An admin user profile displays account details, MFA status,
+the provider's last sign-in, completed orders, purchased item quantities
+and UZS totals including delivery. It links to paginated purchases and sales
+for that account. Admin order details link back to the buyer and seller.
+
+The [activity migration](supabase/migrations/202611220013_admin_activity.sql)
+uses the existing verified administrator or owner access. It records a
+successful password sign-in from the provider's authentication method claim.
+A session for an account with verified MFA enters the history after MFA
+succeeds. Password recovery and token refresh do not create sign-in records.
+Sign-out preserves the entry. The admin API projects the sign-in timestamp
+and prevents reading the session identifier. The history begins with the
+migration. The provider's existing last sign-in remains available separately.
+[Supabase Auth sessions](https://supabase.com/docs/guides/auth/sessions)
+[Password grant source](https://github.com/supabase/auth/blob/master/internal/api/token.go)
+
+The suite passed 220 tests across 48 files before the code review. After
+filtering recovery-only sessions, 17 targeted tests passed, including all
+five activity migration cases. They cover admin and customer isolation, MFA
+completion, deduplication, completed purchase arithmetic and operational counts.
+Typecheck and the production build passed. ESLint reported four existing
+warnings and zero errors. All 16 account regressions passed on desktop and mobile
+Chromium.
+Fixture-backed Playwright opened the dashboard, paginated through sign-ins,
+followed the buyer and seller order filters and checked the restricted route
+from a customer account. The Uzbek mobile profile fit the viewport and its
+sign-in section passed axe. Logs and screenshots are in
+`/tmp/versax-admin-activity-qa/`. Playwright was used because the Browser plugin
+was unavailable.
+
+A read-only check of the dedicated VERSAX project found existing last sign-in
+values and no rows in the stored Auth audit log. It confirmed the session
+columns, password method claims and trigger permissions. The activity migration
+was subsequently applied as recorded above. Application deployment is a separate step.
+
+## Administrator-controlled seller application intake — 2026-11-22
+
+The owner requested that the seller application appear only while an
+administrator has opened intake. Seller applications in the admin workspace
+now has explicit Open and Close controls. Intake defaults to closed for both
+ecosystems. When closed, workspace links for new applicants disappear and a
+direct form visit returns them to their account. Existing applicants can open
+their own status and pending verification. Submission and resubmission are
+available while intake is open.
+
+The [intake migration](supabase/migrations/202611220012_seller_application_intake.sql)
+stores the setting in a private RLS-enabled table. Only an active administrator
+or owner with a verified MFA session can change it. New inserts and resubmissions
+check the setting inside their transaction. They take a shared lock on the row
+that opens or closes intake, so a stale page cannot submit after closure takes
+effect. Admin review and pending verification continue through their existing
+authorization rules.
+
+Fixture-backed Playwright opened intake as an admin and submitted an application
+from a mobile customer view. After closing, a stale form was refused and the
+applicant could still open their status from Orders. It also checked the closed
+Uzbek labels, desktop intake accessibility, and the mobile layout. The suite
+passed 214 tests in 47 files. A fresh run of the affected tests after the final
+workspace changes passed 27 tests in seven files, including four PGlite cases.
+Typecheck, the production build and ESLint passed. ESLint reported four
+pre-existing warnings. Logs are in `/tmp/versax-seller-intake-qa/`.
+
+The intake migration was subsequently applied as recorded above. Application
+deployment is a separate step.
+
+## CS2 production photos and reservations — 2026-11-22
+
+The dedicated VERSAX database had stored CS2 WebP objects and linked them to
+published variants. Hosted Storage nevertheless returned `NoSuchKey`, so the
+application's image route returned 404. A scoped hosted request identified
+`object.get_authenticated_info` as the read performed before download. The
+[photo migration](supabase/migrations/202611210010_cs2_photo_download.sql)
+allows that operation for published attached photos and authorized seller
+previews. The bucket stays private. The regression checks also cover draft
+visibility, forbidden listing and signing operations, and owner-only cleanup.
+
+On November 22, all ten CS2 photo references returned HTTP 200 and valid WebP
+bytes from both Storage and the live application. Chromium decoded all ten
+catalog covers and opened a detail gallery at desktop and mobile widths.
+[Supabase Storage access control](https://supabase.com/docs/guides/storage/security/access-control)
+
+The earlier production check found reservations paused, no CS2 checkout terms,
+and no expiration job. Installed Supabase Cron and scheduled the existing
+expiration function every minute. The production database confirmed a recent
+successful run and an active owner or administrator with verified MFA. The
+CLI ledger records `202611210010` and `202611210011`. Applied the
+[CS2 activation](supabase/setup/enable_cs2_reservations.sql) and confirmed the
+production setting is on with `cs2` as its sole ecosystem.
+
+The production database still has zero CS2 checkout terms, offers, or orders.
+Each seller must enter the variant's payment contact and real asset ID in its
+existing payment settings. The local app build adds a localized link directly
+to those settings on variants missing terms. The seller and buyer Playwright
+workflows passed through the local fixture, including saving and replacing
+photos, hiding a draft image, navigating to payment setup, and selecting the
+variant's reservation link. PGlite verified scoped checkout, reservation stock
+changes, and expiration, including the launch script's recent-Cron check.
+The repository suite passed 203 tests in 45 files. The latest direct-order
+suite passed all seven cases. Typecheck and the production build passed, and
+ESLint reported four pre-existing warnings and zero errors.
+[Launch procedure](docs/SUPABASE_SELLER_SETUP.md#direct-payments-and-account-administration)
+
+## Clothing color and size variants — 2026-11-21
+
+Sellers can create and edit one clothing product with up to five colors, twelve
+sizes per color, and four photos per color. The seller controls stock per color
+and size, a default price in UZS, and optional overrides. The form supports
+brand, fabric composition, fit, care, and an optional centimeter guide. It can
+save a draft or publish the card. Contact and delivery settings apply to all
+current combinations and carry over to newly added or reactivated sizes.
+
+The public catalog and search show one card per product. On the detail page,
+the selected color controls the gallery and available size choices. Price and
+reservation follow the selected combination. Each combination uses its own
+listing ID and the existing reservation transaction. The editor reads product
+fields and listing versions together. A reservation that changes stock makes
+an earlier edit stale. [Approved design](docs/superpowers/specs/2026-11-21-clothing-listing-variants.md)
+
+Nine PGlite tests passed on the completed migration. They cover seller and
+MFA access, private draft photos, authorization when editing, catalog grouping,
+atomic writes, price overrides, stale stock and checkout terms. The integrated
+Vitest run passed 197 tests in 44 files. After the final transaction and editor
+changes, 37 focused tests passed in six files, including the migration tests.
+Strict TypeScript and the production build passed. ESLint reported four
+existing warnings and zero errors.
+
+Fixture-backed Playwright exercised desktop seller creation, editing, gallery
+replacement, shared delivery settings and stock refresh after a reservation.
+Mobile Chromium passed the seller flow, including no horizontal overflow, axe,
+and draft photo access. Desktop and 320 px buyer tests covered gallery keyboard
+controls, size measurements, search return links, and selected-variant checkout.
+All 18 selected Playwright regressions passed across desktop, tablet and mobile
+Chromium. Local logs and seller screenshots are in `/tmp/versax-fashion-qa/`.
+Buyer QA logs are in
+`/tmp/versax-fashion-buyer-browser.log`.
+
+Release requires applying pending migrations through
+`202611210009_fashion_listing_variants.sql` to the dedicated VERSAX project
+before deploying the application. Hosted storage and deployment are pending.
+
 ## CS2 wear variants and photos — 2026-11-21
 
 Add a listing now lets a CS2 seller select a category and model, enter the skin

@@ -51,7 +51,7 @@ beforeAll(async () => {
     create function auth.jwt() returns jsonb language sql stable as $$ select coalesce(nullif(current_setting('request.jwt.claims', true), '')::jsonb, '{}'::jsonb) $$;
     grant usage on schema auth to anon, authenticated;`);
   for (const id of [seller, buyer, outsider, admin, owner]) await db.query("insert into auth.users(id, raw_user_meta_data, email_confirmed_at) values ($1, '{}', now())", [id]);
-  for (const name of ["202611110001_accounts.sql", "202611160001_seller_applications.sql", "202611160002_owner_role.sql", "202611160003_seller_catalog.sql", "202611180004_enforce_mfa.sql", migration, "202611210006_admin_accounts.sql"]) {
+  for (const name of ["202611110001_accounts.sql", "202611160001_seller_applications.sql", "202611160002_owner_role.sql", "202611160003_seller_catalog.sql", "202611180004_enforce_mfa.sql", migration, "202611210006_admin_accounts.sql", "202611210011_direct_order_ecosystems.sql"]) {
     await db.exec(await readFile(new URL(`../migrations/${name}`, import.meta.url), "utf8"));
   }
   await db.query("insert into auth.mfa_factors values ($1, 'verified'), ($2, 'verified'), ($3, 'verified')", [seller, admin, owner]);
@@ -209,4 +209,49 @@ it("binds manual identity decisions to the selected profile and consumes the own
   const secondId = (secondRequest.rows[0] as { id: string }).id;
   await asUser(owner, review, [secondId, buyer, "cancelled", null]);
   expect((await asUser(buyer, proof, [secondId])).rows).toEqual([{ code: null }]);
+});
+
+it("opens CS2 reservations independently and keeps the master pause effective", async () => {
+  const newFashion = crypto.randomUUID();
+  await asUser(seller, `insert into public.marketplace_listings (id, seller_id, ecosystem, title, description, price_tiyin, quantity, state)
+    values ($1, $2, 'fashion', 'Polo', 'Local fixture', 100, 2, 'published')`, [newFashion, seller]);
+  await asUser(seller, terms, [newFashion, "+998901234567", 0, null]);
+  const fashionQuote = await quote(newFashion);
+  const skinQuote = await quote(skin);
+  await db.exec("update marketplace_private.direct_order_settings set accepting_ecosystems = array['cs2']");
+  expect((await asUser(null, offer, [newFashion])).rows).toEqual([]);
+  expect(await quote(skin)).toBe(skinQuote);
+  await expect(asUser(buyer, reserve, [crypto.randomUUID(), newFashion, fashionQuote, 1, "Buyer", "+998909876543", "Test street 1"]))
+    .rejects.toThrow(/listing unavailable/);
+
+  await db.exec("update marketplace_private.direct_order_settings set accepting_orders = false");
+  expect((await asUser(null, offer, [skin])).rows).toEqual([]);
+  const id = crypto.randomUUID();
+  const input = [id, skin, skinQuote, 1, null, null, null];
+  await expect(asUser(buyer, reserve, input)).rejects.toThrow(/listing unavailable/);
+  await db.exec("update marketplace_private.direct_order_settings set accepting_orders = true");
+  await asUser(buyer, reserve, input);
+  expect(await stock(skin)).toEqual([{ quantity: 0 }]);
+});
+
+it("checks the expiration job before activating the CS2 rollout", async () => {
+  await db.exec(`create schema cron;
+    create table cron.job (jobid bigint, jobname text, active boolean);
+    create table cron.job_run_details (jobid bigint, status text, end_time timestamptz);
+    insert into cron.job values (1, 'marketplace-expire-direct-orders', true);
+    insert into cron.job_run_details values (1, 'succeeded', now() - interval '10 minutes');
+    update marketplace_private.direct_order_settings set accepting_orders = false, accepting_ecosystems = array['cs2', 'fashion'];`);
+  const activation = await readFile(new URL("../setup/enable_cs2_reservations.sql", import.meta.url), "utf8");
+  await expect(db.exec(activation)).rejects.toThrow(/expiration job must pass/);
+  await db.exec("rollback");
+  const settings = () => db.query("select accepting_orders, accepting_ecosystems from marketplace_private.direct_order_settings");
+  expect((await settings()).rows).toEqual([{ accepting_orders: false, accepting_ecosystems: ["cs2", "fashion"] }]);
+
+  await db.exec("insert into cron.job_run_details values (1, 'succeeded', now())");
+  await db.exec(activation);
+  expect((await settings()).rows).toEqual([{ accepting_orders: true, accepting_ecosystems: ["cs2"] }]);
+  await db.exec("update marketplace_private.direct_order_settings set accepting_ecosystems = array['cs2', 'fashion']");
+  await expect(db.exec(activation)).rejects.toThrow(/already enabled for another ecosystem scope/);
+  await db.exec("rollback");
+  expect((await settings()).rows).toEqual([{ accepting_orders: true, accepting_ecosystems: ["cs2", "fashion"] }]);
 });

@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 
-test("seller application and admin review require authentication", async ({ page }) => {
+test("legacy seller application history requires authentication", async ({ page }) => {
   await page.goto("/en/seller/apply");
   await expect(page).toHaveURL(/\/en\/account\/login\?next=/);
   await page.goto("/en/admin/sellers");
@@ -92,7 +92,7 @@ test("email confirmation GET stages a token without consuming it and removes it 
   expect(response.headers()["referrer-policy"]).toBe("no-referrer");
 });
 
-test("new private seller, moderation and security pages require an account", async ({ page }) => {
+test("private catalog management, moderation and security pages require an account", async ({ page }) => {
   for (const path of ["/en/seller/products", "/en/seller/products/new", "/en/admin/listings", "/en/account/security"]) {
     await page.goto(path);
     await expect(page).toHaveURL(/\/en\/account\/login\?next=/);
