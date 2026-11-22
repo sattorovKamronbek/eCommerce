@@ -1,5 +1,57 @@
 # Project progress
 
+## CS2 reservation settings — 2026-11-22
+
+Reproduced the unavailable reservation message on a published CS2 listing.
+The dedicated VERSAX project `xevzbtivteugbqbmmtyz` returned ten in-stock CS2
+listings and zero public checkout offers. A read-only database query confirmed
+that reservations are enabled for CS2, the expiration job recently succeeded,
+and there are zero CS2 checkout terms or orders. The checkout view requires
+terms for each listing before it can return an offer. The terms form requires
+the variant's actual asset ID and a payment contact intended for its buyers.
+
+The owner designated Fazliddin for manual CS2 sales and Shakhriyor for clothing.
+A read-only query matched the designated CS2 account to the ten listings and
+confirmed its existing CS2 grant and verified MFA. The transition migration
+`202611220014` remained pending at the time of that check.
+
+The account workspace now links eligible users to CS2 reservation settings.
+An explicitly assigned operator can enter terms on their own published CS2
+listings. The existing Owner can correct an asset ID while no order holds or
+has consumed the asset. Both sign in with verified MFA. The write serializes
+against reservations, checks the displayed revision, and records the actor.
+Existing orders keep the asset and payment contact recorded when reserved.
+The feature does not depend on applying `202611220014` or use any Steam credentials.
+[Reservation settings migration](supabase/migrations/202611220015_cs2_reservation_settings.sql)
+
+`VITEST_MAX_WORKERS=2 npm run check` passed strict TypeScript, 225 tests in
+47 files and the production build. ESLint reported two pre-existing warnings.
+The database regression covered scoped writes after the transition, stale
+revisions, Owner corrections and a real reservation in the test database.
+Nine Playwright checks passed on desktop, tablet and mobile Chromium for
+catalog availability, protected routes and sign-in return paths.
+An isolated Playwright workflow also exercised the account link and mobile
+operator form, Owner correction, Admin denial and the resulting public
+checkout link. It used local test data and created no production order.
+
+Applied `202611220015` independently with Supabase CLI 3.2.0 to the dedicated
+project. A read-only follow-up confirmed the migration, one assigned operator
+with ten published CS2 listings, no broader role for that operator, and zero
+CS2 checkout terms or orders. Anonymous access to settings returned HTTP 401
+with PostgreSQL code `42501`. Earlier migration `202611220014` stays pending
+and must be included explicitly when its catalog cutover is approved.
+
+The hosted app still returned 404 for the settings route. The GitHub connection
+and CLI lacked repository write access, and Vercel deployment was unavailable.
+After publishing the app, Fazliddin enters the real Asset ID and contact for
+each listing from Account → CS2 reservation settings. A configured, available
+listing can then use the existing manual reservation flow.
+
+A repeat SQL Editor run reported `42P07` for `cs2_reservation_operators`.
+A read-only production check found the migration ledger entry, both tables,
+both settings RPCs and the ten-listing operator assignment. The hosted settings
+route still returned HTTP 404, and the public catalog had zero CS2 offers.
+
 ## Production migration rollout — 2026-11-22
 
 Applied `202611220012` and `202611220013` with Supabase CLI 3.2.0 to the
