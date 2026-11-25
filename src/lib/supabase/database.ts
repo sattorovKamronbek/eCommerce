@@ -9,8 +9,14 @@ export type SellerApplication = {
   status: "pending" | "approved" | "rejected"; revision: number; created_at: string; reviewed_at: string | null;
 };
 export type SellerIntakeStatus = { is_open: boolean; has_application: boolean };
+export type CatalogSalesScope = SellerApplication["requested_scope"] | "none";
+export type CatalogSalesAccess = {
+  scope: CatalogSalesScope | null;
+  revision: string | null;
+  legacy_scope: SellerApplication["requested_scope"] | null;
+};
 export type SellerListing = {
-  id: string; seller_id: string; seller_revision: number; ecosystem: "cs2" | "fashion"; title: string;
+  id: string; seller_id: string; seller_revision: number | null; ecosystem: "cs2" | "fashion"; title: string;
   description: string; category: string; variant: string; price_tiyin: number; quantity: number;
   state: "draft" | "published" | "archived"; moderation_status: "allowed" | "blocked"; created_at: string; updated_at: string;
   cs2_group_id: string | null; cs2_category: Cs2Category | null; cs2_model: string | null;
@@ -127,6 +133,12 @@ export type Database = {
       marketplace_review_profile_identity: { Args: { p_request_id: string; p_subject_id: string; p_decision: ProfileIdentityDecision; p_code: string | null }; Returns: undefined };
       marketplace_account_is_active: { Args: Record<string, never>; Returns: boolean };
       marketplace_admin_user_access: { Args: { p_user_id: string }; Returns: UserAccess[] };
+      marketplace_admin_catalog_sales_access: { Args: { p_user_id: string }; Returns: CatalogSalesAccess[] };
+      marketplace_own_catalog_sales_scope: { Args: Record<string, never>; Returns: CatalogSalesScope | null };
+      marketplace_set_catalog_sales_access: {
+        Args: { p_user_id: string; p_scope: CatalogSalesScope; p_expected_revision: string | null };
+        Returns: string;
+      };
       marketplace_admin_user_overview: { Args: { p_user_id: string }; Returns: AdminUserOverview[] };
       marketplace_admin_dashboard: { Args: Record<string, never>; Returns: AdminDashboard[] };
       marketplace_manage_user_access: {

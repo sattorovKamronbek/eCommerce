@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { readFile } from "node:fs/promises";
 import { PGlite } from "@electric-sql/pglite";
-import { afterAll, beforeAll, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 const db = new PGlite();
 const seller = "00000000-0000-4000-8000-000000000001";
@@ -256,45 +256,117 @@ it("checks the expiration job before activating the CS2 rollout", async () => {
   expect((await settings()).rows).toEqual([{ accepting_orders: true, accepting_ecosystems: ["cs2", "fashion"] }]);
 });
 
-it("lets the assigned CS2 operator open checkout and only the owner correct an unused asset ID", async () => {
-  await db.exec(await readFile(new URL("../migrations/202611220015_cs2_reservation_settings.sql", import.meta.url), "utf8"));
-  const settings = "select listing_id, seller_phone, cs2_asset_id, asset_editable from public.marketplace_cs2_reservation_settings()";
-  const save = "select public.marketplace_save_cs2_reservation_settings($1, $2, $3, $4) as revision";
-  const id = crypto.randomUUID();
-  const input = [id, null, "+998901234567", "400000001"];
-  await asUser(seller, `insert into public.marketplace_listings (id, seller_id, ecosystem, title, description, price_tiyin, quantity, state)
-    values ($1, $2, 'cs2', 'Local test skin', 'Test listing', 100, 1, 'published')`, [id, seller]);
-  for (const name of ["202611220012_seller_application_intake.sql", "202611220014_single_vendor_transition.sql"]) {
-    await db.exec(await readFile(new URL(`../migrations/${name}`, import.meta.url), "utf8"));
-  }
-  await db.exec("update marketplace_private.direct_order_settings set accepting_orders = true, accepting_ecosystems = array['cs2']");
+describe("catalog selling access after the single-vendor transition", () => {
+  beforeAll(async () => {
+    for (const name of ["202611220012_seller_application_intake.sql", "202611220014_single_vendor_transition.sql",
+      "202611220015_cs2_reservation_settings.sql", "202611250016_catalog_sales_access.sql"]) {
+      await db.exec(await readFile(new URL(`../migrations/${name}`, import.meta.url), "utf8"));
+    }
+    await db.exec("update marketplace_private.direct_order_settings set accepting_orders = true, accepting_ecosystems = array['cs2']");
+  }, 45000);
 
-  await expect(asUser(null, settings)).rejects.toMatchObject({ code: "42501" });
-  expect((await asUser(seller, settings)).rows).toEqual([]);
-  await expect(asUser(seller, save, input)).rejects.toMatchObject({ code: "42501" });
-  await db.query("insert into marketplace_private.cs2_reservation_operators (user_id) values ($1)", [seller]);
-  expect((await asUser(null, offer, [id])).rows).toEqual([]);
-  expect((await asUser(seller, settings, [], "aal1")).rows).toEqual([]);
-  expect((await asUser(admin, settings)).rows).toEqual([]);
-  await expect(asUser(admin, save, input)).rejects.toMatchObject({ code: "42501" });
-  await expect(asUser(seller, save, [fashion, ...input.slice(1)])).rejects.toMatchObject({ code: "42501" });
-  const created = (await asUser(seller, save, input)).rows[0] as { revision: string };
-  const firstQuote = await quote(id);
-  await expect(asUser(seller, save, [id, created.revision, input[2], "400000002"])).rejects.toMatchObject({ code: "42501" });
-  const revised = (await asUser(owner, save, [id, created.revision, "+998909876543", "400000002"])).rows[0] as { revision: string };
-  await expect(asUser(owner, save, [id, created.revision, input[2], "400000003"])).rejects.toMatchObject({ code: "40001" });
-  expect(firstQuote).not.toBe(await quote(id));
-  expect((await asUser(seller, settings)).rows).toContainEqual({ listing_id: id, seller_phone: "+998909876543", cs2_asset_id: "400000002", asset_editable: false });
-  const orderId = crypto.randomUUID();
-  await asUser(buyer, reserve, [orderId, id, await quote(id), 1, null, null, null]);
-  await expect(asUser(owner, save, [id, revised.revision, input[2], "400000003"])).rejects.toMatchObject({ code: "23514" });
-  await asUser(owner, save, [id, revised.revision, input[2], "400000002"]);
-  expect((await asUser(buyer, "select seller_phone, cs2_asset_id from public.marketplace_orders where id=$1", [orderId])).rows)
-    .toEqual([{ seller_phone: "+998909876543", cs2_asset_id: "400000002" }]);
-  expect((await db.query(`select actor_id, previous_revision from marketplace_private.cs2_reservation_settings_audit
-    where listing_id=$1 order by id`, [id])).rows).toEqual([
-    { actor_id: seller, previous_revision: null },
-    { actor_id: owner, previous_revision: created.revision },
-    { actor_id: owner, previous_revision: revised.revision },
-  ]);
+  it("lets the assigned CS2 operator open checkout and only the owner correct an unused asset ID", async () => {
+    const settings = "select listing_id, seller_phone, cs2_asset_id, asset_editable from public.marketplace_cs2_reservation_settings()";
+    const save = "select public.marketplace_save_cs2_reservation_settings($1, $2, $3, $4) as revision";
+    const id = crypto.randomUUID();
+    const input = [id, null, "+998901234567", "400000001"];
+    await db.query(`insert into public.marketplace_listings (id, seller_id, ecosystem, title, description, price_tiyin, quantity, state)
+      values ($1, $2, 'cs2', 'Local test skin', 'Test listing', 100, 1, 'published')`, [id, seller]);
+    await expect(asUser(null, settings)).rejects.toMatchObject({ code: "42501" });
+    expect((await asUser(seller, settings)).rows).toEqual([]);
+    await expect(asUser(seller, save, input)).rejects.toMatchObject({ code: "42501" });
+    await db.query("insert into marketplace_private.cs2_reservation_operators (user_id) values ($1)", [seller]);
+    expect((await asUser(null, offer, [id])).rows).toEqual([]);
+    expect((await asUser(seller, settings, [], "aal1")).rows).toEqual([]);
+    expect((await asUser(admin, settings)).rows).toEqual([]);
+    await expect(asUser(admin, save, input)).rejects.toMatchObject({ code: "42501" });
+    await expect(asUser(seller, save, [fashion, ...input.slice(1)])).rejects.toMatchObject({ code: "42501" });
+    const created = (await asUser(seller, save, input)).rows[0] as { revision: string };
+    const firstQuote = await quote(id);
+    await expect(asUser(seller, save, [id, created.revision, input[2], "400000002"])).rejects.toMatchObject({ code: "42501" });
+    const revised = (await asUser(owner, save, [id, created.revision, "+998909876543", "400000002"])).rows[0] as { revision: string };
+    await expect(asUser(owner, save, [id, created.revision, input[2], "400000003"])).rejects.toMatchObject({ code: "40001" });
+    expect(firstQuote).not.toBe(await quote(id));
+    expect((await asUser(seller, settings)).rows).toContainEqual({ listing_id: id, seller_phone: "+998909876543", cs2_asset_id: "400000002", asset_editable: false });
+    const orderId = crypto.randomUUID();
+    await asUser(buyer, reserve, [orderId, id, await quote(id), 1, null, null, null]);
+    await expect(asUser(owner, save, [id, revised.revision, input[2], "400000003"])).rejects.toMatchObject({ code: "23514" });
+    await asUser(owner, save, [id, revised.revision, input[2], "400000002"]);
+    expect((await asUser(buyer, "select seller_phone, cs2_asset_id from public.marketplace_orders where id=$1", [orderId])).rows)
+      .toEqual([{ seller_phone: "+998909876543", cs2_asset_id: "400000002" }]);
+    expect((await db.query(`select actor_id, previous_revision from marketplace_private.cs2_reservation_settings_audit
+      where listing_id=$1 order by id`, [id])).rows).toEqual([
+      { actor_id: seller, previous_revision: null },
+      { actor_id: owner, previous_revision: created.revision },
+      { actor_id: owner, previous_revision: revised.revision },
+    ]);
+  });
+
+  it("lets an admin delegate scoped catalog sales and preserves orders after revocation", async () => {
+    const setAccess = "select public.marketplace_set_catalog_sales_access($1, $2, $3)";
+    const readAccess = "select * from public.marketplace_admin_catalog_sales_access($1)";
+    const ownScope = "select public.marketplace_own_catalog_sales_scope() as scope";
+    const create = `insert into public.marketplace_listings (id, seller_id, ecosystem, title, description, price_tiyin, quantity, state)
+      values ($1, $2, $3, 'Delegated test listing', 'Test data', 100, 1, 'published')`;
+    const operator = crypto.randomUUID();
+    await db.query("insert into auth.users(id, raw_user_meta_data, email_confirmed_at) values ($1, '{}', now())", [operator]);
+    const cs2Listing = crypto.randomUUID();
+    const fashionListing = crypto.randomUUID();
+    const order = crypto.randomUUID();
+    const phone = "+998901234567";
+    const asset = "400000005";
+    const { rows: [existing] } = await asUser(owner, readAccess, [seller]);
+    expect(existing).toMatchObject({ scope: null, legacy_scope: "both", revision: null });
+    expect((await asUser(operator, readAccess, [seller])).rows).toEqual([]);
+    for (const [actor, level] of [[null, "aal2"], [buyer, "aal2"], [admin, "aal1"]] as const) {
+      await expect(asUser(actor, setAccess, [operator, "cs2", null], level)).rejects.toMatchObject({ code: "42501" });
+    }
+    await expect(asUser(admin, setAccess, [owner, "cs2", null])).rejects.toMatchObject({ code: "42501" });
+    await expect(asUser(admin, setAccess, [operator, "other", null])).rejects.toMatchObject({ code: "22023" });
+    await expect(asUser(admin, "select * from marketplace_private.catalog_sales_access")).rejects.toMatchObject({ code: "42501" });
+    const { rows: [issued] } = await asUser(admin, setAccess, [operator, "cs2", null]);
+    const revision = (issued as { marketplace_set_catalog_sales_access: string }).marketplace_set_catalog_sales_access;
+    expect((await asUser(operator, ownScope, [], "aal1")).rows).toEqual([{ scope: "cs2" }]);
+    await expect(asUser(operator, create, [cs2Listing, operator, "cs2"])).rejects.toMatchObject({ code: "42501" });
+    await db.query("insert into auth.mfa_factors values ($1, 'verified')", [operator]);
+    await expect(asUser(operator, create, [cs2Listing, operator, "cs2"], "aal1")).rejects.toMatchObject({ code: "42501" });
+    await expect(asUser(operator, create, [fashionListing, operator, "fashion"])).rejects.toMatchObject({ code: "42501" });
+    await expect(asUser(operator, create, [cs2Listing, buyer, "cs2"])).rejects.toMatchObject({ code: "42501" });
+    await asUser(operator, create, [cs2Listing, operator, "cs2"]);
+    await expect(asUser(operator, terms, [cs2Listing, phone, 0, null])).rejects.toMatchObject({ code: "22023" });
+    await asUser(operator, terms, [cs2Listing, phone, 0, "400000004"]);
+    const readTerms = "select revision, asset_editable from public.marketplace_cs2_reservation_settings() where listing_id=$1";
+    const saveTerms = "select public.marketplace_save_cs2_reservation_settings($1, $2, $3, $4) as revision";
+    const current = (await asUser(owner, readTerms, [cs2Listing])).rows[0] as { revision: string; asset_editable: boolean };
+    expect(current.asset_editable).toBe(true);
+    await expect(asUser(operator, saveTerms, [cs2Listing, current.revision, phone, asset])).rejects.toMatchObject({ code: "42501" });
+    await asUser(owner, saveTerms, [cs2Listing, current.revision, phone, asset]);
+    const input = [order, cs2Listing, await quote(cs2Listing), 1, null, null, null];
+    await asUser(buyer, reserve, input);
+    expect(await stock(cs2Listing)).toEqual([{ quantity: 0 }]);
+    await expect(asUser(owner, setAccess, [operator, "both", null])).rejects.toMatchObject({ code: "40001" });
+    const { rows: [expanded] } = await asUser(owner, setAccess, [operator, "both", revision]);
+    const expandedRevision = (expanded as { marketplace_set_catalog_sales_access: string }).marketplace_set_catalog_sales_access;
+    await asUser(operator, create, [fashionListing, operator, "fashion"]);
+    await asUser(operator, terms, [fashionListing, phone, 20, null]);
+    await db.exec("update marketplace_private.direct_order_settings set accepting_ecosystems = array['cs2', 'fashion']");
+    const fashionQuote = await quote(fashionListing);
+    await asUser(admin, setAccess, [operator, "none", expandedRevision]);
+    expect((await asUser(owner, readTerms, [cs2Listing])).rows).toEqual([]);
+    expect((await asUser(null, offer, [fashionListing])).rows).toEqual([]);
+    await expect(asUser(buyer, reserve, [crypto.randomUUID(), fashionListing, fashionQuote, 1, "Buyer", phone, "Test street 1"]))
+      .rejects.toMatchObject({ code: "P0002" });
+    expect((await asUser(operator, "update public.marketplace_listings set quantity=0 where id=$1 returning id", [fashionListing])).rows).toEqual([]);
+    await asUser(buyer, reserve, input);
+    expect((await asUser(operator, "select seller_phone, cs2_asset_id from public.marketplace_orders where id=$1", [order])).rows)
+      .toEqual([{ seller_phone: phone, cs2_asset_id: asset }]);
+    expect((await db.query("select user_id, actor_id, previous_scope, scope from marketplace_private.catalog_sales_access_audit where user_id=$1 order by id", [operator])).rows)
+      .toEqual([
+        { user_id: operator, actor_id: admin, previous_scope: null, scope: "cs2" },
+        { user_id: operator, actor_id: owner, previous_scope: "cs2", scope: "both" },
+        { user_id: operator, actor_id: admin, previous_scope: "both", scope: "none" },
+      ]);
+    expect((await db.query("select applicant_id from public.marketplace_seller_applications where applicant_id=$1", [operator])).rows).toEqual([]);
+    expect((await db.query("select role from public.marketplace_user_roles where user_id=$1", [operator])).rows).toEqual([]);
+  });
 });

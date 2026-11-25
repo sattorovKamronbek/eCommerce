@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import type { ActionFormState } from "@/components/account/action-form";
 import { requireAdmin } from "@/lib/auth/access";
 import { orderText } from "@/lib/orders/model";
+import { isSellingScope } from "@/lib/sellers/access";
 import type { AccessAction, AccessRole } from "@/lib/supabase/database";
 import { isMarketplaceLocale, type MarketplaceLocale } from "@/messages/marketplace";
 
@@ -22,6 +23,23 @@ export async function changeUserAccess(locale: MarketplaceLocale, id: string, ac
   if (result.error) return { error: result.error.code === "40001" ? "changed" : "failed" };
   revalidatePath(destination);
   redirect(destination);
+}
+
+export async function setCatalogSalesAccess(locale: MarketplaceLocale, id: string, revision: string | null,
+  _state: ActionFormState, form: FormData): Promise<ActionFormState> {
+  const scope = form.get("scope");
+  if (!isMarketplaceLocale(locale) || !isUuid(id) || (revision !== null && !isUuid(revision))
+    || (scope !== "none" && !isSellingScope(scope))) return { error: "invalid" };
+
+  const destination = `/${locale}/admin/users/${id}`;
+  const access = await requireAdmin(locale, destination);
+  if (access.kind !== "admin") return { error: "failed" };
+  const result = await access.client.rpc("marketplace_set_catalog_sales_access", {
+    p_user_id: id, p_scope: scope, p_expected_revision: revision,
+  });
+  if (result.error) return { error: result.error.code === "40001" ? "changed" : "failed" };
+  revalidatePath(destination);
+  return { saved: true };
 }
 
 export async function requestProfileIdentity(locale: MarketplaceLocale, id: string, _state: ActionFormState, _form: FormData): Promise<ActionFormState> {

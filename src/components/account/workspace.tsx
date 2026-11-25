@@ -8,9 +8,9 @@ import { orderDictionaries } from "@/messages/orders";
 import type { MarketplaceLocale } from "@/messages/marketplace";
 import type { SellerIntakeStatus } from "@/lib/supabase/database";
 
-export function WorkspaceShell({ locale, title, intro, active, admin, sellerIntake, children }: {
+export function WorkspaceShell({ locale, title, intro, active, admin, catalogSales, sellerIntake, children }: {
   locale: MarketplaceLocale; title: string; intro: string; active: "profile" | "dashboard" | "users" | "sellers" | "products" | "moderation" | "orders" | "adminOrders";
-  admin: boolean; sellerIntake?: SellerIntakeStatus | null; children: React.ReactNode;
+  admin: boolean; catalogSales?: boolean; sellerIntake?: SellerIntakeStatus | null; children: React.ReactNode;
 }) {
   const copy = accountDictionaries[locale];
   const sellerCopy = sellerDictionaries[locale];
@@ -28,7 +28,7 @@ export function WorkspaceShell({ locale, title, intro, active, admin, sellerInta
         {sellerIntake?.has_application && <Link href={`/${locale}/seller/apply`} prefetch={false}><Store aria-hidden="true" />
           {sellerCopy.status}
         </Link>}
-        {(admin || active === "products") && <Link href={`/${locale}/seller/products`} aria-current={active === "products" ? "page" : undefined}><Store aria-hidden="true" />{listingDictionaries[locale].products}</Link>}
+        {(admin || catalogSales || active === "products") && <Link href={`/${locale}/seller/products`} aria-current={active === "products" ? "page" : undefined}><Store aria-hidden="true" />{listingDictionaries[locale].products}</Link>}
       </nav>
       <Link className="workspace-back" href={`/${locale}/marketplace`}><ArrowLeft aria-hidden="true" />{copy.back}</Link>
     </aside>

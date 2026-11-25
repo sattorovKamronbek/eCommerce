@@ -24,8 +24,10 @@ export default async function SellerProducts({ params, searchParams }: {
   const query = await searchParams;
   const page = parseAdminPage(query.page);
   const range = sellerPageRange(page);
+  let listings = access.account.client.from("marketplace_listings").select("*").eq("seller_id", access.account.user.id);
+  if (access.scope !== "both") listings = listings.eq("ecosystem", access.scope);
   const [result, intake] = await Promise.all([
-    access.account.client.from("marketplace_listings").select("*").eq("seller_id", access.account.user.id).order("created_at", { ascending: false }).order("id", { ascending: false }).range(range.from, range.to),
+    listings.order("created_at", { ascending: false }).order("id", { ascending: false }).range(range.from, range.to),
     loadSellerIntake(access.account.client),
   ]);
   if (result.error) return isSellerSchemaMissing(result.error) ? <SellerSetupRequired locale={locale} /> : <AccountUnavailable locale={locale} />;

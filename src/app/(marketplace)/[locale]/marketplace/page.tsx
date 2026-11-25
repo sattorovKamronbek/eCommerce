@@ -3,32 +3,17 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { EditorialArt, EditorialHeading, EditorialLink } from "@/components/marketplace/editorial";
 import { ListingResults, ListingResultsLoading } from "@/components/marketplace/listing-results";
-import { loadPublicListings, type PublicListingResults } from "@/lib/sellers/public-catalog";
+import { loadPublicListings } from "@/lib/sellers/public-catalog";
 import type { ListingEcosystem } from "@/lib/sellers/public-query";
 import { createPublicSupabaseClient } from "@/lib/supabase/public";
 import { editorialDictionaries } from "@/messages/editorial";
 import { isMarketplaceLocale, marketplaceDictionaries, type MarketplaceLocale } from "@/messages/marketplace";
 
-async function NewArrivals({ locale }: { locale: MarketplaceLocale }) {
-  const copy = marketplaceDictionaries[locale];
-  const editorial = editorialDictionaries[locale];
+async function NewArrivals({ locale, ecosystem }: { locale: MarketplaceLocale; ecosystem: ListingEcosystem }) {
   const client = createPublicSupabaseClient();
-  const ecosystems = ["fashion", "cs2"] as const;
-  const groups = await Promise.all(ecosystems.map(async (ecosystem): Promise<[ListingEcosystem, PublicListingResults]> => [
-    ecosystem,
-    client ? await loadPublicListings(client, ecosystem, { q: "", sort: "recent", page: 1 }, 3)
-      : { rows: [], hasNext: false, error: true },
-  ]));
-
-  return <div className="mp-arrivals-grid">
-    {groups.map(([ecosystem, result]) => <section key={ecosystem} aria-labelledby={`arrivals-${ecosystem}`}>
-      <div className="mp-arrival-heading">
-        <h3 id={`arrivals-${ecosystem}`}>{copy[ecosystem]}</h3>
-        <EditorialLink href={`/${locale}/listings/${ecosystem}`}>{editorial.allListings}</EditorialLink>
-      </div>
-      <ListingResults result={result} locale={locale} heading="h4" />
-    </section>)}
-  </div>;
+  const result = client ? await loadPublicListings(client, ecosystem, { q: "", sort: "recent", page: 1 }, 3)
+    : { rows: [], hasNext: false, error: true };
+  return <ListingResults result={result} locale={locale} heading="h4" />;
 }
 
 export default async function MarketplaceHome({ params }: { params: Promise<{ locale: string }> }) {
@@ -96,7 +81,15 @@ export default async function MarketplaceHome({ params }: { params: Promise<{ lo
 
     <section className="mp-arrivals" aria-labelledby="new-arrivals">
       <EditorialHeading id="new-arrivals">{editorial.arrivals}</EditorialHeading>
-      <Suspense fallback={<ListingResultsLoading locale={locale} />}><NewArrivals locale={locale} /></Suspense>
+      <div className="mp-arrivals-grid">
+        {(["fashion", "cs2"] as const).map(ecosystem => <section key={ecosystem} aria-labelledby={`arrivals-${ecosystem}`}>
+          <div className="mp-arrival-heading">
+            <h3 id={`arrivals-${ecosystem}`}>{copy[ecosystem]}</h3>
+            <EditorialLink href={`/${locale}/listings/${ecosystem}`}>{editorial.allListings}</EditorialLink>
+          </div>
+          <Suspense fallback={<ListingResultsLoading locale={locale} />}><NewArrivals locale={locale} ecosystem={ecosystem} /></Suspense>
+        </section>)}
+      </div>
     </section>
 
     <section className="mp-home-about" aria-labelledby="marketplace-how">

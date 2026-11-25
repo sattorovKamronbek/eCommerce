@@ -1,5 +1,46 @@
 # Project progress
 
+## Catalog selling access and storefront performance — 2026-11-25
+
+Verified Admins can assign CS2, clothing, or both from Admin → Users → the
+account profile. The existing Owner can also manage this permission for
+accounts with platform roles. Assigned operators find My listings in their
+account and use two-step verification to publish and configure reservations.
+The admin profile shows historical seller approval alongside assigned access
+when applicable. Assignments are audited with the actor, account and scope.
+
+Removing a category hides its listings and closes new reservations. Order
+participants retain their order access and snapshots. The CS2 flow uses the
+actual Asset ID and a buyer-facing contact. The Owner can correct an Asset ID
+while it is free of held or consumed stock. The new permission uses
+[migration 202611250016](supabase/migrations/202611250016_catalog_sales_access.sql).
+
+Catalog and search cards now request only their display fields. A read-only
+sample of the same ten CS2 listings from the dedicated VERSAX project reduced
+the uncompressed JSON response from 6,637 to 2,692 bytes, a 59% reduction.
+Home and search render the two category feeds independently. The public pages
+load only shared styles. Chromium transferred 19,856 compressed CSS bytes for
+the English home compared with 22,419 before, an 11% reduction. Listing photos
+stream through the existing access checks. Public catalog and checkout reads
+use fresh provider data.
+
+All 227 Vitest checks passed across the full run and a focused retry of the
+existing Owner-role suite after its setup timed out under concurrent load. A
+Playwright workflow using a local Supabase API fixture and all 17 migrations
+verified scoped assignment and revocation, normal account denial, publishing
+CS2 and structured clothing listings, the CS2 reserve link, and independent
+category rendering under delayed responses. The admin form fit a 390 px
+viewport and passed its scoped accessibility check.
+The account and marketplace Playwright suites passed all 63 checks across
+desktop, tablet, and mobile Chromium against the local production build.
+Typecheck and production build passed. ESLint reported two existing warnings
+in the account security action and zero errors.
+
+Release status is local. The migration requires the single-vendor transition
+`202611220014`, last recorded as pending in the dedicated project. The
+existing cutover procedure pauses new reservations for inventory and
+fulfillment reconciliation. Live rollout and operator assignments are pending.
+
 ## CS2 reservation settings — 2026-11-22
 
 Reproduced the unavailable reservation message on a published CS2 listing.

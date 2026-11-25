@@ -5,7 +5,16 @@ import { literalNamePattern } from "@/lib/auth/admin-users";
 import { CS2_WEAR, isCs2Wear } from "./cs2";
 import type { ListingEcosystem, PublicListingQuery } from "./public-query";
 
-export type PublicListingResults = { rows: PublicListing[]; hasNext: boolean; error: boolean };
+const cardFields = "id, ecosystem, title, category, variant, price_tiyin, available";
+const cardColumns = {
+  cs2: `${cardFields}, cs2_model, cs2_wear, cs2_images`,
+  fashion: `${cardFields}, fashion_product_id, fashion_brand, fashion_color_id, fashion_images`,
+} as const;
+
+export type PublicListingCardData = Pick<PublicListing, "id" | "ecosystem" | "title" | "category" | "variant" | "price_tiyin" | "available">
+  & Partial<Pick<PublicListing, "cs2_model" | "cs2_wear" | "cs2_images" | "fashion_product_id" | "fashion_brand" | "fashion_color_id" | "fashion_images">>;
+
+export type PublicListingResults = { rows: PublicListingCardData[]; hasNext: boolean; error: boolean };
 
 export async function loadPublicListings(
   client: SupabaseClient<Database>, ecosystem: ListingEcosystem, filters: PublicListingQuery, size = 20,
@@ -13,8 +22,10 @@ export async function loadPublicListings(
   const start = (filters.page - 1) * size;
   try {
     // A retry with provider backoff keeps the visitor waiting on the same view.
-    const view = ecosystem === "fashion" ? "marketplace_public_fashion_catalog" : "marketplace_public_listings";
-    let query = client.from(view).select("*").eq("ecosystem", ecosystem).retry(false);
+    const cards = ecosystem === "fashion"
+      ? client.from("marketplace_public_fashion_catalog").select(cardColumns.fashion)
+      : client.from("marketplace_public_listings").select(cardColumns.cs2);
+    let query = cards.eq("ecosystem", ecosystem).retry(false);
     if (filters.q) query = query.regexIMatch("title", literalNamePattern(filters.q));
     if (ecosystem === "cs2" && filters.cs2) {
       const { category, model, wear } = filters.cs2;

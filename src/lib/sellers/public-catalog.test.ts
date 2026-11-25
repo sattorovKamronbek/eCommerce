@@ -38,6 +38,8 @@ it("matches category, model and wear as exact CS2 fields without affecting Fashi
   const cs2Request = new URL(fetch.mock.calls[0][0]);
   expect(cs2Request.pathname).toBe("/rest/v1/marketplace_public_listings");
   const cs2 = cs2Request.searchParams;
+  expect(cs2.get("select")?.split(",")).toEqual(expect.arrayContaining(["id", "cs2_images", "available"]));
+  expect(cs2.get("select")?.split(",")).not.toContain("description");
   expect(cs2.get("cs2_category")).toBe("eq.pistol");
   expect(cs2.get("cs2_model")).toBe("eq.Desert Eagle");
   expect(cs2.get("cs2_wear")).toBe("eq.FT");
@@ -46,6 +48,8 @@ it("matches category, model and wear as exact CS2 fields without affecting Fashi
   expect(fashionRequest.pathname).toBe("/rest/v1/marketplace_public_fashion_catalog");
   const fashion = fashionRequest.searchParams;
   expect([...fashion.keys()].some(key => key.startsWith("cs2_"))).toBe(false);
+  expect(fashion.get("select")?.split(",")).toContain("fashion_images");
+  expect(fashion.get("select")?.split(",")).not.toContain("fashion_size_guide");
 });
 
 it("looks up public sibling offers using the same group, model and title", async () => {

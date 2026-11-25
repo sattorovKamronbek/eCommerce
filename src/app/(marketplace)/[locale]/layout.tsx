@@ -10,7 +10,6 @@ import { accountDictionaries } from "@/messages/account";
 import "../../globals.css";
 import "@/components/marketplace/tokens.css";
 import "@/components/marketplace/styles.css";
-import "@/components/account/styles.css";
 
 export function generateStaticParams() { return marketplaceConfig.locales.map((locale) => ({ locale })); }
 

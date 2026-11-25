@@ -65,6 +65,19 @@ Admin role to either operator.
 CS2 payment and Steam trade delivery start with the manual workflow. Any
 future trade automation depends on documented platform support and authorization.
 
+### Catalog selling access — 2026-11-25
+
+Verified administrators can assign existing active accounts the right to sell
+CS2 skins, clothing, or both on behalf of VERSAX. The Owner can also manage
+catalog access for Owner and Admin accounts. Assigned staff use two-step
+verification to publish their own listings and configure manual reservations.
+The assignment requires only an existing VERSAX account and the administrator's
+selection. CS2 reservations still identify the item by its actual Asset ID.
+
+An explicit assignment controls the categories available to that account.
+Removing a category hides its listings and closes new reservations. Existing
+orders remain available to their participants and administrators.
+
 ### Decisions needed before live acceptance
 
 | Decision | Current launch status |
