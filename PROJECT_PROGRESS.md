@@ -36,10 +36,26 @@ desktop, tablet, and mobile Chromium against the local production build.
 Typecheck and production build passed. ESLint reported two existing warnings
 in the account security action and zero errors.
 
-Release status is local. The migration requires the single-vendor transition
-`202611220014`, last recorded as pending in the dedicated project. The
-existing cutover procedure pauses new reservations for inventory and
-fulfillment reconciliation. Live rollout and operator assignments are pending.
+### Production database rollout
+
+Applied `202611220014` and then `202611250016` to the dedicated VERSAX
+project `xevzbtivteugbqbmmtyz` with Supabase CLI 3.2.0. The first dry run
+listed those two files. The follow-up dry run reported the database up to date.
+All 17 versions in the production ledger match the repository.
+
+Before and after the rollout, the database reported six accounts and profiles,
+one Owner, one CS2 operator, ten listings, zero orders, and zero checkout
+terms. The public API returned all ten in-stock CS2 listings and zero
+checkout offers. Migration 014 closed new reservations for the single-vendor
+cutover. RLS is enabled on both new sales access tables, the legacy intake RPC
+is closed to authenticated clients, and anonymous access to the new scope RPC
+returned HTTP 401 with PostgreSQL code `42501`. There are zero new catalog
+sales assignments. Application deployment is tracked separately.
+
+Typecheck, the production build, and nine direct-order tests passed. ESLint
+reported the two existing warnings. The public catalog and protected-route
+Playwright checks both passed on a single-worker retry after the parallel
+run reached its time limit.
 
 ## CS2 reservation settings — 2026-11-22
 
