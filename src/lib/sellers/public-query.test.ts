@@ -29,4 +29,19 @@ describe("public listing query", () => {
     expect(publicListingQueryString(parsePublicListingQuery(query))).toBe("?q=Redline");
     expect(publicListingQueryString(parsePublicListingQuery(query, "cs2"), true)).toBe("?q=Redline&from=search");
   });
+  it("parses exact UZS price bounds and preserves stock and prices in catalog and search links", () => {
+    const filters = parsePublicListingQuery({ minPrice: "100,25", maxPrice: "2500", stock: "in-stock", page: "2" }, "cs2");
+    expect(filters.price).toMatchObject({ minTiyin: 10025, maxTiyin: 250000 });
+    expect(filters.inStock).toBe(true);
+    expect(publicListingHref("uz", "cs2", filters)).toBe("/uz/listings/cs2?page=2&minPrice=100%2C25&maxPrice=2500&stock=in-stock");
+    expect(publicListingQueryString(filters, true)).toContain("minPrice=100%2C25&maxPrice=2500&stock=in-stock");
+    expect(parsePublicListingQuery({ minPrice: "0" }).price).toMatchObject({ minTiyin: 0 });
+  });
+
+  it("flags unsupported amounts, repeated inputs and reversed bounds", () => {
+    expect(parsePublicListingQuery({ minPrice: "12.345" }).price?.error).toBe("format");
+    expect(parsePublicListingQuery({ maxPrice: ["100", "200"] }).price?.error).toBe("format");
+    expect(parsePublicListingQuery({ minPrice: "200", maxPrice: "100" }).price?.error).toBe("range");
+    expect(parsePublicListingQuery({ stock: ["in-stock", "all"] }).inStock).toBeUndefined();
+  });
 });

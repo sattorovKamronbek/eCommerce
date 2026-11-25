@@ -27,6 +27,12 @@ export async function loadPublicListings(
       : client.from("marketplace_public_listings").select(cardColumns.cs2);
     let query = cards.eq("ecosystem", ecosystem).retry(false);
     if (filters.q) query = query.regexIMatch("title", literalNamePattern(filters.q));
+    if (filters.inStock) query = query.eq("available", true);
+    const price = filters.price;
+    if (price && !price.error) {
+      if (price.minTiyin !== null) query = query.gte("price_tiyin", price.minTiyin);
+      if (price.maxTiyin !== null) query = query.lte("price_tiyin", price.maxTiyin);
+    }
     if (ecosystem === "cs2" && filters.cs2) {
       const { category, model, wear } = filters.cs2;
       if (category) query = query.eq("cs2_category", category);

@@ -2,6 +2,7 @@
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { createPublicSupabaseClient } from "@/lib/supabase/public";
 import { loadPublicCs2Variants, loadPublicListings } from "./public-catalog";
+import { parsePublicListingQuery } from "./public-query";
 
 vi.mock("server-only", () => ({}));
 vi.mock("@/lib/supabase/config", () => ({
@@ -74,4 +75,19 @@ it("looks up public sibling offers using the same group, model and title", async
     id: "unpainted", title: "Redline", cs2_group_key: "group", cs2_model: "AK-47", cs2_wear: "NP",
   })).resolves.toEqual([]);
   expect(fetch).toHaveBeenCalledTimes(1);
+});
+
+it("applies price and stock to the database query before limiting either catalog", async () => {
+  const fetch = vi.fn<(request: string | URL) => Promise<Response>>().mockImplementation(async () => Response.json([]));
+  vi.stubGlobal("fetch", fetch);
+  const client = createPublicSupabaseClient()!;
+  const filters = parsePublicListingQuery({ minPrice: "0", maxPrice: "550,50", stock: "in-stock", page: "2" });
+
+  for (const ecosystem of ["cs2", "fashion"] as const) {
+    await loadPublicListings(client, ecosystem, filters, 5);
+    const query = new URL(fetch.mock.lastCall![0]).searchParams;
+    expect(query.getAll("price_tiyin")).toEqual(["gte.0", "lte.55050"]);
+    expect(query.get("available")).toBe("eq.true");
+    expect(query.get("offset")).toBe("5");
+  }
 });

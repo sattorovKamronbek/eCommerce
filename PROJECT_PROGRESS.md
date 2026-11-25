@@ -1,5 +1,34 @@
 # Project progress
 
+## Admin notifications and sales filters — 2026-11-26
+
+The Owner and Admin dashboards show the latest payments and disputes that
+need the signed-in administrator’s review. The Notifications page lists
+current cases and links to order details. It recalculates the queue on each
+request from order status and uses the existing verified MFA and RLS checks.
+An administrator’s own purchases and sales go through another reviewer.
+
+The Sales links open the CS2 and clothing order lists. In these lists,
+staff can combine product category, order status, and an account filter.
+Public catalogs and search apply UZS price bounds and the in-stock filter
+in the database before pagination. The filters survive navigation to a
+listing and back. Stock reflects the published listing quantity. The
+existing checkout offer determines whether the item can be reserved.
+
+The update uses the existing Supabase schema. Typecheck, ESLint, all 231
+Vitest checks across 47 files, and the production build passed. ESLint
+reported two existing unused-parameter warnings in the account security
+action. Browser and order verification use an isolated fixture with the
+repository’s 17 migrations. The authenticated Playwright workflow checked
+both dashboard roles, customer denial, the order link, and the queue after
+an administrator approved a reported payment. It also checked category and
+status filters, public price and stock filtering, return links, responsive
+widths and scoped axe results. All 87 Playwright tests passed across desktop,
+tablet, and mobile Chromium. A follow-up checked wrapping a 120-character
+notification title at 390 px and the Russian catalog’s invalid price state
+at 320 px. The Browser plugin was unavailable. Screenshots and logs are in
+`/tmp/versax-sales-qa.ziNYeJ/`.
+
 ## Catalog selling access and storefront performance — 2026-11-25
 
 Verified Admins can assign CS2, clothing, or both from Admin → Users → the

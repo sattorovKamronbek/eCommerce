@@ -38,3 +38,9 @@ export function parseDirectPayment(form: FormData) {
 export function formatTiyin(amount: number, locale: string) {
   return `${new Intl.NumberFormat(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount / 100)} UZS`;
 }
+
+export function formatOrderDateTime(date: string, locale: string) {
+  return new Intl.DateTimeFormat(locale, {
+    dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Tashkent",
+  }).format(new Date(date));
+}

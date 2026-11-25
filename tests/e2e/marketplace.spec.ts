@@ -70,6 +70,36 @@ test("homepage opens seller catalogs without sample listings or a demo banner", 
   await expect(page.getByRole("heading", { level: 1 })).toContainText("Seller listings");
 });
 
+test("public catalog applies, validates and resets price and stock filters", async ({ page }) => {
+  await page.goto("/en/listings/cs2");
+  const filters = page.getByRole("search");
+  const minimum = filters.getByLabel("Min. price (UZS)", { exact: true });
+  const maximum = filters.getByLabel("Max. price (UZS)", { exact: true });
+  const stock = filters.getByRole("combobox", { name: "Stock", exact: true });
+  const submit = filters.getByRole("button", { name: "Search", exact: true });
+
+  await minimum.fill("250,50");
+  await maximum.fill("100");
+  await stock.selectOption("in-stock");
+  await submit.click();
+  await expect(filters.getByRole("alert")).toHaveText("The minimum price must be at most the maximum price.");
+  await expect(minimum).toHaveValue("250,50");
+  await expect(minimum).toHaveAttribute("aria-invalid", "true");
+
+  await maximum.fill("1000");
+  await submit.click();
+  await expect(page).toHaveURL(/minPrice=250%2C50&maxPrice=1000/);
+  expect(new URL(page.url()).searchParams.get("stock")).toBe("in-stock");
+  await expect(minimum).not.toHaveAttribute("aria-invalid", "true");
+  await expect(stock).toHaveValue("in-stock");
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+
+  await page.getByRole("link", { name: marketplaceDictionaries.en.reset, exact: true }).click();
+  await expect(page).toHaveURL(/\/en\/listings\/cs2$/);
+  await expect(minimum).toHaveValue("");
+  await expect(stock).toHaveValue("");
+});
+
 test("home explains how to buy CS2 skins and clothing", async ({ page }) => {
   await page.goto("/uz/marketplace");
   const copy = marketplaceDictionaries.uz;

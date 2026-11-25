@@ -4,13 +4,13 @@ import { notFound } from "next/navigation";
 import { updateOrder } from "@/app/(marketplace)/[locale]/account/orders/actions";
 import { AccountDenied, AccountUnavailable } from "@/components/account/shell";
 import { WorkspaceShell } from "@/components/account/workspace";
+import { OrderPagination } from "@/components/orders/pagination";
 import { requireAccount, requireAdmin } from "@/lib/auth/access";
 import { parseAdminPage } from "@/lib/auth/validation";
-import { formatTiyin, orderStatuses, type OrderAction, type OrderRole, type OrderStatus } from "@/lib/orders/model";
+import { formatOrderDateTime, formatTiyin, orderStatuses, type OrderAction, type OrderRole, type OrderStatus } from "@/lib/orders/model";
 import { sellerPageRange, sellerPageResults } from "@/lib/sellers/pagination";
 import { loadSellerIntake } from "@/lib/sellers/intake";
 import type { DirectOrder, DirectOrderEvent } from "@/lib/supabase/database";
-import { accountDictionaries } from "@/messages/account";
 import { activityDictionaries } from "@/messages/admin-activity";
 import { listingDictionaries } from "@/messages/seller-catalog";
 import type { MarketplaceLocale } from "@/messages/marketplace";
@@ -25,23 +25,6 @@ async function loadAccess(locale: MarketplaceLocale, url: string, admin: boolean
   return requireAccount(locale, url);
 }
 
-function OrderPagination({ locale, page, search, base, hasNext, label }: {
-  locale: MarketplaceLocale; page: number; search: URLSearchParams; base: string; hasNext: boolean; label: string;
-}) {
-  const copy = accountDictionaries[locale];
-  const href = (n: number) => {
-    const query = new URLSearchParams(search);
-    if (n > 1) query.set("page", String(n));
-    return `${base}${query.size ? `?${query}` : ""}`;
-  };
-  if (page === 1 && !hasNext) return null;
-  return <nav className="account-pagination" aria-label={label}>
-    {page > 1 ? <Link href={href(page - 1)} rel="prev">{copy.previous}</Link> : <span aria-disabled="true">{copy.previous}</span>}
-    <span aria-current="page">{copy.page} {page}</span>
-    {hasNext ? <Link href={href(page + 1)} rel="next">{copy.next}</Link> : <span aria-disabled="true">{copy.next}</span>}
-  </nav>;
-}
-
 export async function OrdersList({ locale, admin, search }: {
   locale: MarketplaceLocale; admin: boolean; search: Record<string, string | string[] | undefined>;
 }) {
@@ -54,15 +37,18 @@ export async function OrdersList({ locale, admin, search }: {
   const page = parseAdminPage(search.page);
   const range = sellerPageRange(page);
   const status = typeof search.status === "string" && orderStatuses.includes(search.status as OrderStatus) ? search.status as OrderStatus : "";
+  const ecosystem = admin && (search.ecosystem === "cs2" || search.ecosystem === "fashion") ? search.ecosystem : "";
   const party = admin && isUuid(search.buyer) ? { key: "buyer", id: search.buyer } as const
     : admin && isUuid(search.seller) ? { key: "seller", id: search.seller } as const : null;
   const filters = new URLSearchParams(status ? { status } : {});
+  if (ecosystem) filters.set("ecosystem", ecosystem);
   if (party) filters.set(party.key, party.id);
   let query = access.client.from("marketplace_orders").select("id, title, ecosystem, buyer_id, quantity, status, total_tiyin, created_at")
     .order("created_at", { ascending: false }).order("id", { ascending: false }).range(range.from, range.to);
   if (!admin) query = query.or(ownOrdersFilter(access.user.id));
   if (party) query = query.eq(party.key === "buyer" ? "buyer_id" : "seller_id", party.id);
   if (status) query = query.eq("status", status);
+  if (ecosystem) query = query.eq("ecosystem", ecosystem);
   const [result, intake] = await Promise.all([query, loadSellerIntake(access.client)]);
   const orders = sellerPageResults(result.data ?? []);
   return <WorkspaceShell locale={locale} title={admin ? copy.adminOrders : copy.orders}
@@ -71,9 +57,14 @@ export async function OrdersList({ locale, admin, search }: {
       {activityDictionaries[locale][party.key === "buyer" ? "buyerFilter" : "sellerFilter"]}
     </Link></p> : null}
     {result.error ? <p role="alert">{copy.unavailable}</p> : <>
-      <form action={base} method="get" className="real-filters">
+      <form key={filters.toString()} action={base} method="get" className="real-filters">
         {party ? <input type="hidden" name={party.key} value={party.id} /> : null}
-        <label>{copy.filter}<select name="status" defaultValue={status}>
+        {admin && <label>{category.ecosystem}<select name="ecosystem" defaultValue={ecosystem}>
+          <option value="">{copy.allEcosystems}</option>
+          <option value="cs2">{category.cs2}</option>
+          <option value="fashion">{category.fashion}</option>
+        </select></label>}
+        <label>{copy.statusFilter}<select name="status" defaultValue={status}>
           <option value="">{copy.allStatuses}</option>
           {orderStatuses.map(value => <option key={value} value={value}>{copy.statuses[value]}</option>)}
         </select></label>
@@ -83,7 +74,7 @@ export async function OrdersList({ locale, admin, search }: {
         {orders.rows.map(order => <article className="seller-review" key={order.id}>
           <h2><Link href={`${base}/${order.id}`}>{order.title}</Link></h2>
           <p>{category[order.ecosystem]} · {copy.statuses[order.status]}{admin ? "" : ` · ${order.buyer_id === access.user.id ? copy.buyer : copy.seller}`}</p>
-          <p>{formatTiyin(order.total_tiyin, locale)} · {dateTime(order.created_at, locale)}</p>
+          <p>{formatTiyin(order.total_tiyin, locale)} · {formatOrderDateTime(order.created_at, locale)}</p>
           {admin ? <dl className="order-facts"><div><dt>{copy.quantity}</dt><dd>{order.quantity}</dd></div></dl> : null}
         </article>)}
       </div> : <p>{copy.empty}</p>}
@@ -92,10 +83,6 @@ export async function OrdersList({ locale, admin, search }: {
     </>}
   </WorkspaceShell>;
 }
-
-const dateTime = (date: string, locale: MarketplaceLocale) => new Intl.DateTimeFormat(locale, {
-  dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Tashkent",
-}).format(new Date(date));
 
 function reservationExpired(order: DirectOrder) {
   return (order.status === "reserved" || order.status === "cancelled")
@@ -139,9 +126,9 @@ function OrderActionForm({ order, action, copy, locale, admin }: {
 function OrderDetails({ order, locale, copy }: { order: DirectOrder; locale: MarketplaceLocale; copy: OrderMessages }) {
   const listing = listingDictionaries[locale];
   const expired = reservationExpired(order);
-  const paymentTime = order.reported_paid_at ? dateTime(order.reported_paid_at, locale) : null;
-  const approvalTime = order.payment_approved_at ? dateTime(order.payment_approved_at, locale) : null;
-  const confirmation = (date: string | null) => date ? `${copy.present} · ${dateTime(date, locale)}` : copy.waiting;
+  const paymentTime = order.reported_paid_at ? formatOrderDateTime(order.reported_paid_at, locale) : null;
+  const approvalTime = order.payment_approved_at ? formatOrderDateTime(order.payment_approved_at, locale) : null;
+  const confirmation = (date: string | null) => date ? `${copy.present} · ${formatOrderDateTime(date, locale)}` : copy.waiting;
   return <>
     <section className="order-summary">
       <p>{listing[order.ecosystem]} · {expired ? copy.actions.expired : copy.statuses[order.status]}</p>
@@ -160,7 +147,7 @@ function OrderDetails({ order, locale, copy }: { order: DirectOrder; locale: Mar
       {expired ? <p role="status">{copy.expiredNotice}</p> : order.status === "reserved" ? <p className="order-note">{copy.directNote}</p> : null}
       <dl className="order-facts">
         {!expired ? <div><dt>{copy.sellerContact}</dt><dd><a href={`tel:${order.seller_phone}`}>{order.seller_phone}</a></dd></div> : null}
-        {order.status === "reserved" && !expired ? <div><dt>{copy.deadline}</dt><dd>{dateTime(order.expires_at, locale)}</dd></div> : null}
+        {order.status === "reserved" && !expired ? <div><dt>{copy.deadline}</dt><dd>{formatOrderDateTime(order.expires_at, locale)}</dd></div> : null}
         {order.payment_reference ? <div><dt>{copy.reference}</dt><dd>{order.payment_reference}</dd></div> : null}
         {order.reported_amount_tiyin ? <div><dt>{copy.paidAmount}</dt><dd>{formatTiyin(order.reported_amount_tiyin, locale)}</dd></div> : null}
         {paymentTime ? <div><dt>{copy.paidAt}</dt><dd>{paymentTime}</dd></div> : null}
@@ -192,7 +179,7 @@ function OrderHistory({ events, locale, copy }: { events: DirectOrderEvent[]; lo
     <h2>{copy.timeline}</h2>
     <ol className="order-timeline">
       {events.map(event => <li key={event.id}>
-        <p><strong>{copy.actions[event.action]}</strong> · {copy[event.actor_role]} · {dateTime(event.created_at, locale)}</p>
+        <p><strong>{copy.actions[event.action]}</strong> · {copy[event.actor_role]} · {formatOrderDateTime(event.created_at, locale)}</p>
         {event.reason ? <p>{event.reason}</p> : null}
       </li>)}
     </ol>
@@ -239,7 +226,7 @@ export async function OrderDetail({ locale, admin, id, search }: {
       action={action} copy={copy} locale={locale} admin={admin} />)}</div> : null}
     {log.error ? <p role="alert">{copy.unavailable}</p> : <>
       <OrderHistory events={history.rows} locale={locale} copy={copy} />
-      <OrderPagination locale={locale} page={page} base={destination} search={new URLSearchParams()} hasNext={history.hasNext} label={copy.timeline} />
+      <OrderPagination locale={locale} page={page} base={destination} hasNext={history.hasNext} label={copy.timeline} />
     </>}
   </WorkspaceShell>;
 }

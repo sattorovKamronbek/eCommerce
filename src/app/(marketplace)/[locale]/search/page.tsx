@@ -31,19 +31,20 @@ export default async function MarketplaceSearch({ params, searchParams }: {
   const editorial = editorialDictionaries[locale];
   const copy = marketplaceDictionaries[locale];
   const filters = { ...parsePublicListingQuery(query), page: 1 };
+  const hasFilters = Boolean(filters.q || filters.price || filters.inStock);
   return <div className="mp-catalog real-catalog">
     <div className="mp-page-heading">
       <h1>{editorial.searchTitle}</h1>
       <p>{editorial.searchIntro}</p>
     </div>
     <ListingFilters action={`/${locale}/search`} filters={filters} locale={locale} />
-    {filters.q ? <div className="mp-search-results">
+    {!filters.price?.error && (hasFilters ? <div className="mp-search-results">
       {(["fashion", "cs2"] as const).map(ecosystem => <section key={ecosystem} aria-labelledby={`search-${ecosystem}`}>
         <div className="mp-arrival-heading"><h2 id={`search-${ecosystem}`}>{copy[ecosystem]}</h2></div>
         <Suspense key={publicListingQueryString(filters)} fallback={<ListingResultsLoading locale={locale} />}>
           <SearchResults locale={locale} ecosystem={ecosystem} filters={filters} />
         </Suspense>
       </section>)}
-    </div> : <p className="mp-feed-status">{editorial.searchPrompt}</p>}
+    </div> : <p className="mp-feed-status">{editorial.searchPrompt}</p>)}
   </div>;
 }

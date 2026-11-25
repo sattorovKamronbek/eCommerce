@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft, LayoutDashboard, Package, Store, UserRound, UsersRound } from "lucide-react";
+import { ArrowLeft, Bell, LayoutDashboard, Package, Store, UserRound, UsersRound } from "lucide-react";
 import { accountDictionaries } from "@/messages/account";
 import { dashboardDictionaries } from "@/messages/admin-dashboard";
 import { sellerDictionaries } from "@/messages/seller";
@@ -9,16 +9,18 @@ import type { MarketplaceLocale } from "@/messages/marketplace";
 import type { SellerIntakeStatus } from "@/lib/supabase/database";
 
 export function WorkspaceShell({ locale, title, intro, active, admin, catalogSales, sellerIntake, children }: {
-  locale: MarketplaceLocale; title: string; intro: string; active: "profile" | "dashboard" | "users" | "sellers" | "products" | "moderation" | "orders" | "adminOrders";
+  locale: MarketplaceLocale; title: string; intro: string; active: "profile" | "dashboard" | "notifications" | "users" | "sellers" | "products" | "moderation" | "orders" | "adminOrders";
   admin: boolean; catalogSales?: boolean; sellerIntake?: SellerIntakeStatus | null; children: React.ReactNode;
 }) {
   const copy = accountDictionaries[locale];
   const sellerCopy = sellerDictionaries[locale];
+  const accountPage = active === "profile" || active === "products" || active === "orders";
   return <section className="account-workspace">
     <aside className="workspace-sidebar">
-      <div className="workspace-label"><p>{active === "dashboard" || active === "users" || active === "sellers" || active === "moderation" || active === "adminOrders" ? copy.admin : copy.account}</p><span>{copy.workspace}</span></div>
+      <div className="workspace-label"><p>{accountPage ? copy.account : copy.admin}</p><span>{copy.workspace}</span></div>
       <nav aria-label={copy.workspaceNavigation}>
         {admin ? <Link href={`/${locale}/admin`} aria-current={active === "dashboard" ? "page" : undefined}><LayoutDashboard aria-hidden="true" />{dashboardDictionaries[locale].navigation}</Link> : null}
+        {admin ? <Link href={`/${locale}/admin/notifications`} prefetch={false} aria-current={active === "notifications" ? "page" : undefined}><Bell aria-hidden="true" />{dashboardDictionaries[locale].notifications.title}</Link> : null}
         {admin ? <Link href={`/${locale}/admin/users`} aria-current={active === "users" ? "page" : undefined}><UsersRound aria-hidden="true" />{copy.users}</Link> : null}
         {admin ? <Link href={`/${locale}/admin/sellers`} aria-current={active === "sellers" ? "page" : undefined}><Store aria-hidden="true" />{sellerDictionaries[locale].adminLink}</Link> : null}
         {admin ? <Link href={`/${locale}/admin/listings`} aria-current={active === "moderation" ? "page" : undefined}><Store aria-hidden="true" />{listingDictionaries[locale].adminListings}</Link> : null}

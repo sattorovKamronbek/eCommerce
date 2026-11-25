@@ -274,7 +274,9 @@
 .mp-page-heading h1 span { font-size: 0.55em; }
 .mp-page-heading > p { margin-top: 0.75rem; }
 .real-filters { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) auto; gap: 0.75rem var(--editorial-gap); align-items: end; padding-bottom: 1.25rem; border-bottom: var(--editorial-rule); }
-.real-filters.real-filters-cs2 { grid-template-columns: minmax(0, 1.35fr) repeat(4, minmax(0, 1fr)) auto; }
+.real-filters.public-listing-filters { grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr)); }
+.public-listing-filters > label:first-child { grid-column: span 2; }
+.public-listing-filter-error { grid-column: 1 / -1; color: var(--destructive); }
 .real-filters label { display: grid; gap: 0.375rem; font-size: 0.875rem; font-weight: 700; min-width: 0; }
 .real-filters input, .real-filters select { width: 100%; min-height: 2.875rem; padding: 0.5rem 0.75rem; border: 1px solid var(--input); background: var(--card); color: var(--foreground); font-size: 1rem; font-weight: 400; }
 .real-filters select:disabled { color: var(--muted-foreground); }
@@ -370,7 +372,6 @@
   .mp-header { grid-template-columns: auto minmax(0, 1fr); min-height: auto; padding-top: 0.625rem; row-gap: 0.375rem; }
   .mp-navigation { justify-content: flex-end; }
   .mp-tools { grid-column: 1 / -1; justify-self: stretch; justify-content: flex-end; border-top: var(--editorial-divider); }
-  .real-filters.real-filters-cs2 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 @media (max-width: 1000px) {
   .mp-spread { grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); }
@@ -418,8 +419,8 @@
   .mp-boundary [data-slot="alert-description"] { grid-column: 2; }
   .real-filters { grid-template-columns: minmax(0, 1fr) auto; }
   .real-filters label:first-child { grid-column: 1 / -1; }
-  .real-filters.real-filters-cs2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .real-filters-cs2 button { grid-column: 1 / -1; }
+  .real-filters.public-listing-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .public-listing-filters button { grid-column: 1 / -1; }
 }
 @media (max-width: 420px) {
   .mp-header { column-gap: 0.75rem; }

@@ -9,6 +9,8 @@ const en = {
   scopeNotice: "CS2 item details are supplied by sellers. Steam ownership has not been independently verified.",
   publicNotice: "When reservation is available, you pay the seller directly.", available: "Seller reports available", outOfStock: "Seller reports out of stock", noPublic: "No listings found.", catalogUnavailable: "The catalog is temporarily unavailable.",
   browseReal: "Browse seller listings", publicTitle: "Seller listings", search: "Search listings", searchButton: "Search", sort: "Sort", recent: "Newest", priceAsc: "Price: low to high", priceDesc: "Price: high to low", view: "View listing", unverifiedCs2: "CS2 item details and Steam ownership have not been independently verified.",
+  stock: "Stock", allStock: "All listings", inStock: "In stock only", minPrice: "Min. price (UZS)", maxPrice: "Max. price (UZS)",
+  priceErrors: { format: "Enter a valid price in UZS with up to two decimal places.", range: "The minimum price must be at most the maximum price." },
   listingLink: "Seller listings", product: "Listing", back: "Back to listings",
   adminListings: "Listing moderation", adminIntro: "Review listings and restrict or restore them. Restricted listings cannot be republished by the seller.", adminMfa: "Verify this session with two-step verification before moderating listings.", restore: "Restore as draft", sellerId: "Seller account ID",
 };
@@ -23,6 +25,8 @@ const uz: typeof en = {
   scopeNotice: "CS2 ma’lumotlarini sotuvchilar kiritadi. Steam egaligi mustaqil tekshirilmagan.",
   publicNotice: "Band qilish mumkin bo‘lgan mahsulotlar uchun sotuvchiga bevosita to‘laysiz.", available: "Sotuvchi mavjud deb ko‘rsatgan", outOfStock: "Sotuvchi tugagan deb ko‘rsatgan", noPublic: "E’lon topilmadi.", catalogUnavailable: "Katalog vaqtincha ishlamayapti.",
   browseReal: "Sotuvchilar e’lonlarini ko‘rish", publicTitle: "Sotuvchilar e’lonlari", search: "E’lonlardan qidirish", searchButton: "Qidirish", sort: "Saralash", recent: "Yangi e’lonlar", priceAsc: "Avval arzonroq", priceDesc: "Avval qimmatroq", view: "E’lonni ko‘rish", unverifiedCs2: "CS2 buyumi ma’lumotlari va Steam egaligi mustaqil tasdiqlanmagan.",
+  stock: "Zaxira", allStock: "Barcha e’lonlar", inStock: "Faqat zaxiradagilar", minPrice: "Eng kam narx (so‘m)", maxPrice: "Eng yuqori narx (so‘m)",
+  priceErrors: { format: "Narxni so‘mda, ko‘pi bilan ikki kasr xonasi bilan kiriting.", range: "Eng kam narx eng yuqori narxdan oshmasligi kerak." },
   listingLink: "Sotuvchilar e’lonlari", product: "E’lon", back: "E’lonlarga qaytish",
   adminListings: "E’lonlarni boshqarish", adminIntro: "E’lonlarni ko‘rib chiqing, cheklang yoki qayta oching. Cheklangan e’lonni seller qayta chiqara olmaydi.", adminMfa: "E’lonlarni boshqarishdan oldin seansni ikki bosqichli himoya bilan tasdiqlang.", restore: "Qoralama sifatida qaytarish", sellerId: "Seller akkaunti ID’si",
 };
@@ -37,6 +41,8 @@ const ru: typeof en = {
   scopeNotice: "Данные CS2 указывают продавцы. Владение в Steam независимо не проверено.",
   publicNotice: "Если товар можно зарезервировать, оплата производится напрямую продавцу.", available: "По данным продавца, в наличии", outOfStock: "По данным продавца, нет в наличии", noPublic: "Объявления не найдены.", catalogUnavailable: "Каталог временно недоступен.",
   browseReal: "Смотреть объявления продавцов", publicTitle: "Объявления продавцов", search: "Поиск объявлений", searchButton: "Найти", sort: "Сортировка", recent: "Новые", priceAsc: "Сначала дешевле", priceDesc: "Сначала дороже", view: "Посмотреть объявление", unverifiedCs2: "Данные предмета CS2 и владение в Steam независимо не проверены.",
+  stock: "Наличие", allStock: "Все объявления", inStock: "Только в наличии", minPrice: "Мин. цена (сум)", maxPrice: "Макс. цена (сум)",
+  priceErrors: { format: "Введите цену в сумах с точностью до двух знаков после запятой.", range: "Минимальная цена не может превышать максимальную." },
   listingLink: "Объявления продавца", product: "Объявление", back: "Вернуться к объявлениям",
   adminListings: "Модерация объявлений", adminIntro: "Проверяйте и ограничивайте объявления или возвращайте их в черновики. Продавец не может опубликовать ограниченное объявление.", adminMfa: "Перед модерацией подтвердите сеанс двухэтапной защитой.", restore: "Вернуть в черновики", sellerId: "ID аккаунта продавца",
 };
