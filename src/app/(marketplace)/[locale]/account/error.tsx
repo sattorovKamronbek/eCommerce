@@ -3,6 +3,7 @@ import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { accountDictionaries } from "@/messages/account";
 import { isMarketplaceLocale, marketplaceDictionaries } from "@/messages/marketplace";
+import "@/components/account/styles.css";
 export default function AccountError({ reset }: { reset: () => void }) {
   const params = useParams();
   const locale = typeof params.locale === "string" && isMarketplaceLocale(params.locale) ? params.locale : "uz";

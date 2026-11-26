@@ -14,7 +14,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   if (!client) return new Response(null, { status: 404, headers });
   // Private Storage policies enforce seller preview and public listing visibility.
   try {
-    const { data, error } = await client.storage.from(FASHION_PHOTO_BUCKET).download(`${id}/${file}`);
+    const { data, error } = await client.storage.from(FASHION_PHOTO_BUCKET).download(`${id}/${file}`).asStream();
     if (!error && data) return new Response(data, { headers: { ...headers, "Content-Type": "image/webp" } });
   } catch { /* A missing or unavailable private object has no public response body. */ }
   return new Response(null, { status: 404, headers });

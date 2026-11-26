@@ -1,5 +1,91 @@
 # Project progress
 
+## Admin notifications and sales filters — 2026-11-26
+
+The Owner and Admin dashboards show the latest payments and disputes that
+need the signed-in administrator’s review. The Notifications page lists
+current cases and links to order details. It recalculates the queue on each
+request from order status and uses the existing verified MFA and RLS checks.
+An administrator’s own purchases and sales go through another reviewer.
+
+The Sales links open the CS2 and clothing order lists. In these lists,
+staff can combine product category, order status, and an account filter.
+Public catalogs and search apply UZS price bounds and the in-stock filter
+in the database before pagination. The filters survive navigation to a
+listing and back. Stock reflects the published listing quantity. The
+existing checkout offer determines whether the item can be reserved.
+
+The update uses the existing Supabase schema. Typecheck, ESLint, all 231
+Vitest checks across 47 files, and the production build passed. ESLint
+reported two existing unused-parameter warnings in the account security
+action. Browser and order verification use an isolated fixture with the
+repository’s 17 migrations. The authenticated Playwright workflow checked
+both dashboard roles, customer denial, the order link, and the queue after
+an administrator approved a reported payment. It also checked category and
+status filters, public price and stock filtering, return links, responsive
+widths and scoped axe results. All 87 Playwright tests passed across desktop,
+tablet, and mobile Chromium. A follow-up checked wrapping a 120-character
+notification title at 390 px and the Russian catalog’s invalid price state
+at 320 px. The Browser plugin was unavailable. Screenshots and logs are in
+`/tmp/versax-sales-qa.ziNYeJ/`.
+
+## Catalog selling access and storefront performance — 2026-11-25
+
+Verified Admins can assign CS2, clothing, or both from Admin → Users → the
+account profile. The existing Owner can also manage this permission for
+accounts with platform roles. Assigned operators find My listings in their
+account and use two-step verification to publish and configure reservations.
+The admin profile shows historical seller approval alongside assigned access
+when applicable. Assignments are audited with the actor, account and scope.
+
+Removing a category hides its listings and closes new reservations. Order
+participants retain their order access and snapshots. The CS2 flow uses the
+actual Asset ID and a buyer-facing contact. The Owner can correct an Asset ID
+while it is free of held or consumed stock. The new permission uses
+[migration 202611250016](supabase/migrations/202611250016_catalog_sales_access.sql).
+
+Catalog and search cards now request only their display fields. A read-only
+sample of the same ten CS2 listings from the dedicated VERSAX project reduced
+the uncompressed JSON response from 6,637 to 2,692 bytes, a 59% reduction.
+Home and search render the two category feeds independently. The public pages
+load only shared styles. Chromium transferred 19,856 compressed CSS bytes for
+the English home compared with 22,419 before, an 11% reduction. Listing photos
+stream through the existing access checks. Public catalog and checkout reads
+use fresh provider data.
+
+All 227 Vitest checks passed across the full run and a focused retry of the
+existing Owner-role suite after its setup timed out under concurrent load. A
+Playwright workflow using a local Supabase API fixture and all 17 migrations
+verified scoped assignment and revocation, normal account denial, publishing
+CS2 and structured clothing listings, the CS2 reserve link, and independent
+category rendering under delayed responses. The admin form fit a 390 px
+viewport and passed its scoped accessibility check.
+The account and marketplace Playwright suites passed all 63 checks across
+desktop, tablet, and mobile Chromium against the local production build.
+Typecheck and production build passed. ESLint reported two existing warnings
+in the account security action and zero errors.
+
+### Production database rollout
+
+Applied `202611220014` and then `202611250016` to the dedicated VERSAX
+project `xevzbtivteugbqbmmtyz` with Supabase CLI 3.2.0. The first dry run
+listed those two files. The follow-up dry run reported the database up to date.
+All 17 versions in the production ledger match the repository.
+
+Before and after the rollout, the database reported six accounts and profiles,
+one Owner, one CS2 operator, ten listings, zero orders, and zero checkout
+terms. The public API returned all ten in-stock CS2 listings and zero
+checkout offers. Migration 014 closed new reservations for the single-vendor
+cutover. RLS is enabled on both new sales access tables, the legacy intake RPC
+is closed to authenticated clients, and anonymous access to the new scope RPC
+returned HTTP 401 with PostgreSQL code `42501`. There are zero new catalog
+sales assignments. Application deployment is tracked separately.
+
+Typecheck, the production build, and nine direct-order tests passed. ESLint
+reported the two existing warnings. The public catalog and protected-route
+Playwright checks both passed on a single-worker retry after the parallel
+run reached its time limit.
+
 ## CS2 reservation settings — 2026-11-22
 
 Reproduced the unavailable reservation message on a published CS2 listing.

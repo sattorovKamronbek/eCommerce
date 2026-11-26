@@ -48,8 +48,8 @@ export default async function PublicListings({ params, searchParams }: {
       {ecosystem === "cs2" && <p>{copy.unverifiedCs2}</p>}
     </div>
     <ListingFilters action={base} filters={filters} locale={locale} cs2={ecosystem === "cs2"} />
-    <Suspense key={base + publicListingQueryString(filters)} fallback={<ListingResultsLoading locale={locale} />}>
+    {!filters.price?.error && <Suspense key={base + publicListingQueryString(filters)} fallback={<ListingResultsLoading locale={locale} />}>
       <CatalogResults locale={locale} ecosystem={ecosystem} filters={filters} />
-    </Suspense>
+    </Suspense>}
   </div>;
 }

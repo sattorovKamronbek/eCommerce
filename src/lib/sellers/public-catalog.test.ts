@@ -2,6 +2,7 @@
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { createPublicSupabaseClient } from "@/lib/supabase/public";
 import { loadPublicCs2Variants, loadPublicListings } from "./public-catalog";
+import { parsePublicListingQuery } from "./public-query";
 
 vi.mock("server-only", () => ({}));
 vi.mock("@/lib/supabase/config", () => ({
@@ -38,6 +39,8 @@ it("matches category, model and wear as exact CS2 fields without affecting Fashi
   const cs2Request = new URL(fetch.mock.calls[0][0]);
   expect(cs2Request.pathname).toBe("/rest/v1/marketplace_public_listings");
   const cs2 = cs2Request.searchParams;
+  expect(cs2.get("select")?.split(",")).toEqual(expect.arrayContaining(["id", "cs2_images", "available"]));
+  expect(cs2.get("select")?.split(",")).not.toContain("description");
   expect(cs2.get("cs2_category")).toBe("eq.pistol");
   expect(cs2.get("cs2_model")).toBe("eq.Desert Eagle");
   expect(cs2.get("cs2_wear")).toBe("eq.FT");
@@ -46,6 +49,8 @@ it("matches category, model and wear as exact CS2 fields without affecting Fashi
   expect(fashionRequest.pathname).toBe("/rest/v1/marketplace_public_fashion_catalog");
   const fashion = fashionRequest.searchParams;
   expect([...fashion.keys()].some(key => key.startsWith("cs2_"))).toBe(false);
+  expect(fashion.get("select")?.split(",")).toContain("fashion_images");
+  expect(fashion.get("select")?.split(",")).not.toContain("fashion_size_guide");
 });
 
 it("looks up public sibling offers using the same group, model and title", async () => {
@@ -70,4 +75,19 @@ it("looks up public sibling offers using the same group, model and title", async
     id: "unpainted", title: "Redline", cs2_group_key: "group", cs2_model: "AK-47", cs2_wear: "NP",
   })).resolves.toEqual([]);
   expect(fetch).toHaveBeenCalledTimes(1);
+});
+
+it("applies price and stock to the database query before limiting either catalog", async () => {
+  const fetch = vi.fn<(request: string | URL) => Promise<Response>>().mockImplementation(async () => Response.json([]));
+  vi.stubGlobal("fetch", fetch);
+  const client = createPublicSupabaseClient()!;
+  const filters = parsePublicListingQuery({ minPrice: "0", maxPrice: "550,50", stock: "in-stock", page: "2" });
+
+  for (const ecosystem of ["cs2", "fashion"] as const) {
+    await loadPublicListings(client, ecosystem, filters, 5);
+    const query = new URL(fetch.mock.lastCall![0]).searchParams;
+    expect(query.getAll("price_tiyin")).toEqual(["gte.0", "lte.55050"]);
+    expect(query.get("available")).toBe("eq.true");
+    expect(query.get("offset")).toBe("5");
+  }
 });

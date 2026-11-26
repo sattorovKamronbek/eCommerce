@@ -10,6 +10,7 @@ import { accessDictionaries } from "@/messages/admin-access";
 import { cs2SellerDictionaries } from "@/messages/cs2-seller";
 import { mfaDictionaries } from "@/messages/mfa";
 import { requireAccount } from "@/lib/auth/access";
+import { isSellingScope } from "@/lib/sellers/access";
 import { loadSellerIntake } from "@/lib/sellers/intake";
 import { logoutAction, updateProfileAction } from "./actions";
 
@@ -20,7 +21,7 @@ export default async function Account({ params }: { params: Promise<{ locale: st
   if (account.suspended) return <AccountShell locale={locale} title={accessDictionaries[locale].suspended} intro={accessDictionaries[locale].blockedIntro}>
     <AccountForm action={logoutAction.bind(null, locale)} kind="logout" copy={copy} />
   </AccountShell>;
-  const [profile, role, identity, intake, cs2Settings] = await Promise.all([
+  const [profile, role, identity, intake, cs2Settings, catalogScope] = await Promise.all([
     account.client.from("marketplace_profiles").select("id, display_name, preferred_locale, created_at, updated_at").eq("id", account.user.id).maybeSingle(),
     account.client.from("marketplace_user_roles").select("role").eq("user_id", account.user.id).maybeSingle(),
     loadOwnProfileIdentity(account.client, account.user.id),
@@ -28,9 +29,12 @@ export default async function Account({ params }: { params: Promise<{ locale: st
     account.user.factors?.some(factor => factor.status === "verified")
       ? account.client.rpc("marketplace_cs2_reservation_settings").select("listing_id").limit(1)
       : null,
+    account.client.rpc("marketplace_own_catalog_sales_scope"),
   ]);
   const admin = !role.error && (role.data?.role === "admin" || role.data?.role === "owner");
-  return <WorkspaceShell locale={locale} title={copy.profile} intro={copy.profileIntro} active="profile" admin={admin} sellerIntake={intake}>
+  const catalogSales = !catalogScope.error && isSellingScope(catalogScope.data);
+  return <WorkspaceShell locale={locale} title={copy.profile} intro={copy.profileIntro} active="profile" admin={admin}
+    catalogSales={catalogSales} sellerIntake={intake}>
     <section className="profile-summary" aria-label={copy.identity}>
       <div className="profile-avatar"><UserRound aria-hidden="true" /></div>
       <div><p className="profile-name">{profile.data?.display_name || copy.unnamed}</p><p className="account-email">{account.user.email}</p></div>

@@ -13,7 +13,9 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   if (!client) return new Response(null, { status: 404, headers });
 
   // Storage RLS distinguishes attached public photos from a seller's previews.
-  const { data, error } = await client.storage.from(CS2_PHOTO_BUCKET).download(`${id}/${file}`);
-  if (error || !data) return new Response(null, { status: 404, headers });
-  return new Response(data, { headers: { ...headers, "Content-Type": "image/webp" } });
+  try {
+    const { data, error } = await client.storage.from(CS2_PHOTO_BUCKET).download(`${id}/${file}`).asStream();
+    if (!error && data) return new Response(data, { headers: { ...headers, "Content-Type": "image/webp" } });
+  } catch { /* The private object could not be fetched. */ }
+  return new Response(null, { status: 404, headers });
 }

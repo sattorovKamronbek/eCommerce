@@ -19,7 +19,8 @@ export default async function EditListing({ params }: { params: Promise<{ locale
   if (access.kind !== "seller") return <SellerAccessNotice locale={locale} kind={access.kind} />;
   const listing = await access.account.client.from("marketplace_listings").select("*").eq("id", all.id).eq("seller_id", access.account.user.id).maybeSingle();
   if (listing.error) return isSellerSchemaMissing(listing.error) ? <SellerSetupRequired locale={locale} /> : <AccountUnavailable locale={locale} />;
-  if (!listing.data || listing.data.moderation_status === "blocked") notFound();
+  if (!listing.data || listing.data.moderation_status === "blocked"
+    || (access.scope !== "both" && access.scope !== listing.data.ecosystem)) notFound();
   const item = listing.data;
   const fashion = item.fashion_product_id ? await loadFashionDraft(access.account.client, item) : null;
   if (item.fashion_product_id && !fashion) return <AccountUnavailable locale={locale} />;

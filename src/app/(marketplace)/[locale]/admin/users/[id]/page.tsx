@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { AccountDenied, AccountUnavailable, accountLocale } from "@/components/account/shell";
 import { WorkspaceShell } from "@/components/account/workspace";
 import { ActionForm } from "@/components/account/action-form";
+import { CatalogSalesAccess } from "@/components/account/catalog-sales-access";
 import { AdminProfileIdentity } from "@/components/account/profile-identity";
 import { requireAdmin } from "@/lib/auth/access";
 import { parseAdminPage } from "@/lib/auth/validation";
@@ -30,7 +31,7 @@ export default async function UserAccessPage({ params, searchParams }: {
   if (access.kind === "unavailable") return <AccountUnavailable locale={locale} />;
   const page = parseAdminPage((await searchParams).signIns);
   const range = sellerPageRange(page);
-  const [profile, account, audit, intake, overview, signIns] = await Promise.all([
+  const [profile, account, audit, intake, overview, signIns, sales] = await Promise.all([
     access.client.from("marketplace_profiles").select("display_name, preferred_locale").eq("id", id).maybeSingle(),
     access.client.rpc("marketplace_admin_user_access", { p_user_id: id }).maybeSingle(),
     access.client.from("marketplace_user_access_events").select("id, actor_id, action, reason, created_at").eq("target_id", id).order("id", { ascending: false }).limit(20),
@@ -38,6 +39,7 @@ export default async function UserAccessPage({ params, searchParams }: {
     access.client.rpc("marketplace_admin_user_overview", { p_user_id: id }).maybeSingle(),
     access.client.from("marketplace_sign_in_events").select("id, signed_in_at").eq("user_id", id)
       .order("signed_in_at", { ascending: false }).order("id", { ascending: false }).range(range.from, range.to),
+    access.client.rpc("marketplace_admin_catalog_sales_access", { p_user_id: id }).maybeSingle().retry(false),
   ]);
   if (profile.error || account.error) return <AccountUnavailable locale={locale} />;
   if (!profile.data || !account.data) notFound();
@@ -89,6 +91,8 @@ export default async function UserAccessPage({ params, searchParams }: {
       <Link className="mp-text-link" href={`${orders}?buyer=${id}`} prefetch={false}>{activity.buyerOrders}</Link>
       <Link className="mp-text-link" href={`${orders}?seller=${id}`} prefetch={false}>{activity.sellerOrders}</Link>
     </div>
+    <CatalogSalesAccess access={sales.error ? null : sales.data} userId={id} locale={locale} role={role}
+      canManage={owner || role === "customer"} active={!restricted && !suspended} />
     {owner && !manageRoles && role !== "owner" ? <p className="order-note">{copy.fresh}</p> : null}
     {actions.length ? <div className="order-actions">{actions.map(action => <ActionForm key={action}
       action={changeUserAccess.bind(null, locale, id, action, role, suspended)} label={copy[action]} errors={feedback.feedback} pendingLabel={feedback.pending}>

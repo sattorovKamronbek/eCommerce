@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { accountDictionaries } from "@/messages/account";
 import { isMarketplaceLocale, type MarketplaceLocale } from "@/messages/marketplace";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import "./styles.css";
 
 export async function accountLocale(params: Promise<{ locale: string }>): Promise<MarketplaceLocale> {
   const { locale } = await params;
